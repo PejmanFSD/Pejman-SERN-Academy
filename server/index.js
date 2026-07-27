@@ -7,6 +7,8 @@ const morgan = require("morgan");
 // Load environment variables
 dotenv.config();
 
+const { connectDB } = require("./config/db");
+
 // Create Express app
 const app = express();
 
@@ -27,6 +29,9 @@ app.get("/", (req, res) => {
 
 // Port
 const PORT = process.env.PORT || 5000;
+
+// Connect database first
+connectDB();
 
 // Start server
 app.listen(PORT, () => {
