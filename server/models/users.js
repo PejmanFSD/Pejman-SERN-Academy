@@ -1,4 +1,5 @@
 const { sql, connectDB } = require("../config/db");
+const bcrypt = require("bcrypt");
 
 module.exports.createUser = async (username, passwordHash, role) => {
   const pool = await connectDB();
@@ -14,4 +15,27 @@ module.exports.createUser = async (username, passwordHash, role) => {
         `);
 
   return result;
+};
+
+module.exports.findAndValidate = async (username, password) => {
+  const pool = await connectDB();
+  const result = await pool
+    .request()
+    .input("username", sql.VarChar(100), username).query(`
+            SELECT user_id, username, password_hash, role
+            FROM Users
+            WHERE username = @username;
+        `);
+  // If the user doesn't exist:
+  if (result.recordset.length === 0) {
+    return null;
+  }
+  const user = result.recordset[0];
+  // Validating password (comparing the entered password with the stored hash password):
+  const validPassword = await bcrypt.compare(password, user.password_hash);
+  // If the validation doesn't work:
+  if (!validPassword) {
+    return null;
+  }
+  return user;
 };

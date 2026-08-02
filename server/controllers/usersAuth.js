@@ -57,3 +57,27 @@ module.exports.register = async (req, res) => {
     });
   }
 };
+
+module.exports.login = async (req, res) => {
+    const { username, password } = req.body;
+    // Checking if the username exists and if the password is correct:
+    const foundUser = await User.findAndValidate(username, password);
+
+    if (!foundUser) {
+        return res.status(401).json({
+            error: "Invalid username or password"
+        });
+    }
+    // Saving the user's information in the session:
+    req.session.user_id = foundUser.user_id;
+    req.session.role = foundUser.role;
+    // Returning the logged-in user
+    res.status(200).json({
+        message: "Successfully logged in!",
+        user: {
+            id: foundUser.user_id,
+            username: foundUser.username,
+            role: foundUser.role
+        }
+    });
+};

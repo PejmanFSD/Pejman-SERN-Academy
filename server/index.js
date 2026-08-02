@@ -11,10 +11,8 @@ dotenv.config();
 const usersAuthRoutes = require("./routes/usersAuth");
 
 const { connectDB } = require("./config/db");
-
 // Create Express app
 const app = express();
-
 // Middleware
 app.use(cors());
 // app.use(helmet());
@@ -32,7 +30,6 @@ app.use(
     })
 );
 app.use('/', usersAuthRoutes);
-
 // Test route
 app.get("/", (req, res) => {
     res.json({
@@ -40,13 +37,10 @@ app.get("/", (req, res) => {
         message: "Welcome to the Pejman-SERN-Academy!"
     });
 });
-
 // Port
 const PORT = process.env.PORT || 5000;
-
 // Connect database first
 connectDB();
-
 // Start server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
