@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const session = require("express-session");
 // const helmet = require("helmet");
 // const morgan = require("morgan");
 
@@ -20,7 +21,16 @@ app.use(cors());
 // app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET || "development-secret",
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            maxAge: 1000 * 60 * 60 * 24 // 1 day
+        }
+    })
+);
 app.use('/', usersAuthRoutes);
 
 // Test route
