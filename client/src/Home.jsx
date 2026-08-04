@@ -1,7 +1,14 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./Components/Navbar";
 
-export default function Home({ error, setError, currentUser, setCurrentUser }) {
+export default function Home({
+  error,
+  setError,
+  currentUser,
+  setCurrentUser,
+  isLoggingOut,
+  setIsLoggingOut,
+}) {
   return (
     <div>
       <h1>Pejman SERN Academy</h1>
@@ -10,6 +17,8 @@ export default function Home({ error, setError, currentUser, setCurrentUser }) {
         setError={setError}
         currentUser={currentUser}
         setCurrentUser={setCurrentUser}
+        isLoggingOut={isLoggingOut}
+        setIsLoggingOut={setIsLoggingOut}
       />
     </div>
   );

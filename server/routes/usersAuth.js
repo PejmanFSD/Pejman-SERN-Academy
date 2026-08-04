@@ -10,4 +10,6 @@ router.route("/register")
 router.route('/login')
     .post(isLoggedOut, catchAsync(usersAuthController.login));
 
+router.post('/logout', usersAuthController.logout);
+
 module.exports = router;

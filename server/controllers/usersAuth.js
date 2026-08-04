@@ -81,3 +81,19 @@ module.exports.login = async (req, res) => {
         }
     });
 };
+
+module.exports.logout = (req, res) => {
+  // Removing session from server store:
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({
+        error: "Logout failed"
+      });
+    }
+    // Removing the cookie from browser:
+    res.clearCookie("connect.sid");
+    return res.status(200).json({
+      message: "Successfully logged out!"
+    });
+  });
+};

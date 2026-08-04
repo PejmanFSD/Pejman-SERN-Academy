@@ -5,14 +5,65 @@ import {
   useLocation, // For hiding the button of the current page
 } from "react-router-dom";
 
-export default function Navbar({error, setError, currentUser, setCurrentUser}) {
-    const navigate = useNavigate();
+export default function Navbar({
+  error,
+  setError,
+  currentUser,
+  setCurrentUser,
+  isLoggingOut,
+  setIsLoggingOut,
+}) {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+  };
+  const handleLogoutYes = async () => {
+    try {
+      const response = await fetch("/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      const json = await response.json();
+      if (!response.ok) {
+        // setFlash(json.error || "Logout failed");
+        return;
+      }
+      setCurrentUser(null);
+      // setFlash(json.message);
+      navigate("/");
+    } catch (err) {
+      console.error("Logout failed:", err);
+      // setFlash("Network error during logout");
+    }
+    setIsLoggingOut(false);
+  };
+  const handleLogoutNo = () => {
+    setIsLoggingOut(false);
+  };
   return (
     <div>
       {currentUser && <div>Welcome {currentUser.username}!</div>}
       <nav>
         <button onClick={() => navigate("/register")}>Register</button>
         <button onClick={() => navigate("/login")}>Login</button>
+        <button onClick={handleLogout}>Logout</button>
+        {isLoggingOut && (
+        <div>
+          <div>Are you sure you want to logout?</div>
+          <div>
+            <button
+              onClick={handleLogoutYes}
+            >
+              Yes
+            </button>
+            <button
+              onClick={handleLogoutNo}
+            >
+              No
+            </button>
+          </div>
+        </div>
+      )}
       </nav>
     </div>
   );

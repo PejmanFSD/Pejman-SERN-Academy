@@ -8,6 +8,7 @@ import "./App.css";
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   return (
     <div className="App">
       <BrowserRouter>
@@ -20,16 +21,24 @@ export default function App() {
                 setError={setError}
                 currentUser={currentUser}
                 setCurrentUser={setCurrentUser}
+                isLoggingOut={isLoggingOut}
+                setIsLoggingOut={setIsLoggingOut}
               />
             }
           />
           <Route
             path="/register"
-            element={<Register error={error} setError={setError}/>}
+            element={<Register error={error} setError={setError} />}
           />
           <Route
             path="/login"
-            element={<Login error={error} setError={setError} setCurrentUser={setCurrentUser}/>}
+            element={
+              <Login
+                error={error}
+                setError={setError}
+                setCurrentUser={setCurrentUser}
+              />
+            }
           />
         </Routes>
       </BrowserRouter>
