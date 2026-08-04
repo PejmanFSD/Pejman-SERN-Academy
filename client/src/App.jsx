@@ -2,9 +2,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Home from "./Home";
 import Register from "./Components/users/Register";
+import Login from "./Components/users/Login";
 import "./App.css";
 
 export default function App() {
+  const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState(null);
   return (
     <div className="App">
@@ -12,11 +14,22 @@ export default function App() {
         <Routes>
           <Route
             path="/"
-            element={<Home error={error} setError={setError} />}
+            element={
+              <Home
+                error={error}
+                setError={setError}
+                currentUser={currentUser}
+                setCurrentUser={setCurrentUser}
+              />
+            }
           />
           <Route
             path="/register"
-            element={<Register error={error} setError={setError} />}
+            element={<Register error={error} setError={setError}/>}
+          />
+          <Route
+            path="/login"
+            element={<Login error={error} setError={setError} setCurrentUser={setCurrentUser}/>}
           />
         </Routes>
       </BrowserRouter>
