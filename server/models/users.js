@@ -39,3 +39,22 @@ module.exports.findAndValidate = async (username, password) => {
   }
   return user;
 };
+
+module.exports.findById = async (userId) => {
+    const pool = await connectDB();
+    // fetching the user by the imported id:
+    const result = await pool
+        .request()
+        .input("userId", sql.Int, userId)
+        .query(`
+            SELECT user_id, username, role
+            FROM Users
+            WHERE user_id = @userId;
+        `);
+    // if the imported id doesn't exist:
+    if (result.recordset.length === 0) {
+        return null;
+    }
+    // Return the first found user:
+    return result.recordset[0];
+};

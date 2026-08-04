@@ -42,7 +42,7 @@ export default function Navbar({
   };
   return (
     <div>
-      {currentUser && <div>Welcome {currentUser.username}!</div>}
+      {currentUser && <div>Welcome {currentUser.username} - {currentUser.role}!</div>}
       <nav>
         <button onClick={() => navigate("/register")}>Register</button>
         <button onClick={() => navigate("/login")}>Login</button>

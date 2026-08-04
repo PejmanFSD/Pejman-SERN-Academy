@@ -97,3 +97,28 @@ module.exports.logout = (req, res) => {
     });
   });
 };
+
+module.exports.currentUser = async (req, res) => {
+  // If the user (the id) doesn't exist:
+    if (!req.session.user_id) {
+        return res.json({
+            user: null
+        });
+    }
+    // Fetch the user based on the imported id and the "findById" middleware from the router file:
+    const user = await User.findById(req.session.user_id);
+    // If the user (the id) doesn't exist, return null:
+    if (!user) {
+        return res.json({
+            user: null
+        });
+    }
+    // Returning the found user:
+    return res.json({
+        user: {
+            id: user.user_id,
+            username: user.username,
+            role: user.role
+        }
+    });
+};

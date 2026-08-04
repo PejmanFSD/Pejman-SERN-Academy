@@ -9,6 +9,26 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+  useEffect(() => {
+    const restoreUser = async () => {
+      try {
+        const res = await fetch("/current-user", {
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("Failed to fetch user");
+        const data = await res.json();
+        if (data.user) {
+          setCurrentUser(data.user);
+        }
+      } catch (err) {
+        console.error("Failed to restore user");
+      } finally {
+        setIsAuthChecked(true);
+      }
+    };
+    restoreUser();
+  }, []);
   return (
     <div className="App">
       <BrowserRouter>
