@@ -58,3 +58,17 @@ module.exports.findById = async (userId) => {
     // Return the first found user:
     return result.recordset[0];
 };
+
+module.exports.getAllUsers = async () => {
+    const pool = await connectDB();
+    // Fetching all the users:
+    const result = await pool
+        .request()
+        .query(`
+            SELECT user_id, username, role
+            FROM Users
+            ORDER BY user_id;
+        `);
+    // Returning all the users:
+    return result.recordset;
+};

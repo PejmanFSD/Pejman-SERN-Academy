@@ -9,6 +9,7 @@ const session = require("express-session");
 dotenv.config();
 
 const usersAuthRoutes = require("./routes/usersAuth");
+const usersRoutes = require("./routes/users.js");
 
 const { connectDB } = require("./config/db");
 // Create Express app
@@ -20,22 +21,23 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
-    session({
-        secret: process.env.SESSION_SECRET || "development-secret",
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            maxAge: 1000 * 60 * 60 * 24 // 1 day
-        }
-    })
+  session({
+    secret: process.env.SESSION_SECRET || "development-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+    },
+  }),
 );
-app.use('/', usersAuthRoutes);
+app.use("/", usersAuthRoutes);
+app.use("/users", usersRoutes);
 // Test route
 app.get("/", (req, res) => {
-    res.json({
-        success: true,
-        message: "Welcome to the Pejman-SERN-Academy!"
-    });
+  res.json({
+    success: true,
+    message: "Welcome to the Pejman-SERN-Academy!",
+  });
 });
 // Port
 const PORT = process.env.PORT || 5000;
@@ -43,5 +45,5 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 // Start server
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

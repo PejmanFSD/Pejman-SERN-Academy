@@ -8,6 +8,8 @@ export default function Home({
   setCurrentUser,
   isLoggingOut,
   setIsLoggingOut,
+  users,
+  setUsers,
 }) {
   return (
     <div>
@@ -19,6 +21,8 @@ export default function Home({
         setCurrentUser={setCurrentUser}
         isLoggingOut={isLoggingOut}
         setIsLoggingOut={setIsLoggingOut}
+        users={users}
+        setUsers={setUsers}
       />
     </div>
   );

@@ -1,8 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
+import ProtectedRoute from "./Components/ProtectedRoute";
 import Home from "./Home";
 import Register from "./Components/users/Register";
 import Login from "./Components/users/Login";
+import Users from "./Components/users/Users";
 import "./App.css";
 
 export default function App() {
@@ -10,6 +12,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [users, setUsers] = useState([]);
   useEffect(() => {
     const restoreUser = async () => {
       try {
@@ -43,6 +46,8 @@ export default function App() {
                 setCurrentUser={setCurrentUser}
                 isLoggingOut={isLoggingOut}
                 setIsLoggingOut={setIsLoggingOut}
+                users={users}
+                setUsers={setUsers}
               />
             }
           />
@@ -58,6 +63,24 @@ export default function App() {
                 setError={setError}
                 setCurrentUser={setCurrentUser}
               />
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute
+                currentUser={currentUser}
+                isAuthChecked={isAuthChecked}
+              >
+                <Users
+                  users={users}
+                  setUsers={setUsers}
+                  error={error}
+                  setError={setError}
+                  isLoggingOut={isLoggingOut}
+                  currentUser={currentUser}
+                />
+              </ProtectedRoute>
             }
           />
         </Routes>

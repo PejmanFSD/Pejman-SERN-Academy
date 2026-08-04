@@ -12,6 +12,8 @@ export default function Navbar({
   setCurrentUser,
   isLoggingOut,
   setIsLoggingOut,
+  users,
+  setUsers,
 }) {
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -42,28 +44,29 @@ export default function Navbar({
   };
   return (
     <div>
-      {currentUser && <div>Welcome {currentUser.username} - {currentUser.role}!</div>}
+      {currentUser && (
+        <div>
+          Welcome {currentUser.username} - {currentUser.role}!
+        </div>
+      )}
       <nav>
         <button onClick={() => navigate("/register")}>Register</button>
         <button onClick={() => navigate("/login")}>Login</button>
         <button onClick={handleLogout}>Logout</button>
+
+        {currentUser && currentUser.role === "Admin" && !error && (
+          <button onClick={() => navigate("/users")}>All users</button>
+        )}
+
         {isLoggingOut && (
-        <div>
-          <div>Are you sure you want to logout?</div>
           <div>
-            <button
-              onClick={handleLogoutYes}
-            >
-              Yes
-            </button>
-            <button
-              onClick={handleLogoutNo}
-            >
-              No
-            </button>
+            <div>Are you sure you want to logout?</div>
+            <div>
+              <button onClick={handleLogoutYes}>Yes</button>
+              <button onClick={handleLogoutNo}>No</button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
       </nav>
     </div>
   );
