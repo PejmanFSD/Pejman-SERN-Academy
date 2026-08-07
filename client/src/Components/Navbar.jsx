@@ -53,11 +53,12 @@ export default function Navbar({
         <button onClick={() => navigate("/register")}>Register</button>
         <button onClick={() => navigate("/login")}>Login</button>
         <button onClick={handleLogout}>Logout</button>
-
         {currentUser && currentUser.role === "Admin" && !error && (
           <button onClick={() => navigate("/users")}>All users</button>
         )}
-
+        {currentUser && !error && (
+          <button onClick={() => navigate("/profile")}>My Profile</button>
+        )}
         {isLoggingOut && (
           <div>
             <div>Are you sure you want to logout?</div>

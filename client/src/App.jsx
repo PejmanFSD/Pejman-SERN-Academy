@@ -5,6 +5,7 @@ import Home from "./Home";
 import Register from "./Components/users/Register";
 import Login from "./Components/users/Login";
 import Users from "./Components/users/Users";
+import Profile from "./Components/users/Profile";
 import "./App.css";
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isAuthChecked, setIsAuthChecked] = useState(false);
   const [users, setUsers] = useState([]);
+  const [isProfileEditing, setIsProfileEditing] = useState(false);
   useEffect(() => {
     const restoreUser = async () => {
       try {
@@ -79,6 +81,23 @@ export default function App() {
                   setError={setError}
                   isLoggingOut={isLoggingOut}
                   currentUser={currentUser}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute
+                currentUser={currentUser}
+                isAuthChecked={isAuthChecked}
+              >
+                <Profile
+                  currentUser={currentUser}
+                  error={error}
+                  setError={setError}
+                  setIsProfileEditing={setIsProfileEditing}
+                  isLoggingOut={isLoggingOut}
                 />
               </ProtectedRoute>
             }
