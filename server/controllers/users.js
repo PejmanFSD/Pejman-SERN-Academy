@@ -30,3 +30,24 @@ module.exports.showUser = async (req, res) => {
         }
     });
 };
+
+module.exports.editUser = async (req, res) => {
+    const { username } = req.body;
+    const user = await User.updateUsername(
+        req.session.user_id,
+        username
+    );
+    if (!user) {
+        return res.status(404).json({
+            error: "User not found"
+        });
+    }
+    res.status(200).json({
+        message: "Profile edited successfully!",
+        user: {
+            id: user.user_id,
+            username: user.username,
+            role: user.role
+        }
+    });
+};

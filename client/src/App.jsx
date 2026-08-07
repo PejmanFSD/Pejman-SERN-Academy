@@ -6,6 +6,7 @@ import Register from "./Components/users/Register";
 import Login from "./Components/users/Login";
 import Users from "./Components/users/Users";
 import Profile from "./Components/users/Profile";
+import EditProfile from "./Components/users/EditProfile";
 import "./App.css";
 
 export default function App() {
@@ -98,6 +99,24 @@ export default function App() {
                   setError={setError}
                   setIsProfileEditing={setIsProfileEditing}
                   isLoggingOut={isLoggingOut}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/edit-profile"
+            element={
+              <ProtectedRoute
+                currentUser={currentUser}
+                isAuthChecked={isAuthChecked}
+              >
+                <EditProfile
+                  setCurrentUser={setCurrentUser}
+                  setIsProfileEditing={setIsProfileEditing}
+                  error={error}
+                  // passwordError={passwordError}
+                  setError={setError}
+                  // setPasswordError={setPasswordError}
                 />
               </ProtectedRoute>
             }

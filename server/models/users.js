@@ -72,3 +72,21 @@ module.exports.getAllUsers = async () => {
     // Returning all the users:
     return result.recordset;
 };
+
+module.exports.updateUsername = async (userId, username) => {
+    const pool = await connectDB();
+    const result = await pool
+        .request()
+        .input("userId", sql.Int, userId)
+        .input("username", sql.VarChar(100), username)
+        .query(`
+            UPDATE Users
+            SET username = @username
+            OUTPUT INSERTED.user_id, INSERTED.username, INSERTED.role
+            WHERE user_id = @userId;
+        `);
+    if (result.recordset.length === 0) {
+        return null;
+    }
+    return result.recordset[0];
+};

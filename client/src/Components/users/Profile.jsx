@@ -10,10 +10,10 @@ export default function Profile({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
-  //   const handleEditMyProfile = () => {
-  //     navigate("/edit-profile");
-  //     setIsProfileEditing(true);
-  //   };
+  const handleEditMyProfile = () => {
+    navigate("/edit-profile");
+    setIsProfileEditing(true);
+  };
   return (
     <div>
       {currentUser && !isLoggingOut && <h1>My Profile</h1>}
@@ -27,11 +27,7 @@ export default function Profile({
             <strong>Role: </strong>
             {currentUser.role}
           </div>
-          <button
-          // onClick={handleEditMyProfile}
-          >
-            Edit My Profile
-          </button>
+          <button onClick={handleEditMyProfile}>Edit My Profile</button>
         </div>
       )}
       <br />
