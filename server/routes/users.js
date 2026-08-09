@@ -9,5 +9,6 @@ router.get('/profile', isLoggedIn, catchAsync(usersController.showUser));
 router.put('/edit-profile', isLoggedIn, catchAsync(usersController.editUser), handleUserErrors); // We
 // use "handleUserErrors" middleware after executing the controller because this middleware
 // should have the values of the <input /> tags before evaluating them.
+router.put('/change-password', isLoggedIn, catchAsync(usersController.changePassword));
 
 module.exports = router;

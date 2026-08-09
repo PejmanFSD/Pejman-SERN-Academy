@@ -90,3 +90,32 @@ module.exports.updateUsername = async (userId, username) => {
     }
     return result.recordset[0];
 };
+
+module.exports.findPasswordHash = async (userId) => {
+    const pool = await connectDB();
+    const result = await pool
+        .request()
+        .input("userId", sql.Int, userId)
+        .query(`
+            SELECT password_hash
+            FROM Users
+            WHERE user_id = @userId;
+        `);
+    if (result.recordset.length === 0) {
+        return null;
+    }
+    return result.recordset[0].password_hash;
+};
+
+module.exports.updatePassword = async (userId, passwordHash) => {
+    const pool = await connectDB();
+    await pool
+        .request()
+        .input("userId", sql.Int, userId)
+        .input("passwordHash", sql.VarChar(255), passwordHash)
+        .query(`
+            UPDATE Users
+            SET password_hash = @passwordHash
+            WHERE user_id = @userId;
+        `);
+};

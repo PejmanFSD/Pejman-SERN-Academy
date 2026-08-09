@@ -12,6 +12,7 @@ import "./App.css";
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState(null);
+  const [passwordError, setPasswordError] = useState("");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isAuthChecked, setIsAuthChecked] = useState(false);
   const [users, setUsers] = useState([]);
@@ -114,9 +115,9 @@ export default function App() {
                   setCurrentUser={setCurrentUser}
                   setIsProfileEditing={setIsProfileEditing}
                   error={error}
-                  // passwordError={passwordError}
+                  passwordError={passwordError}
                   setError={setError}
-                  // setPasswordError={setPasswordError}
+                  setPasswordError={setPasswordError}
                 />
               </ProtectedRoute>
             }

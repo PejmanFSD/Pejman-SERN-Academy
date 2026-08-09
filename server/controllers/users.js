@@ -51,3 +51,54 @@ module.exports.editUser = async (req, res) => {
         }
     });
 };
+
+module.exports.changePassword = async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+
+    const userId = req.session.user_id;
+
+    // Find the current password hash
+    const passwordHash = await User.findPasswordHash(userId);
+
+    if (!passwordHash) {
+        return res.status(404).json({
+            message: "User not found"
+        });
+    }
+
+    // Check the current password
+    const isMatch = await bcrypt.compare(
+        currentPassword,
+        passwordHash
+    );
+
+    if (!isMatch) {
+        return res.status(400).json({
+            message: "Current password is incorrect"
+        });
+    }
+
+    // Make sure the new password is different
+    if (currentPassword === newPassword) {
+        return res.status(400).json({
+            message: "New password must be different from current password"
+        });
+    }
+
+    // Check password strength
+    if (!isStrongPassword(newPassword)) {
+        return res.status(400).json({
+            error: "Your new password should be strong!"
+        });
+    }
+
+    // Hash the new password
+    const newPasswordHash = await bcrypt.hash(newPassword, 12);
+
+    // Save the new hash
+    await User.updatePassword(userId, newPasswordHash);
+
+    res.status(200).json({
+        message: "Password updated successfully"
+    });
+};
