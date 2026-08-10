@@ -10,6 +10,8 @@ export default function Home({
   setIsLoggingOut,
   users,
   setUsers,
+  userCount,
+  setUserCount
 }) {
   return (
     <div>
@@ -23,6 +25,8 @@ export default function Home({
         setIsLoggingOut={setIsLoggingOut}
         users={users}
         setUsers={setUsers}
+        userCount={userCount}
+        setUserCount={setUserCount}
       />
     </div>
   );

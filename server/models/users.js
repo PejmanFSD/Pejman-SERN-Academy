@@ -119,3 +119,14 @@ module.exports.updatePassword = async (userId, passwordHash) => {
             WHERE user_id = @userId;
         `);
 };
+
+module.exports.getUserCount = async () => {
+    const pool = await connectDB();
+    const result = await pool
+        .request()
+        .query(`
+            SELECT COUNT(*) AS count
+            FROM Users;
+        `);
+    return result.recordset[0].count;
+};

@@ -14,6 +14,8 @@ export default function Navbar({
   setIsLoggingOut,
   users,
   setUsers,
+  userCount,
+  setUserCount,
 }) {
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -42,6 +44,15 @@ export default function Navbar({
   const handleLogoutNo = () => {
     setIsLoggingOut(false);
   };
+  // Fetching the total number of the registered users:
+  useEffect(() => {
+    const fetchUserCount = async () => {
+      const res = await fetch("/users/count");
+      const data = await res.json();
+      setUserCount(data.count);
+    };
+    fetchUserCount();
+  }, []);
   return (
     <div>
       {currentUser && (
@@ -50,6 +61,9 @@ export default function Navbar({
         </div>
       )}
       <nav>
+        <div>
+          Number of registered users: <strong>{userCount}</strong>
+        </div>
         <button onClick={() => navigate("/register")}>Register</button>
         <button onClick={() => navigate("/login")}>Login</button>
         <button onClick={handleLogout}>Logout</button>

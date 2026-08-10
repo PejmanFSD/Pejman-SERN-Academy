@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Register({ error, setError }) {
+export default function Register({ error, setError, userCount, setUserCount }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -100,6 +100,7 @@ export default function Register({ error, setError }) {
         }
         return;
       }
+      setUserCount((currUserCount) => currUserCount + 1);
       setUsername("");
       setPassword("");
       setConfirmPassword("");

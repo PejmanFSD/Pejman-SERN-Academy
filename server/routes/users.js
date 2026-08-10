@@ -6,6 +6,7 @@ const { isLoggedIn, isAdmin, handleUserErrors } = require("../middleware.js");
 
 router.get("/", isLoggedIn, isAdmin, catchAsync(usersController.index));
 router.get('/profile', isLoggedIn, catchAsync(usersController.showUser));
+router.get('/count', catchAsync(usersController.getUserCount));
 router.put('/edit-profile', isLoggedIn, catchAsync(usersController.editUser), handleUserErrors); // We
 // use "handleUserErrors" middleware after executing the controller because this middleware
 // should have the values of the <input /> tags before evaluating them.
