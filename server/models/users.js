@@ -130,3 +130,19 @@ module.exports.getUserCount = async () => {
         `);
     return result.recordset[0].count;
 };
+
+module.exports.deleteUser = async (userId) => {
+    const pool = await connectDB();
+    const result = await pool
+        .request()
+        .input("userId", sql.Int, userId)
+        .query(`
+            DELETE FROM Users
+            OUTPUT DELETED.user_id
+            WHERE user_id = @userId;
+        `);
+    if (result.recordset.length === 0) {
+        return null;
+    }
+    return result.recordset[0];
+};

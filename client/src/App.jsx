@@ -18,6 +18,7 @@ export default function App() {
   const [users, setUsers] = useState([]);
   const [userCount, setUserCount] = useState(null);
   const [isProfileEditing, setIsProfileEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   useEffect(() => {
     const restoreUser = async () => {
       try {
@@ -60,7 +61,14 @@ export default function App() {
           />
           <Route
             path="/register"
-            element={<Register error={error} setError={setError} userCount={userCount} setUserCount={setUserCount}/>}
+            element={
+              <Register
+                error={error}
+                setError={setError}
+                userCount={userCount}
+                setUserCount={setUserCount}
+              />
+            }
           />
           <Route
             path="/login"
@@ -86,6 +94,8 @@ export default function App() {
                   setError={setError}
                   isLoggingOut={isLoggingOut}
                   currentUser={currentUser}
+                  isDeleting={isDeleting}
+                  setIsDeleting={setIsDeleting}
                 />
               </ProtectedRoute>
             }
