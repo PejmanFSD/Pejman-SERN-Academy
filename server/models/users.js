@@ -1,6 +1,6 @@
-const { sql, connectDB } = require("../config/db");
-const bcrypt = require("bcrypt");
-
+const { sql, connectDB } = require("../config/db"); // Importing "sql" and "connectDB" from the config file
+const bcrypt = require("bcrypt"); // Importing "bcrypt" from the installed library of npm
+// The function for creating(registering) a user:
 module.exports.createUser = async (username, passwordHash, role) => {
   const pool = await connectDB();
 
