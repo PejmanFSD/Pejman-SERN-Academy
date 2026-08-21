@@ -6,11 +6,12 @@ module.exports.createUser = async (username, passwordHash, role) => {
   // that Node.js application can use to communicate with SQL Server.
   const result = await pool // Wait until the database connection is available before continuing.
     .request() // pool.request() creates a new SQL request (We're about to send a SQL command to the database)
-    // Introducing the "username" and "passwordHash" parameters as the inputs of the query:
+    // Introducing the "username", "passwordHash" and "role" parameters as the inputs of the query:
     .input("username", sql.VarChar(100), username)
     .input("passwordHash", sql.VarChar(255), passwordHash)
+    .input("role", sql.VarChar(20), role)
     // Executing the SQL query:
-    .input("role", sql.VarChar(20), role).query(`
+    .query(`
             INSERT INTO Users (username, password_hash, role)
             OUTPUT INSERTED.user_id
             VALUES (@username, @passwordHash, @role);
