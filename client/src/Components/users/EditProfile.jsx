@@ -107,7 +107,7 @@ export default function EditProfile({
         setError("Your new password should be strong!");
         return;
       }
-      //   // Confirming the new password:
+      // Confirming the new password:
       if (newPassword !== confirmNewPassword) {
         setPasswordError("New passwords do not match");
         return;
@@ -186,7 +186,7 @@ export default function EditProfile({
   };
   return (
     <div>
-      {!error && (
+      {!error && !passwordError && (
         <div>
           <form onSubmit={handleProfileUpdate}>
             <div>
@@ -286,7 +286,7 @@ export default function EditProfile({
           </button>
         </div>
       )}
-      {error && (
+      {(error || passwordError) && (
         <div>
           {passwordError && <p style={{ color: "red" }}>{passwordError}</p>}
           {error && <p style={{ color: "red" }}>{error}</p>}

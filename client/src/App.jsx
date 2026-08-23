@@ -7,6 +7,7 @@ import Login from "./Components/users/Login";
 import Users from "./Components/users/Users";
 import Profile from "./Components/users/Profile";
 import EditProfile from "./Components/users/EditProfile";
+// import AboutAcademy from "./Components/AboutAcademy";
 import "./App.css";
 
 export default function App() {
@@ -19,6 +20,9 @@ export default function App() {
   const [userCount, setUserCount] = useState(null);
   const [isProfileEditing, setIsProfileEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  // const [youShouldLoginMessage, setYouShouldLoginMessage] = useState(false);
+  // const [flash, setFlash] = useState(null);
+  // const [theme, setTheme] = useState("Blue");
   useEffect(() => {
     const restoreUser = async () => {
       try {
@@ -38,8 +42,37 @@ export default function App() {
     };
     restoreUser();
   }, []);
+  // Flash message
+  // useEffect(() => {
+  //   if (flash) {
+  //     const timer = setTimeout(() => {
+  //       setFlash(null);
+  //     }, 3000);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [flash]);
+  // Themes:
+  // useEffect(() => {
+  //   const root = document.documentElement;
+  //   if (theme === "Blue") {
+  //     root.style.setProperty("--primary", "#52bcfd");
+  //     root.style.setProperty("--secondary", "#3a6296");
+  //     root.style.setProperty("--background", "#e2fbff");
+  //   }
+  //   if (theme === "Red") {
+  //     root.style.setProperty("--primary", "#ff8989");
+  //     root.style.setProperty("--secondary", "#c34751");
+  //     root.style.setProperty("--background", "#ffeaea");
+  //   }
+  //   if (theme === "Green") {
+  //     root.style.setProperty("--primary", "#30e791");
+  //     root.style.setProperty("--secondary", "#317e5a");
+  //     root.style.setProperty("--background", "#dbffe5");
+  //   }
+  // }, [theme]);
   return (
     <div className="App">
+      {/* {flash && <div className={`flash-message ${flash.type}`}>{flash}</div>} */}
       <BrowserRouter>
         <Routes>
           <Route
@@ -56,6 +89,15 @@ export default function App() {
                 setUsers={setUsers}
                 userCount={userCount}
                 setUserCount={setUserCount}
+                isAuthChecked={isAuthChecked}
+                isDeleting={isDeleting}
+                setIsDeleting={setIsDeleting}
+                // setFlash={setFlash}
+                isProfileEditing={isProfileEditing}
+                // theme={theme}
+                // setTheme={setTheme}
+                // youShouldLoginMessage={youShouldLoginMessage}
+                // setYouShouldLoginMessage={setYouShouldLoginMessage}
               />
             }
           />
@@ -63,10 +105,13 @@ export default function App() {
             path="/register"
             element={
               <Register
+                // currentUser={currentUser}
                 error={error}
                 setError={setError}
+                // onRegister={(user) => setCurrentUser(user)}
                 userCount={userCount}
                 setUserCount={setUserCount}
+                // setFlash={setFlash}
               />
             }
           />
@@ -74,9 +119,14 @@ export default function App() {
             path="/login"
             element={
               <Login
+              // currentUser={currentUser}
                 error={error}
                 setError={setError}
+                // onLogin={(user) => setCurrentUser(user)}
                 setCurrentUser={setCurrentUser}
+                // youShouldLoginMessage={youShouldLoginMessage}
+                // setYouShouldLoginMessage={setYouShouldLoginMessage}
+                // setFlash={setFlash}
               />
             }
           />
@@ -117,6 +167,9 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          {/* {!isLoggingOut && (
+            <Route path="/about-academy" element={<AboutAcademy />} />
+          )} */}
           <Route
             path="/edit-profile"
             element={
@@ -126,6 +179,7 @@ export default function App() {
               >
                 <EditProfile
                   setCurrentUser={setCurrentUser}
+                  // setFlash={setFlash}
                   setIsProfileEditing={setIsProfileEditing}
                   error={error}
                   passwordError={passwordError}

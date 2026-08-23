@@ -5,6 +5,11 @@ export default function Login({
   error,
   setError,
   setCurrentUser,
+  // currentUser,
+  // onLogin,
+  // youShouldLoginMessage,
+  // setYouShouldLoginMessage,
+  // setFlash
 }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -32,12 +37,15 @@ export default function Login({
         setError(json.error || "Login failed");
         return;
       }
+      // onLogin(json.user);
       setCurrentUser(json.user);
       setUsername("");
       setPassword("");
+      // setFlash(json.message);
       const from = location.state?.from?.pathname || "/"; // Either navigate to "/" or
       // the page that required login and the user was trying to reach
       navigate(from, { replace: true });
+      // setYouShouldLoginMessage(false);
     } catch (err) {
       setError(err.message);
     } finally {

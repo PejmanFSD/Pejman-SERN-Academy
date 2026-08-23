@@ -1,12 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Register({ error, setError, userCount, setUserCount }) {
+export default function Register({
+  error,
+  setError,
+  userCount,
+  setUserCount,
+  // currentUser,
+  // onRegister,
+  // setFlash
+}) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("Student");
   const [adminSecret, setAdminSecret] = useState("");
+  const [error, setError] = useState(null);
   const [passwordStrengthStatus, setPasswordStrengthStatus] = useState({
     length: false,
     upper: false,
@@ -101,11 +110,13 @@ export default function Register({ error, setError, userCount, setUserCount }) {
         return;
       }
       setUserCount((currUserCount) => currUserCount + 1);
+      // onRegister(json.user);
       setUsername("");
       setPassword("");
       setConfirmPassword("");
       setRole("Student");
       setAdminSecret("");
+      // setFlash(json.message);
       navigate("/");
     } catch (err) {
       setError(err.message);

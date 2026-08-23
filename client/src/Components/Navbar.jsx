@@ -16,6 +16,13 @@ export default function Navbar({
   setUsers,
   userCount,
   setUserCount,
+  isAuthChecked,
+  isDeleting,
+  setIsDeleting,
+  // setFlash,
+  isProfileEditing,
+  // theme,
+  // setTheme
 }) {
   const navigate = useNavigate();
   const handleLogout = () => {

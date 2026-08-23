@@ -10,6 +10,8 @@ dotenv.config();
 
 const usersAuthRoutes = require("./routes/usersAuth");
 const usersRoutes = require("./routes/users.js");
+const g5BoxesRoutes = require("./routes/g5Boxes.js");
+const g5CardsRoutes = require("./routes/g5Cards.js");
 
 const { connectDB } = require("./config/db");
 // Create Express app
@@ -32,6 +34,8 @@ app.use(
 );
 app.use("/", usersAuthRoutes);
 app.use("/users", usersRoutes);
+app.use("/g5Boxes", g5BoxesRoutes);
+app.use("/g5Cards", g5CardsRoutes);
 // Test route
 app.get("/", (req, res) => {
   res.json({

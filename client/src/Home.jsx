@@ -1,5 +1,7 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./Components/Navbar";
+// import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+// import Footer from "./Components/Footer";
 
 export default function Home({
   error,
@@ -11,8 +13,21 @@ export default function Home({
   users,
   setUsers,
   userCount,
-  setUserCount
+  setUserCount,
+  isAuthChecked,
+  isDeleting,
+  setIsDeleting,
+  // setFlash,
+  isProfileEditing,
+  // theme,
+  // setTheme,
+  // youShouldLoginMessage,
+  // setYouShouldLoginMessage
 }) {
+  const navigate = useNavigate();
+  useEffect(() => {
+    document.title = "Pejman SERN Academy";
+  }, []);
   return (
     <div>
       <h1>Pejman SERN Academy</h1>
@@ -27,7 +42,15 @@ export default function Home({
         setUsers={setUsers}
         userCount={userCount}
         setUserCount={setUserCount}
+        isAuthChecked={isAuthChecked}
+        isDeleting={isDeleting}
+        setIsDeleting={setIsDeleting}
+        // setFlash={setFlash}
+        isProfileEditing={isProfileEditing}
+        // theme={theme}
+        // setTheme={setTheme}
       />
+      {/* <Footer className="mt-auto" /> */}
     </div>
   );
 }
