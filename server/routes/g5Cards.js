@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const g5CardsController = require("../controllers/g5Cards");
-const catchAsync = require("../middleware/catchAsync");
-const { isLoggedIn } = require("../middleware/isLoggedIn");
+const catchAsync = require("../utils/catchAsync.js");
+const { isLoggedIn } = require("../middleware.js");
+
 // GET all cards belonging to a specific box
 router.get("/:boxId/cards", isLoggedIn, catchAsync(g5CardsController.index));
 // CREATE a new card inside a specific box

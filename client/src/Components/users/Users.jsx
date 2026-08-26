@@ -12,31 +12,55 @@ export default function Users({
   setIsDeleting,
   currentUser,
 }) {
+  const [page, setPage] = useState(1);
   const [deletingUser, setDeletingUser] = useState(null);
+  // For pagination:
+  const [totalPages, setTotalPages] = useState(1);
+  // For searching a specific user:
+  const [search, setSearch] = useState("");
+  // const [sortBy, setSortBy] = useState("Username");
+
   const navigate = useNavigate();
-  const fetchUsers = async () => {
-    let response;
-    response = await fetch(`/users`, {
+  const fetchUsers = async (page = 1, search = "") => {
+    // let response;
+    // if (sortBy === "Username") {
+    const response = await fetch(`/users?page=${page}&search=${search}`, {
       // "?page=${page}"" is for pagination and "&search=${search}" is for searching
       // Before pagination and search it was just "users"
       credentials: "include",
     });
-
+    // }
     if (!response.ok) {
       const data = await response.json();
       setError(data.error || "Something went wrong");
       return;
     }
     const data = await response.json();
+    console.log("Users API response:", data);
     setUsers(data.users);
+    setTotalPages(data.totalPages);
   };
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers(page, search);
+  }, [page,
+    search
+    // sortBy
+  ]); // Execute the "fetchUsers" function whenever "page" or "search" or "sortBy" change.
   const handleOk = () => {
     navigate(-1);
     setError(null);
   };
+  // Specifically for the "isAdmin" middlewares:
+  if (error) {
+    return (
+      <div>
+        <p>{error}</p>
+        <button onClick={handleOk} className="btn2">
+          Ok
+        </button>
+      </div>
+    );
+  }
   const handleDelete = (userId) => {
     setDeletingUser(userId);
     setIsDeleting(true);
@@ -47,7 +71,7 @@ export default function Users({
       credentials: "include",
     });
     // Removing the user from the state variable:
-    setUsers((currUsers) => currUsers.filter((u) => u.id !== userId));
+    setUsers((currUsers) => currUsers.filter((u) => u.user_id !== userId));
     setDeletingUser(null);
     setIsDeleting(false);
   };
@@ -72,7 +96,7 @@ export default function Users({
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.id}>
+                <tr key={user.user_id}>
                   <td>{user.username}</td>
                   <td>{user.role}</td>
                   <td>
@@ -80,7 +104,7 @@ export default function Users({
                       <div>Admin &#128515;</div>
                     ) : (
                       !isDeleting && (
-                        <button onClick={() => handleDelete(user.id)}>
+                        <button onClick={() => handleDelete(user.user_id)}>
                           Delete
                         </button>
                       )
@@ -94,10 +118,29 @@ export default function Users({
       )}
       {isDeleting && deletingUser && (
         <div>
-          {`Are you sure you want to delete ${users.find((u) => u.id === deletingUser).username}?`}
+          {`Are you sure you want to delete ${users.find((u) => u.user_id === deletingUser).username}?`}
           <br />
           <button onClick={() => handleDeleteYes(deletingUser)}>Yes</button>
           <button onClick={handleDeleteNo}>Cancel</button>
+        </div>
+      )}
+{!isDeleting && users && users.length > 0 && !isLoggingOut && (
+        <div>
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+          >
+            Previous
+          </button>
+          <span style={{ margin: "0 10px" }}>
+            Page {page} of {totalPages}
+          </span>
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage(page + 1)}
+          >
+            Next
+          </button>
         </div>
       )}
     </div>
