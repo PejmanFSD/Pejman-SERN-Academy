@@ -22,9 +22,12 @@ export default function Navbar({
   // setFlash,
   isProfileEditing,
   // theme,
-  // setTheme
+  // setTheme,
+  isCreatingBox,
+  setIsCreatingBox
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const handleLogout = () => {
     setIsLoggingOut(true);
   };
@@ -50,6 +53,10 @@ export default function Navbar({
   };
   const handleLogoutNo = () => {
     setIsLoggingOut(false);
+  };
+  const renderCreateBoxPage = () => {
+    setIsCreatingBox(true);
+    navigate("/newG5Box");
   };
   // Fetching the total number of the registered users:
   useEffect(() => {
@@ -80,6 +87,18 @@ export default function Navbar({
         {currentUser && !error && (
           <button onClick={() => navigate("/profile")}>My Profile</button>
         )}
+
+{currentUser &&
+                  location.pathname !== "/newG5Box" &&
+                  !isLoggingOut &&
+                  !isDeleting &&
+                  !isProfileEditing &&
+                  // !isAdEditing &&
+                  !isCreatingBox &&
+                  !error && (
+                    <button onClick={renderCreateBoxPage}>Create new G5-Box</button>
+                  )}
+
         {isLoggingOut && (
           <div>
             <div>Are you sure you want to logout?</div>

@@ -42,8 +42,9 @@ export default function Users({
   };
   useEffect(() => {
     fetchUsers(page, search);
-  }, [page,
-    search
+  }, [
+    page,
+    search,
     // sortBy
   ]); // Execute the "fetchUsers" function whenever "page" or "search" or "sortBy" change.
   const handleOk = () => {
@@ -82,6 +83,19 @@ export default function Users({
   return (
     <div>
       <h1>All the registered users</h1>
+      {!isDeleting && !isLoggingOut && (
+        <div>
+          <input
+            type="text"
+            placeholder={"Search user..."}
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+          />
+        </div>
+      )}
       {(!users || (users && users.length === 0)) && !isLoggingOut ? (
         <div>No users available</div>
       ) : (
@@ -124,12 +138,9 @@ export default function Users({
           <button onClick={handleDeleteNo}>Cancel</button>
         </div>
       )}
-{!isDeleting && users && users.length > 0 && !isLoggingOut && (
+      {!isDeleting && users && users.length > 0 && !isLoggingOut && (
         <div>
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-          >
+          <button disabled={page === 1} onClick={() => setPage(page - 1)}>
             Previous
           </button>
           <span style={{ margin: "0 10px" }}>

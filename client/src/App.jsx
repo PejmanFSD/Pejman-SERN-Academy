@@ -7,6 +7,8 @@ import Login from "./Components/users/Login";
 import Users from "./Components/users/Users";
 import Profile from "./Components/users/Profile";
 import EditProfile from "./Components/users/EditProfile";
+import CreateG5Form from "./Components/g5/CreateG5Form";
+
 // import AboutAcademy from "./Components/AboutAcademy";
 import "./App.css";
 
@@ -23,6 +25,9 @@ export default function App() {
   // const [youShouldLoginMessage, setYouShouldLoginMessage] = useState(false);
   // const [flash, setFlash] = useState(null);
   // const [theme, setTheme] = useState("Blue");
+  const [boxes, setBoxes] = useState([]);
+  const [isCreatingBox, setIsCreatingBox] = useState(false);
+
   useEffect(() => {
     const restoreUser = async () => {
       try {
@@ -98,6 +103,8 @@ export default function App() {
                 // setTheme={setTheme}
                 // youShouldLoginMessage={youShouldLoginMessage}
                 // setYouShouldLoginMessage={setYouShouldLoginMessage}
+                isCreatingBox={isCreatingBox}
+  setIsCreatingBox={setIsCreatingBox}
               />
             }
           />
@@ -119,7 +126,7 @@ export default function App() {
             path="/login"
             element={
               <Login
-              // currentUser={currentUser}
+                // currentUser={currentUser}
                 error={error}
                 setError={setError}
                 // onLogin={(user) => setCurrentUser(user)}
@@ -185,6 +192,26 @@ export default function App() {
                   passwordError={passwordError}
                   setError={setError}
                   setPasswordError={setPasswordError}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/newG5Box"
+            element={
+              <ProtectedRoute
+                currentUser={currentUser}
+                isAuthChecked={isAuthChecked}
+              >
+                <CreateG5Form
+                  error={error}
+                  setError={setError}
+                  currentUser={currentUser}
+                  onBoxCreated={(newBox) => {
+                    setBoxes((currBoxes) => [newBox, ...currBoxes]);
+                  }}
+                  // setFlash={setFlash}
+                  setIsCreatingBox={setIsCreatingBox}
                 />
               </ProtectedRoute>
             }
