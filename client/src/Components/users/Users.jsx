@@ -67,14 +67,26 @@ export default function Users({
     setIsDeleting(true);
   };
   const handleDeleteYes = async (userId) => {
-    await fetch(`/users/${userId}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
-    // Removing the user from the state variable:
-    setUsers((currUsers) => currUsers.filter((u) => u.user_id !== userId));
-    setDeletingUser(null);
-    setIsDeleting(false);
+    try {
+      const response = await fetch(`/users/${userId}`, {
+        // Fetching the user from the back-end
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || "Failed to delete user.");
+        return;
+      }
+      // Removing the user from the state variable:
+      setUsers((currUsers) => currUsers.filter((u) => u.id !== userId));
+      // Reseting the relevant state variables:
+      setDeletingUser(null);
+      setIsDeleting(false);
+    } catch (err) {
+      console.error("Delete error:", err);
+      setError("Something went wrong while deleting the user.");
+    }
   };
   const handleDeleteNo = () => {
     setDeletingUser(null);
@@ -110,7 +122,7 @@ export default function Users({
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.user_id}>
+                <tr key={user.id}>
                   <td>{user.username}</td>
                   <td>{user.role}</td>
                   <td>
@@ -118,7 +130,7 @@ export default function Users({
                       <div>Admin &#128515;</div>
                     ) : (
                       !isDeleting && (
-                        <button onClick={() => handleDelete(user.user_id)}>
+                        <button onClick={() => handleDelete(user.id)}>
                           Delete
                         </button>
                       )
@@ -132,7 +144,7 @@ export default function Users({
       )}
       {isDeleting && deletingUser && (
         <div>
-          {`Are you sure you want to delete ${users.find((u) => u.user_id === deletingUser).username}?`}
+          {`Are you sure you want to delete ${users.find((u) => u.id === deletingUser).username}?`}
           <br />
           <button onClick={() => handleDeleteYes(deletingUser)}>Yes</button>
           <button onClick={handleDeleteNo}>Cancel</button>

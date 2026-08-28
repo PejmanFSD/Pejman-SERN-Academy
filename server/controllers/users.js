@@ -137,19 +137,27 @@ module.exports.getUserCount = async (req, res) => {
 };
 // DELETE one specific registered user
 module.exports.deleteUser = async (req, res) => {
-  const { id } = req.params; // Fetching the user's id from the router
-  const deletedUser = await User.deleteUser(id); // Fetching + Deleting the user whose id is the fetched id from the router
-  // and assigning it to a variable called "deletedUser"
-  // The "deleteUser" function has been already created in the model
-  if (!deletedUser) {
-    // If there's no user with the fetched id
-    // Send the error message to the front-end by the status code of 404
-    return res.status(404).json({
-      error: "User not found",
+  try {
+    const userId = parseInt(req.params.id, 10); // Fetching the user's id from the router
+    // And we use the "10" number so that JavaScript knows that we're parsing a base-10 integer
+    const deletedUser = await User.deleteUser(userId); // Fetching + Deleting the user whose id is the fetched id from the router
+    // and assigning it to a variable called "deletedUser"
+    // The "deleteUser" function has been already created in the model
+    if (!deletedUser) {
+      // If there's no user with the fetched id
+      // Send the error message to the front-end by the status code of 404
+      return res.status(404).json({
+        error: "User not found",
+      });
+    }
+    // Returning the message (the one that will be used in the flash message) to UI as an object:
+    res.status(200).json({
+      message: "User deleted successfully",
     });
+  } catch (err) {
+      console.error("DELETE USER ERROR:", err);
+      res.status(500).json({
+          error: err.message
+      });
   }
-  // Returning the message (the one that will be used in the flash message) to UI as an object:
-  res.status(200).json({
-    message: "User deleted successfully",
-  });
 };

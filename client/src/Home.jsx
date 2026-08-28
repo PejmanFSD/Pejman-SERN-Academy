@@ -24,7 +24,9 @@ export default function Home({
   // youShouldLoginMessage,
   // setYouShouldLoginMessage,
   isCreatingBox,
-  setIsCreatingBox
+  setIsCreatingBox,
+    isG5,
+  setIsG5
 }) {
   const navigate = useNavigate();
   useEffect(() => {
@@ -52,7 +54,9 @@ export default function Home({
         // theme={theme}
         // setTheme={setTheme}
         isCreatingBox={isCreatingBox}
-  setIsCreatingBox={setIsCreatingBox}
+        setIsCreatingBox={setIsCreatingBox}
+        isG5={isG5}
+        setIsG5={setIsG5}
       />
       {/* <Footer className="mt-auto" /> */}
     </div>

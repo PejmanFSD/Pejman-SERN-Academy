@@ -7,6 +7,7 @@ import Login from "./Components/users/Login";
 import Users from "./Components/users/Users";
 import Profile from "./Components/users/Profile";
 import EditProfile from "./Components/users/EditProfile";
+import G5 from "./Components/g5/G5";
 import CreateG5Form from "./Components/g5/CreateG5Form";
 
 // import AboutAcademy from "./Components/AboutAcademy";
@@ -22,6 +23,7 @@ export default function App() {
   const [userCount, setUserCount] = useState(null);
   const [isProfileEditing, setIsProfileEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isG5, setIsG5] = useState(false);
   // const [youShouldLoginMessage, setYouShouldLoginMessage] = useState(false);
   // const [flash, setFlash] = useState(null);
   // const [theme, setTheme] = useState("Blue");
@@ -105,6 +107,8 @@ export default function App() {
                 // setYouShouldLoginMessage={setYouShouldLoginMessage}
                 isCreatingBox={isCreatingBox}
   setIsCreatingBox={setIsCreatingBox}
+  isG5={isG5}
+  setIsG5={setIsG5}
               />
             }
           />
@@ -197,7 +201,31 @@ export default function App() {
             }
           />
           <Route
-            path="/newG5Box"
+            path="/G5"
+            element={
+              <ProtectedRoute
+                currentUser={currentUser}
+                isAuthChecked={isAuthChecked}
+              >
+                <G5
+                  error={error}
+                  setError={setError}
+                  currentUser={currentUser}
+                  onBoxCreated={(newBox) => {
+                    setBoxes((currBoxes) => [newBox, ...currBoxes]);
+                  }}
+                  // setFlash={setFlash}
+                  isCreatingBox={isCreatingBox}
+                  setIsCreatingBox={setIsCreatingBox}
+                  isLoggingOut={isLoggingOut}
+                  isDeleting={isDeleting}
+                  isProfileEditing={isProfileEditing}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/G5/newG5Box"
             element={
               <ProtectedRoute
                 currentUser={currentUser}
