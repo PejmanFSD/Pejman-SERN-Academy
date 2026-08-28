@@ -12,7 +12,7 @@ module.exports.getBoxesByUserId = async (userId) => {
             SELECT *
             FROM G5_Boxes
             WHERE user_id = @user_id
-            ORDER BY id
+            ORDER BY box_name ASC
         `);
     // Returning all the boxes to UI ("recordset" contains the rows returned by SQL Server):
     return result.recordset;
