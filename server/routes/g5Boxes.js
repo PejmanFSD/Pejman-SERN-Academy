@@ -6,6 +6,8 @@ const { isLoggedIn } = require("../middleware.js");
 
 // GET all boxes belonging to a specific logged-in user
 router.get("/", isLoggedIn, catchAsync(g5BoxesController.index));
+// GET one box by its id
+router.get("/:boxId", isLoggedIn, catchAsync(g5BoxesController.show));
 // CREATE a new box
 router.post("/", isLoggedIn, catchAsync(g5BoxesController.create));
 // UPDATE a box

@@ -7,6 +7,21 @@ module.exports.index = async (req, res) => {
     // (the "getBoxesByUserId" function has been already created in the model)
     res.json(boxes); // Sending the "boxes" variable to the front-end
 };
+// GET one box by its id
+module.exports.show = async (req, res) => {
+    const boxId = parseInt(req.params.boxId); // Fetching the id of the box from the route
+    const userId = req.session.user_id; // Fetching the id of the user from the session
+    // Fetching the box by the "getBoxById" function (The "getBoxById" function has been already created in the model)
+    const box = await G5Boxes.getBoxById(boxId, userId);
+    // Error-Handling
+    if (!box) { // If the box doesn't exist or hasn't been found
+        return res.status(404).json({ // Send the error message to UI with the status code of 404
+            error: "G5 Box not found."
+        });
+    }
+    // Sending the fetched box to UI:
+    res.json(box);
+};
 // CREATE a new box
 module.exports.create = async (req, res) => {
     const userId = req.session.user_id; // Fetching the id of the user from the session

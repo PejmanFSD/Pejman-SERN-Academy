@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
+import {
+  useNavigate,
+  useLocation, // For hiding the button of the current page
+} from "react-router-dom";
+
 export default function G5({ error, setError }) {
+  const [boxes, setBoxes] = useState([]);
+
+  const navigate = useNavigate();
   const fetchBoxes = async () => {
     const response = await fetch("/g5Boxes", {
       credentials: "include",
@@ -14,7 +22,9 @@ export default function G5({ error, setError }) {
 
     setBoxes(data);
   };
-  const [boxes, setBoxes] = useState([]);
+  const openG5Box = (boxId) => {
+    navigate(`/G5/G5Boxes/${boxId}`);
+  };
   useEffect(() => {
     fetchBoxes();
   }, []);
@@ -26,7 +36,7 @@ export default function G5({ error, setError }) {
         <div>
           {boxes.map((box) => (
             <div key={box.id}>
-              <h2>{box.box_name}</h2>
+              <button onClick={() => openG5Box(box.id)}>{box.box_name}</button>
             </div>
           ))}
         </div>

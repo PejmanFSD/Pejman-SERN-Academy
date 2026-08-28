@@ -5,7 +5,7 @@ module.exports.getBoxesByUserId = async (userId) => {
   // that Node.js application can use to communicate with SQL Server.
     const result = await pool // Wait until the database connection is available before continuing.
     .request() // pool.request() creates a new SQL request (We're about to send a SQL command to the database)
-    // Introducing the "user_id" parameter as the inputs of the query:
+    // Introducing the "user_id" parameter as the input of the query:
         .input("user_id", sql.Int, userId)
         // Executing the SQL query:
         .query(`
@@ -17,6 +17,31 @@ module.exports.getBoxesByUserId = async (userId) => {
     // Returning all the boxes to UI ("recordset" contains the rows returned by SQL Server):
     return result.recordset;
 };
+// GET a specific box by its id
+module.exports.getBoxById = async (boxId, userId) => {
+    const pool = await connectDB(); // "pool" is a collection of database connections
+  // that Node.js application can use to communicate with SQL Server.
+    const result = await pool // Wait until the database connection is available before continuing.
+        .request() // pool.request() creates a new SQL request (We're about to send a SQL command to the database)
+        // Introducing the "boxId" and "userId" parameters as the inputs of the query:
+        .input("boxId", sql.Int, boxId)
+        .input("userId", sql.Int, userId)
+        // Executing the SQL query:
+        .query(`
+            SELECT id, user_id, box_name
+            FROM G5_Boxes
+            WHERE id = @boxId
+            AND user_id = @userId;
+        `);
+// We use "AND user_id = @userId" in the query because a user shouldn't be able to access another
+// user's box just by changing the ID in the URL.
+    if (result.recordset.length === 0) {
+        return null;
+    }
+
+    return result.recordset[0];
+};
+
 // CREATE a new box
 module.exports.createBox = async (userId, boxName) => {
     const pool = await connectDB(); // "pool" is a collection of database connections

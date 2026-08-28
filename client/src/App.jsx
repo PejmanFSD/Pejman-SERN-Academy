@@ -8,6 +8,7 @@ import Users from "./Components/users/Users";
 import Profile from "./Components/users/Profile";
 import EditProfile from "./Components/users/EditProfile";
 import G5 from "./Components/g5/G5";
+import G5Box from "./Components/g5/G5Box";
 import CreateG5Form from "./Components/g5/CreateG5Form";
 
 // import AboutAcademy from "./Components/AboutAcademy";
@@ -106,9 +107,9 @@ export default function App() {
                 // youShouldLoginMessage={youShouldLoginMessage}
                 // setYouShouldLoginMessage={setYouShouldLoginMessage}
                 isCreatingBox={isCreatingBox}
-  setIsCreatingBox={setIsCreatingBox}
-  isG5={isG5}
-  setIsG5={setIsG5}
+                setIsCreatingBox={setIsCreatingBox}
+                isG5={isG5}
+                setIsG5={setIsG5}
               />
             }
           />
@@ -221,6 +222,17 @@ export default function App() {
                   isDeleting={isDeleting}
                   isProfileEditing={isProfileEditing}
                 />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/G5/G5Boxes/:boxId"
+            element={
+              <ProtectedRoute
+                currentUser={currentUser}
+                isAuthChecked={isAuthChecked}
+              >
+                <G5Box />
               </ProtectedRoute>
             }
           />
