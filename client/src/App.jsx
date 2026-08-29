@@ -220,6 +220,7 @@ export default function App() {
                   setIsCreatingBox={setIsCreatingBox}
                   isLoggingOut={isLoggingOut}
                   isDeleting={isDeleting}
+                  setIsDeleting={setIsDeleting}
                   isProfileEditing={isProfileEditing}
                 />
               </ProtectedRoute>

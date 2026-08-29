@@ -14,6 +14,7 @@ export default function G5({
   setIsCreatingBox,
   isLoggingOut,
   isDeleting,
+  setIsDeleting,
   isProfileEditing,
   isCreatingBox,
 }) {
@@ -28,14 +29,16 @@ export default function G5({
       {currentUser &&
         location.pathname !== "/G5/newG5Box" &&
         !isLoggingOut &&
-        !isDeleting &&
         !isProfileEditing &&
-        // !isAdEditing &&
+        // !isBoxEditing &&
         !isCreatingBox &&
         !error && (
-          <button onClick={renderCreateBoxPage}>Create new G5-Box</button>
+          <button onClick={renderCreateBoxPage} disabled={isDeleting}>Create new G5-Box</button>
         )}
-      <G5Boxes />
+      <G5Boxes
+        isDeleting={isDeleting}
+        setIsDeleting={setIsDeleting}
+      />
     </div>
   );
 }
