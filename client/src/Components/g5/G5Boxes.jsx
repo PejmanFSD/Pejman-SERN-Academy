@@ -14,7 +14,7 @@ export default function G5({
   editingBoxId,
   setEditingBoxId,
   editedBoxName,
-  setEditedBoxName
+  setEditedBoxName,
 }) {
   const [deletingBox, setDeletingBox] = useState(null);
   // const [editingBoxId, setEditingBoxId] = useState(null);
@@ -116,60 +116,67 @@ export default function G5({
       setError("Something went wrong while updating the G5 Box.");
     }
   };
+  const handleOkError = () => {
+    setError(null);
+    setEditingBoxId(null);
+    setEditedBoxName("");
+  };
   useEffect(() => {
     fetchBoxes();
   }, []);
   return (
     <div>
-      {boxes.length === 0 ? (
+      {boxes.length === 0 && !error ? (
         <p>You don't have any G5 boxes yet.</p>
       ) : (
-        <div>
-          {boxes.map((box) => (
-            <div key={box.id}>
-              {editingBoxId === box.id ? (
-                <>
-                  <input
-                    type="text"
-                    value={editedBoxName}
-                    onChange={(e) => setEditedBoxName(e.target.value)}
-                  />
-                  <button onClick={() => saveG5Box(box.id)}>Save</button>
-                  <button
-                    onClick={() => {
-                      setEditingBoxId(null);
-                      setEditedBoxName("");
-                      setError(null);
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => openG5Box(box.id)}
-                    disabled={isDeleting || editingBoxId}
-                  >
-                    {box.box_name}
-                  </button>
-                  <button
-                    onClick={() => deleteG5Box(box.id)}
-                    disabled={isDeleting || editingBoxId}
-                  >
-                    &#128465;
-                  </button>
-                  <button
-                    onClick={() => editG5Box(box.id)}
-                    disabled={isDeleting || editingBoxId}
-                  >
-                    &#9999;
-                  </button>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
+        !error && (
+          <div>
+            {boxes.map((box) => (
+              <div key={box.id}>
+                {editingBoxId === box.id ? (
+                  <div>
+                    <input
+                      type="text"
+                      value={editedBoxName}
+                      onChange={(e) => setEditedBoxName(e.target.value)}
+                    />
+                    <button onClick={() => saveG5Box(box.id)}>Save</button>
+                    <button
+                      onClick={() => {
+                        setEditingBoxId(null);
+                        setEditedBoxName("");
+                        setError(null);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <button
+                      onClick={() => openG5Box(box.id)}
+                      disabled={isDeleting || editingBoxId}
+                    >
+                      {box.box_name}
+                    </button>
+                    <button
+                      onClick={() => deleteG5Box(box.id)}
+                      disabled={isDeleting || editingBoxId}
+                    >
+                      &#128465;
+                    </button>
+                    <button
+                      onClick={() => editG5Box(box.id)}
+                      disabled={isDeleting || editingBoxId}
+                    >
+                      &#9999;
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )
       )}
       {isDeleting && (
         <div>
@@ -179,9 +186,10 @@ export default function G5({
         </div>
       )}
       {error && (
-          <div style={{ color: "red" }}>
-              {error}
-          </div>
+        <div>
+          <div style={{ color: "red" }}>{error}</div>
+          <button onClick={handleOkError}>Ok</button>
+        </div>
       )}
     </div>
   );

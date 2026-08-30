@@ -45,11 +45,17 @@ export default function CreateG5Form({
     setIsCreatingBox(false);
     navigate("/");
   };
+  const handleOkError = () => {
+    setBoxName("");
+    setError(null);
+    setIsCreatingBox(false);
+  };
   return (
     <div>
       <h1 className="eater my-1" style={{ fontSize: "40px" }}>
         Create a new G5-Box
       </h1>
+      {!error &&
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="boxName">
@@ -64,10 +70,12 @@ export default function CreateG5Form({
             required
           />
         </div>
-        <button disabled={error || !boxName.trim()}>Create Box</button>
-        {error && <div style={{ color: "red" }}>{error}</div>}
+        <button disabled={!boxName.trim()}>Create Box</button>
       </form>
-      <button onClick={cancelSubmit}>Cancel</button>
+      }
+      {!error && <button onClick={cancelSubmit}>Cancel</button>}
+      {error && <div style={{ color: "red" }}>{error}</div>}
+      {error && <button onClick={handleOkError}>Ok</button>}
     </div>
   );
 }
