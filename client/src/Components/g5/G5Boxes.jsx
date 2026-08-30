@@ -178,6 +178,11 @@ export default function G5({
           <button onClick={() => deleteG5BoxNo()}>Cancel</button>
         </div>
       )}
+      {error && (
+          <div style={{ color: "red" }}>
+              {error}
+          </div>
+      )}
     </div>
   );
 }

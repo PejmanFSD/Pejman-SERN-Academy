@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const g5BoxesController = require("../controllers/g5Boxes");
 const catchAsync = require("../utils/catchAsync.js");
-const { isLoggedIn } = require("../middleware.js");
+const { isLoggedIn, handleDatabaseBoxErrors } = require("../middleware.js");
 
 // GET all boxes belonging to a specific logged-in user
 router.get("/", isLoggedIn, catchAsync(g5BoxesController.index));

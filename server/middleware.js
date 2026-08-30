@@ -80,3 +80,14 @@ module.exports.isAdmin = async (req, res, next) => {
     next(err);
   }
 };
+
+module.exports.handleDatabaseBoxErrors = (err, req, res, next) => {
+    // SQL Server duplicate key error
+    if (err.number === 2627 || err.number === 2601) {
+    // If SQL Server says this is a duplicate-key violation, don't send a generic 500 error. Send a friendly 409 response instead
+        return res.status(409).json({
+            error: "You already have a G5 Box with this name."
+        });
+    }
+    next(err);
+};
