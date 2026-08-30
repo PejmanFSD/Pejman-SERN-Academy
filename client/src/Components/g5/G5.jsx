@@ -6,6 +6,8 @@ import {
 import G5Boxes from "./G5Boxes";
 
 export default function G5({
+  boxes,
+  setBoxes,
   error,
   setError,
   currentUser,
@@ -18,6 +20,8 @@ export default function G5({
   isProfileEditing,
   isCreatingBox,
 }) {
+  const [editingBoxId, setEditingBoxId] = useState(null);
+  const [editedBoxName, setEditedBoxName] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const renderCreateBoxPage = () => {
@@ -33,11 +37,21 @@ export default function G5({
         // !isBoxEditing &&
         !isCreatingBox &&
         !error && (
-          <button onClick={renderCreateBoxPage} disabled={isDeleting}>Create new G5-Box</button>
+          <button onClick={renderCreateBoxPage} disabled={isDeleting || editingBoxId}>
+            Create new G5-Box
+          </button>
         )}
       <G5Boxes
+        error={error}
+        setError={setError}
+        boxes={boxes}
+        setBoxes={setBoxes}
         isDeleting={isDeleting}
         setIsDeleting={setIsDeleting}
+        editingBoxId={editingBoxId}
+        setEditingBoxId={setEditingBoxId}
+        editedBoxName={editedBoxName}
+        setEditedBoxName={setEditedBoxName}
       />
     </div>
   );

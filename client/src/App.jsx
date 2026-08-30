@@ -209,6 +209,8 @@ export default function App() {
                 isAuthChecked={isAuthChecked}
               >
                 <G5
+                  boxes={boxes}
+                  setBoxes={setBoxes}
                   error={error}
                   setError={setError}
                   currentUser={currentUser}
