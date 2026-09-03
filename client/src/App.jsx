@@ -235,7 +235,7 @@ export default function App() {
                 currentUser={currentUser}
                 isAuthChecked={isAuthChecked}
               >
-                <G5Box />
+                <G5Box setError={setError} />
               </ProtectedRoute>
             }
           />

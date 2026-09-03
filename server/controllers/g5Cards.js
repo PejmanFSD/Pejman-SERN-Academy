@@ -16,7 +16,7 @@ module.exports.create = async (req, res) => {
     const boxId = Number(req.params.boxId); // Fetching the id of the box from the router
     // Assigning the <input /> values (that have been filled by the user) of the create <form />
     // to "question", "answer", "box_number" variables:
-    const {question, answer, box_number} = req.body;
+    const {question, answer} = req.body;
     if (!question || !question.trim()) { // If the <input /> of the question is empty or contains only " "
         // return an error with the "Question is required." text and the 400 status
         return res.status(400).json({
@@ -29,22 +29,11 @@ module.exports.create = async (req, res) => {
             error: "Answer is required."
         });
     }
-    if (
-        box_number === undefined || // If the "box_number" doesn't exist OR
-        box_number === null || // If the "box_number" hasn't been fetched OR
-        !Number.isInteger(Number(box_number)) || // If the "box_number" is not an integer OR
-        Number(box_number) < 1 || // If the "box_number" is less than 1 OR
-        Number(box_number) > 5 // If the "box_number" is greater than 5
-        // (Based on the model, the box numbers are from 1 to 5)
-    ) {
-        // Return an error with the "Box number must be between 1 and 5." text
-        return res.status(400).json({
-            error: "Box number must be between 1 and 5."
-        });
-    }
+    // Every newly created card starts in Box 1
+    const boxNumber = 1;
     // Create the new card by using the <input /> values (that have been filled by the user) of the create <form />
     // The "createCard" function has been already created in the model
-    const card = await G5Cards.createCard(boxId, userId, question.trim(), answer.trim(), Number(box_number));
+    const card = await G5Cards.createCard(boxId, userId, question.trim(), answer.trim(), boxNumber);
     // If the new created card is not fetched properly:
     if (!card) {
         // Return an error with the "Box not found." text and the 404 status code:
