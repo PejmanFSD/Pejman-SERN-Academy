@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import CreateG5CardForm from "./CreateG5CardForm";
+import Card from "./Card";
 
 export default function G5Box({setError}) {
   const { boxId } = useParams();
@@ -74,19 +75,11 @@ export default function G5Box({setError}) {
     <div>
         {cards.map((card) => (
             <div key={card.id}>
-                <h3>Card {card.id}</h3>
-
-                <h4>
-                    <strong>Question:</strong> {card.question}
-                </h4>
-
-                <h4>
-                    <strong>Answer:</strong> {card.answer}
-                </h4>
-
-                <h4>
-                    <strong>Box:</strong> {card.box_number}
-                </h4>
+                <Card
+                  question={card.question}
+                  answer={card.answer}
+                  boxNumber={card.box_number}
+                />
             </div>
         ))}
     </div>
