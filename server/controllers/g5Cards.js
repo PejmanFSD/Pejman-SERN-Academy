@@ -128,3 +128,24 @@ module.exports.moveToNextBox = async (req, res) => {
         message: "Card moved to the next box!"
     });
 };
+// Returning the card to the first box (If the user answers wrong):
+module.exports.resetToFirstBox = async (req, res) => {
+    const userId = req.session.user_id;
+    const cardId = Number(req.params.id);
+
+    const card = await G5Cards.resetToFirstBox(
+        cardId,
+        userId
+    );
+
+    if (!card) {
+        return res.status(404).json({
+            error: "Card not found."
+        });
+    }
+
+    res.json({
+        card,
+        message: "Card moved back to Box 1!"
+    });
+};
