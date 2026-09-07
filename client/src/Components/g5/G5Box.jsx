@@ -76,9 +76,12 @@ export default function G5Box({setError}) {
         {cards.map((card) => (
             <div key={card.id}>
                 <Card
+                  id={card.id}
                   question={card.question}
                   answer={card.answer}
                   boxNumber={card.box_number}
+                  setError={setError}
+                  setCards={setCards}
                 />
             </div>
         ))}

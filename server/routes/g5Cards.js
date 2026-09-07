@@ -10,6 +10,8 @@ router.get("/:boxId/cards", isLoggedIn, catchAsync(g5CardsController.index));
 router.post("/:boxId/cards", isLoggedIn, catchAsync(g5CardsController.create));
 // UPDATE a card
 router.put("/:id", isLoggedIn, catchAsync(g5CardsController.update));
+// Moving the card to the next box
+router.put("/:id/next-box", isLoggedIn, catchAsync(g5CardsController.moveToNextBox));
 // DELETE a card
 router.delete("/:id", isLoggedIn, catchAsync(g5CardsController.remove));
 

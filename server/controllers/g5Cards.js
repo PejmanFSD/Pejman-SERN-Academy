@@ -107,3 +107,24 @@ module.exports.remove = async (req, res) => {
         message: "Card deleted successfully."
     });
 };
+// Moving the card to the next box (If the user answers correctly):
+module.exports.moveToNextBox = async (req, res) => {
+    const userId = req.session.user_id;
+    const cardId = Number(req.params.id);
+
+    const card = await G5Cards.moveToNextBox(
+        cardId,
+        userId
+    );
+
+    if (!card) {
+        return res.status(404).json({
+            error: "Card not found or card is already in Box 5."
+        });
+    }
+
+    res.json({
+        card,
+        message: "Card moved to the next box!"
+    });
+};

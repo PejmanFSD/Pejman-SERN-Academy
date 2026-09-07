@@ -115,3 +115,25 @@ module.exports.deleteCard = async (cardId, userId) => {
     // ("recordset" contains the rows returned by SQL Server)
     return result.recordset[0];
 };
+// Moving the card to the next box (If the user answers correctly):
+module.exports.moveToNextBox = async (cardId, userId) => {
+    const pool = await connectDB();
+
+    const result = await pool
+        .request()
+        .input("id", sql.Int, cardId)
+        .input("user_id", sql.Int, userId)
+        .query(`
+            UPDATE c
+            SET c.box_number = c.box_number + 1
+            OUTPUT INSERTED.*
+            FROM G5_Cards AS c
+            INNER JOIN G5_Boxes AS b
+                ON c.box_id = b.id
+            WHERE c.id = @id
+              AND b.user_id = @user_id
+              AND c.box_number < 5;
+        `);
+
+    return result.recordset[0];
+};
