@@ -61,8 +61,7 @@ module.exports.updateCard = async (
     cardId,
     userId,
     question,
-    answer,
-    boxNumber
+    answer
 ) => {
     const pool = await connectDB(); // "pool" is a collection of database connections
   // that Node.js application can use to communicate with SQL Server.
@@ -73,14 +72,12 @@ module.exports.updateCard = async (
         .input("user_id", sql.Int, userId)
         .input("question", sql.VarChar(sql.MAX), question)
         .input("answer", sql.VarChar(sql.MAX), answer)
-        .input("box_number", sql.Int, boxNumber)
         // Executing the SQL query:
         .query(`
             UPDATE c
             SET
                 c.question = @question,
-                c.answer = @answer,
-                c.box_number = @box_number
+                c.answer = @answer
             OUTPUT INSERTED.*
             FROM G5_Cards AS c
             INNER JOIN G5_Boxes AS b

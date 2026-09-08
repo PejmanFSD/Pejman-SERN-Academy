@@ -3,7 +3,14 @@ import { useParams } from "react-router-dom";
 import CreateG5CardForm from "./CreateG5CardForm";
 import Card from "./Card";
 
-export default function G5Box({setError}) {
+export default function G5Box({
+  error,
+  setError,
+  isDeleting,
+  setIsDeleting,
+  isEditing,
+  setIsEditing,
+}) {
   const { boxId } = useParams();
   const [box, setBox] = useState(null);
   const [isCreatingCard, setIsCreatingCard] = useState(false);
@@ -30,26 +37,26 @@ export default function G5Box({setError}) {
 
   useEffect(() => {
     const fetchCards = async () => {
-        try {
-            const response = await fetch(`/g5Cards/${boxId}/cards`, {
-                credentials: "include",
-            });
+      try {
+        const response = await fetch(`/g5Cards/${boxId}/cards`, {
+          credentials: "include",
+        });
 
-            const data = await response.json();
+        const data = await response.json();
 
-            if (!response.ok) {
-                setError(data.error || "Failed to load cards.");
-                return;
-            }
-
-            setCards(data);
-        } catch (err) {
-            setError("Something went wrong while loading the cards.");
+        if (!response.ok) {
+          setError(data.error || "Failed to load cards.");
+          return;
         }
+
+        setCards(data);
+      } catch (err) {
+        setError("Something went wrong while loading the cards.");
+      }
     };
 
     fetchCards();
-}, [boxId]);
+  }, [boxId]);
 
   if (!box) {
     return <div>Loading...</div>;
@@ -70,23 +77,33 @@ export default function G5Box({setError}) {
         />
       )}
       {cards.length === 0 ? (
-    <p>This box has no cards yet.</p>
-) : (
-    <div>
-        {cards.map((card) => (
-            <div key={card.id}>
-                <Card
-                  id={card.id}
-                  question={card.question}
-                  answer={card.answer}
-                  boxNumber={card.box_number}
-                  setError={setError}
-                  setCards={setCards}
-                />
-            </div>
-        ))}
-    </div>
-)}
+        <p>This box has no cards yet.</p>
+      ) : (
+        <div>
+          {cards.map((card) => (
+            <Card
+              key={card.id}
+              card={card}
+              onCardUpdated={(updatedCard) => {
+                setCards((currentCards) =>
+                  currentCards.map((currentCard) =>
+                    currentCard.id === updatedCard.id
+                      ? updatedCard
+                      : currentCard,
+                  ),
+                );
+              }}
+              error={error}
+              setError={setError}
+              setCards={setCards}
+              isDeleting={isDeleting}
+              setIsDeleting={setIsDeleting}
+              isEditing={isEditing}
+              setIsEditing={setIsEditing}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

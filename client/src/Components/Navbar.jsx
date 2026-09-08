@@ -25,8 +25,8 @@ export default function Navbar({
   // setTheme,
   isCreatingBox,
   setIsCreatingBox,
-    isG5,
-  setIsG5
+  isG5,
+  setIsG5,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -93,20 +93,14 @@ export default function Navbar({
         {currentUser && !error && (
           <button onClick={() => navigate("/profile")}>My Profile</button>
         )}
-{currentUser &&
-                  location.pathname !== "/G5" &&
-                  !isLoggingOut &&
-                  !isDeleting &&
-                  !isProfileEditing &&
-                  // !isAdEditing &&
-                  !isCreatingBox &&
-                  !error && (
-                    <button onClick={renderG5}>G5</button>
-                  )}
-
-
-
-
+        {currentUser &&
+          location.pathname !== "/G5" &&
+          !isLoggingOut &&
+          !isDeleting &&
+          !isProfileEditing &&
+          // !isAdEditing &&
+          !isCreatingBox &&
+          !error && <button onClick={renderG5}>G5</button>}
         {isLoggingOut && (
           <div>
             <div>Are you sure you want to logout?</div>

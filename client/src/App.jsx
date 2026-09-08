@@ -24,6 +24,7 @@ export default function App() {
   const [userCount, setUserCount] = useState(null);
   const [isProfileEditing, setIsProfileEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [isG5, setIsG5] = useState(false);
   // const [youShouldLoginMessage, setYouShouldLoginMessage] = useState(false);
   // const [flash, setFlash] = useState(null);
@@ -235,7 +236,14 @@ export default function App() {
                 currentUser={currentUser}
                 isAuthChecked={isAuthChecked}
               >
-                <G5Box setError={setError} />
+                <G5Box
+                  error={error}
+                  setError={setError}
+                  isDeleting={isDeleting}
+                  setIsDeleting={setIsDeleting}
+                  isEditing={isEditing}
+                  setIsEditing={setIsEditing}
+                />
               </ProtectedRoute>
             }
           />
