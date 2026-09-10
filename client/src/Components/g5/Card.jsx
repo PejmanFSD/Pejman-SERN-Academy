@@ -5,8 +5,6 @@ export default function Card({
   error,
   setError,
   setCards,
-  isEditing,
-  setIsEditing,
   onCardUpdated,
   onCardDeleted
 }) {
@@ -14,18 +12,19 @@ export default function Card({
   const [answer, setAnswer] = useState(card.answer);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const [isDeletingCard, setIsDeletingCard] = useState(false);
+  const [isEditingCard, setIsEditingCard] = useState(false);
 
   const editCard = () => {
     setQuestion(card.question);
     setAnswer(card.answer);
     setError(null);
-    setIsEditing(true);
+    setIsEditingCard(true);
   };
   const cancelEdit = () => {
     setQuestion(card.question);
     setAnswer(card.answer);
     setError(null);
-    setIsEditing(false);
+    setIsEditingCard(false);
   };
   const saveCard = async () => {
     setError(null);
@@ -52,7 +51,7 @@ export default function Card({
 
       onCardUpdated(data.card);
 
-      setIsEditing(false);
+      setIsEditingCard(false);
     } catch (err) {
       setError("Something went wrong while updating the card.");
     }
@@ -142,7 +141,7 @@ export default function Card({
         <button onClick={deleteCardNo}>No</button>
       </div>
       }
-      {isEditing && (
+      {isEditingCard && (
         <>
           <div>
             <label htmlFor={`question-${card.id}`}>Question:</label>
@@ -171,10 +170,10 @@ export default function Card({
           <button onClick={cancelEdit}>Cancel</button>
         </>
       )}
-      {!isDeletingCard && <div>Question: {card.question}</div>}
-      {!isAnswerRevealed && !isDeletingCard ? (
+      {!isDeletingCard && !isEditingCard && <div>Question: {card.question}</div>}
+      {!isAnswerRevealed && !isDeletingCard && !isEditingCard ? (
         <button onClick={RevealTheAnswer}>Reveal the answer</button>
-      ) : (!isDeletingCard &&
+      ) : (!isDeletingCard && !isEditingCard &&
         <div>
           <div>Answer: {card.answer}</div>
           <div>
@@ -184,13 +183,14 @@ export default function Card({
           </div>
         </div>
       )}
-      {!isAnswerRevealed && !isDeletingCard && <div>Box: {card.box_number}</div>}
-      {!isAnswerRevealed && !isDeletingCard && (
+      {!isAnswerRevealed && !isDeletingCard && !isEditingCard && <div>Box: {card.box_number}</div>}
+      {!isAnswerRevealed && !isDeletingCard && !isEditingCard && (
         <div>
           <button onClick={editCard}>Edit</button>
           <button onClick={deleteCard} disabled={isDeletingCard}>{isDeletingCard ? "Deleting..." : "Delete"}</button>
         </div>
       )}
+      <br />
       -----------------------
     </div>
   );
