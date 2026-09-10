@@ -239,8 +239,6 @@ export default function App() {
                 <G5Box
                   error={error}
                   setError={setError}
-                  isDeleting={isDeleting}
-                  setIsDeleting={setIsDeleting}
                   isEditing={isEditing}
                   setIsEditing={setIsEditing}
                 />

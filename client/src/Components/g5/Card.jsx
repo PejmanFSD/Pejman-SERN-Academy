@@ -5,15 +5,15 @@ export default function Card({
   error,
   setError,
   setCards,
-  isDeleting,
-  setIsDeleting,
   isEditing,
   setIsEditing,
   onCardUpdated,
+  onCardDeleted
 }) {
   const [question, setQuestion] = useState(card.question);
   const [answer, setAnswer] = useState(card.answer);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
+  const [isDeletingCard, setIsDeletingCard] = useState(false);
 
   const editCard = () => {
     setQuestion(card.question);
@@ -106,9 +106,42 @@ export default function Card({
     }
     setIsAnswerRevealed((currIsAnswerRevealed) => !currIsAnswerRevealed);
   };
+  const deleteCard = () => {
+    setIsDeletingCard(true);
+  }
+  const deleteCardNo = () => {
+    setIsDeletingCard(false);
+  }
+  const deleteCardYes = async () => {
+    setIsDeletingCard(true);
+    setError(null);
+    try {
+      const response = await fetch(`/g5Cards/${card.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || "Failed to delete the card.");
+        return;
+      }
+      onCardDeleted(card.id);
+    } catch (err) {
+      setError("Something went wrong while deleting the card.");
+    } finally {
+      setIsDeletingCard(false);
+    }
+  };
   return (
     <div>
       {error && <p>{error}</p>}
+      {isDeletingCard &&
+      <div>
+        <div>Are you sure you want to delete this card?</div>
+        <button onClick={deleteCardYes}>Yes</button>
+        <button onClick={deleteCardNo}>No</button>
+      </div>
+      }
       {isEditing && (
         <>
           <div>
@@ -138,10 +171,10 @@ export default function Card({
           <button onClick={cancelEdit}>Cancel</button>
         </>
       )}
-      <div>Question: {card.question}</div>
-      {!isAnswerRevealed ? (
+      {!isDeletingCard && <div>Question: {card.question}</div>}
+      {!isAnswerRevealed && !isDeletingCard ? (
         <button onClick={RevealTheAnswer}>Reveal the answer</button>
-      ) : (
+      ) : (!isDeletingCard &&
         <div>
           <div>Answer: {card.answer}</div>
           <div>
@@ -151,11 +184,13 @@ export default function Card({
           </div>
         </div>
       )}
-      <div>Box: {card.box_number}</div>
-      <div>
-        <button onClick={editCard}>Edit</button>
-        <button>Delete</button>
-      </div>
+      {!isAnswerRevealed && !isDeletingCard && <div>Box: {card.box_number}</div>}
+      {!isAnswerRevealed && !isDeletingCard && (
+        <div>
+          <button onClick={editCard}>Edit</button>
+          <button onClick={deleteCard} disabled={isDeletingCard}>{isDeletingCard ? "Deleting..." : "Delete"}</button>
+        </div>
+      )}
       -----------------------
     </div>
   );

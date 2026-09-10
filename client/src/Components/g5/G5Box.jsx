@@ -6,8 +6,6 @@ import Card from "./Card";
 export default function G5Box({
   error,
   setError,
-  isDeleting,
-  setIsDeleting,
   isEditing,
   setIsEditing,
 }) {
@@ -65,7 +63,9 @@ export default function G5Box({
   return (
     <div>
       {!isCreatingCard && <h1>{box.box_name}</h1>}
-      <button onClick={() => setIsCreatingCard(true)}>Add Card</button>
+      {!isCreatingCard && (
+        <button onClick={() => setIsCreatingCard(true)}>Add Card</button>
+      )}
       {isCreatingCard && (
         <CreateG5CardForm
           boxId={boxId}
@@ -76,33 +76,40 @@ export default function G5Box({
           setIsCreatingCard={setIsCreatingCard}
         />
       )}
-      {cards.length === 0 ? (
+      {cards.length === 0 && !isCreatingCard ? (
         <p>This box has no cards yet.</p>
       ) : (
-        <div>
-          {cards.map((card) => (
-            <Card
-              key={card.id}
-              card={card}
-              onCardUpdated={(updatedCard) => {
-                setCards((currentCards) =>
-                  currentCards.map((currentCard) =>
-                    currentCard.id === updatedCard.id
-                      ? updatedCard
-                      : currentCard,
-                  ),
-                );
-              }}
-              error={error}
-              setError={setError}
-              setCards={setCards}
-              isDeleting={isDeleting}
-              setIsDeleting={setIsDeleting}
-              isEditing={isEditing}
-              setIsEditing={setIsEditing}
-            />
-          ))}
-        </div>
+        !isCreatingCard && (
+          <div>
+            {cards.map((card) => (
+              <Card
+                key={card.id}
+                card={card}
+                onCardUpdated={(updatedCard) => {
+                  setCards((currentCards) =>
+                    currentCards.map((currentCard) =>
+                      currentCard.id === updatedCard.id
+                        ? updatedCard
+                        : currentCard,
+                    ),
+                  );
+                }}
+                onCardDeleted={(deletedCardId) => {
+                  setCards((currentCards) =>
+                    currentCards.filter(
+                      (currentCard) => currentCard.id !== deletedCardId,
+                    ),
+                  );
+                }}
+                error={error}
+                setError={setError}
+                setCards={setCards}
+                isEditing={isEditing}
+                setIsEditing={setIsEditing}
+              />
+            ))}
+          </div>
+        )
       )}
     </div>
   );

@@ -82,6 +82,12 @@ module.exports.remove = async (req, res) => {
     const cardId = Number(req.params.id); // Fetching the id of the card from the router
     // Deleting the card by using "the id of the user" and "the id of the card" as the inputs of the "deleteCard"
     // The "deleteCard" function has been already created in the model
+    if (!Number.isInteger(cardId) || cardId < 1) {
+        // if "cardId" is not a numnber, send the error with the code of 400 to UI:
+        return res.status(400).json({
+            error: "Invalid card ID."
+        });
+    }
     const card = await G5Cards.deleteCard(cardId, userId);
     if (!card) { // If the id of the user or the id of the card doesn't exist
         // return an error with the "Card not found." text and the 404 status
