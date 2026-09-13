@@ -164,12 +164,42 @@ useEffect(() => {
           setIsCreatingCard={setIsCreatingCard}
         />
       )}
-      <button onClick={handleBox1}>box 1</button>
-      <button onClick={handleBox2}>box 2</button>
-      <button onClick={handleBox3}>box 3</button>
-      <button onClick={handleBox4}>box 4</button>
-      <button onClick={handleBox5}>box 5</button>
-      <button onClick={handleBox6}>the repository</button>
+      <button
+      onClick={handleBox1}
+      disabled={cardsNumInBox1 === 0 || cardsNumInBox2 > 0 || cardsNumInBox3 > 0 || cardsNumInBox4 > 0 || cardsNumInBox5 > 0}
+      >
+        box 1
+      </button>
+      <button
+      onClick={handleBox2}
+      disabled={cardsNumInBox2 === 0 || cardsNumInBox3 > 0 || cardsNumInBox4 > 0 || cardsNumInBox5 > 0}
+      >
+        box 2
+      </button>
+      <button
+      onClick={handleBox3}
+      disabled={cardsNumInBox3 === 0 || cardsNumInBox4 > 0 || cardsNumInBox5 > 0}
+      >
+        box 3
+      </button>
+      <button
+      onClick={handleBox4}
+      disabled={cardsNumInBox4 === 0 || cardsNumInBox5 > 0}
+      >
+        box 4
+      </button>
+      <button
+      onClick={handleBox5}
+      disabled={cardsNumInBox5 === 0}
+      >
+        box 5
+      </button>
+      <button
+      onClick={handleBox6}
+      // disabled={cardsNumInBox6 === 0}
+      >
+        the repository
+      </button>
       {cards.length === 0 && !isCreatingCard ? (
         <p>This box has no cards yet.</p>
       ) : (
