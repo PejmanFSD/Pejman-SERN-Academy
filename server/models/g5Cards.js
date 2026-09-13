@@ -129,7 +129,7 @@ module.exports.moveToNextBox = async (cardId, userId) => {
                 ON c.box_id = b.id
             WHERE c.id = @id
               AND b.user_id = @user_id
-              AND c.box_number < 5;
+              AND c.box_number < 6;
         `);
 
     return result.recordset[0];
