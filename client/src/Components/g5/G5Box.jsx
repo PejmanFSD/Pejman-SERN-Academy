@@ -14,6 +14,12 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   const [isBox4Shown, setIsBox4Shown] = useState(false);
   const [isBox5Shown, setIsBox5Shown] = useState(false);
   const [isBox6Shown, setIsBox6Shown] = useState(false);
+  const [cardsNumInBox1, setCardsNumInBox1] = useState(0);
+  const [cardsNumInBox2, setCardsNumInBox2] = useState(0);
+  const [cardsNumInBox3, setCardsNumInBox3] = useState(0);
+  const [cardsNumInBox4, setCardsNumInBox4] = useState(0);
+  const [cardsNumInBox5, setCardsNumInBox5] = useState(0);
+  const [cardsNumInBox6, setCardsNumInBox6] = useState(0);
 
   const handleBox1 = () => {
     setIsBox1Shown(true);
@@ -63,7 +69,37 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     setIsBox5Shown(false);
     setIsBox6Shown(true);
   };
+useEffect(() => {
+    let box1 = 0;
+    let box2 = 0;
+    let box3 = 0;
+    let box4 = 0;
+    let box5 = 0;
+    let box6 = 0;
 
+    for (const card of cards) {
+        if (card.box_number === 1) {
+            box1++;
+        } else if (card.box_number === 2) {
+            box2++;
+        } else if (card.box_number === 3) {
+            box3++;
+        } else if (card.box_number === 4) {
+            box4++;
+        } else if (card.box_number === 5) {
+            box5++;
+        } else if (card.box_number === 6) {
+            box6++;
+        }
+    }
+
+    setCardsNumInBox1(box1);
+    setCardsNumInBox2(box2);
+    setCardsNumInBox3(box3);
+    setCardsNumInBox4(box4);
+    setCardsNumInBox5(box5);
+    setCardsNumInBox6(box6);
+}, [cards]);
   useEffect(() => {
     const fetchBox = async () => {
       const response = await fetch(`/g5Boxes/${boxId}`, {
@@ -105,13 +141,18 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
 
     fetchCards();
   }, [boxId]);
-
   if (!box) {
     return <div>Loading...</div>;
   }
 
   return (
     <div>
+      <div>cardsNumInBox1: {cardsNumInBox1}</div>
+      <div>cardsNumInBox2: {cardsNumInBox2}</div>
+      <div>cardsNumInBox3: {cardsNumInBox3}</div>
+      <div>cardsNumInBox4: {cardsNumInBox4}</div>
+      <div>cardsNumInBox5: {cardsNumInBox5}</div>
+      <div>cardsNumInBox6: {cardsNumInBox6}</div>
       {!isCreatingCard && <h1>{box.box_name}</h1>}
       {isCreatingCard && (
         <CreateG5CardForm
@@ -123,12 +164,12 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
           setIsCreatingCard={setIsCreatingCard}
         />
       )}
-      <button onClick={handleBox1}>Show box 1</button>
-      <button onClick={handleBox2}>Show box 2</button>
-      <button onClick={handleBox3}>Show box 3</button>
-      <button onClick={handleBox4}>Show box 4</button>
-      <button onClick={handleBox5}>Show box 5</button>
-      <button onClick={handleBox6}>Show the cards repository</button>
+      <button onClick={handleBox1}>box 1</button>
+      <button onClick={handleBox2}>box 2</button>
+      <button onClick={handleBox3}>box 3</button>
+      <button onClick={handleBox4}>box 4</button>
+      <button onClick={handleBox5}>box 5</button>
+      <button onClick={handleBox6}>the repository</button>
       {cards.length === 0 && !isCreatingCard ? (
         <p>This box has no cards yet.</p>
       ) : (
