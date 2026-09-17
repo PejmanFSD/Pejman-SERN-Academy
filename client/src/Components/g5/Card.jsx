@@ -105,6 +105,33 @@ export default function Card({
     }
     setIsAnswerRevealed((currIsAnswerRevealed) => !currIsAnswerRevealed);
   };
+  const ReturnToBox1 = async () => {
+    try {
+        const response = await fetch(
+            `/g5Cards/${card.id}/reset-box`,
+            {
+                method: "PUT",
+                credentials: "include",
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            setError(
+                data.error || "Failed to return the card to Box 1."
+            );
+            return;
+        }
+
+        onCardUpdated(data.card);
+
+    } catch (err) {
+        setError(
+            "Something went wrong while returning the card to Box 1."
+        );
+    }
+};
   const deleteCard = () => {
     setIsDeletingCard(true);
   }
@@ -171,9 +198,9 @@ export default function Card({
         </>
       )}
       {!isDeletingCard && !isEditingCard && <div>Question: {card.question}</div>}
-      {!isAnswerRevealed && !isDeletingCard && !isEditingCard ? (
+      {!isAnswerRevealed && !isDeletingCard && !isEditingCard && card.box_number !== 6 ? (
         <button onClick={RevealTheAnswer}>Reveal the answer</button>
-      ) : (!isDeletingCard && !isEditingCard &&
+      ) : (!isDeletingCard && !isEditingCard && card.box_number !== 6 ?
         <div>
           <div>Answer: {card.answer}</div>
           <div>
@@ -182,15 +209,19 @@ export default function Card({
             <button onClick={() => handleNo(card.id)}>No</button>
           </div>
         </div>
+        :
+        <div>Answer: {card.answer}</div>
       )}
-      {!isAnswerRevealed && !isDeletingCard && !isEditingCard && <div>Box: {card.box_number}</div>}
+      {!isAnswerRevealed && !isDeletingCard && !isEditingCard && card.box_number !== 6 && <div>Box: {card.box_number}</div>}
       {!isAnswerRevealed && !isDeletingCard && !isEditingCard && (
         <div>
           <button onClick={editCard}>Edit</button>
           <button onClick={deleteCard} disabled={isDeletingCard}>{isDeletingCard ? "Deleting..." : "Delete"}</button>
         </div>
       )}
-      <br />
+      {card.box_number === 6 &&
+      <div><button onClick={ReturnToBox1}>Return to Box 1</button></div>
+      }
       -----------------------
     </div>
   );
