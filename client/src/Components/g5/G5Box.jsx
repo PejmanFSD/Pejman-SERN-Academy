@@ -20,8 +20,15 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   const [cardsNumInBox4, setCardsNumInBox4] = useState(0);
   const [cardsNumInBox5, setCardsNumInBox5] = useState(0);
   const [cardsNumInBox6, setCardsNumInBox6] = useState(0);
+  const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
+  const [isEditingCard, setIsEditingCard] = useState(false);
+  const [isDeletingCard, setIsDeletingCard] = useState(false);
+  const [isReturningToBox1FromRepository, setIsReturningToBox1FromRepository] =
+    useState(false);
+  const [isBoxShuffled, setIsBoxShuffled] = useState(false);
 
   const handleBox1 = () => {
+    setIsBoxShuffled(false);
     setIsBox1Shown(true);
     setIsBox2Shown(false);
     setIsBox3Shown(false);
@@ -30,6 +37,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     setIsBox6Shown(false);
   };
   const handleBox2 = () => {
+    setIsBoxShuffled(false);
     setIsBox1Shown(false);
     setIsBox2Shown(true);
     setIsBox3Shown(false);
@@ -38,6 +46,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     setIsBox6Shown(false);
   };
   const handleBox3 = () => {
+    setIsBoxShuffled(false);
     setIsBox1Shown(false);
     setIsBox2Shown(false);
     setIsBox3Shown(true);
@@ -46,6 +55,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     setIsBox6Shown(false);
   };
   const handleBox4 = () => {
+    setIsBoxShuffled(false);
     setIsBox1Shown(false);
     setIsBox2Shown(false);
     setIsBox3Shown(false);
@@ -54,6 +64,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     setIsBox6Shown(false);
   };
   const handleBox5 = () => {
+    setIsBoxShuffled(false);
     setIsBox1Shown(false);
     setIsBox2Shown(false);
     setIsBox3Shown(false);
@@ -62,14 +73,33 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     setIsBox6Shown(false);
   };
   const handleBox6 = () => {
+    setIsBoxShuffled(false);
     setIsBox1Shown(false);
     setIsBox2Shown(false);
     setIsBox3Shown(false);
     setIsBox4Shown(false);
     setIsBox5Shown(false);
     setIsBox6Shown(true);
+    setIsBoxShuffled(true);
   };
-useEffect(() => {
+  const ShuffleTheBox = () => {
+    setCards((prevCards) => {
+      const shuffledCards = [...prevCards];
+
+      for (let i = shuffledCards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [shuffledCards[i], shuffledCards[j]] = [
+          shuffledCards[j],
+          shuffledCards[i],
+        ];
+      }
+
+      return shuffledCards;
+    });
+    setIsBoxShuffled(true);
+  };
+  useEffect(() => {
     let box1 = 0;
     let box2 = 0;
     let box3 = 0;
@@ -78,28 +108,27 @@ useEffect(() => {
     let box6 = 0;
 
     for (const card of cards) {
-        if (card.box_number === 1) {
-            box1++;
-        } else if (card.box_number === 2) {
-            box2++;
-        } else if (card.box_number === 3) {
-            box3++;
-        } else if (card.box_number === 4) {
-            box4++;
-        } else if (card.box_number === 5) {
-            box5++;
-        } else if (card.box_number === 6) {
-            box6++;
-        }
+      if (card.box_number === 1) {
+        box1++;
+      } else if (card.box_number === 2) {
+        box2++;
+      } else if (card.box_number === 3) {
+        box3++;
+      } else if (card.box_number === 4) {
+        box4++;
+      } else if (card.box_number === 5) {
+        box5++;
+      } else if (card.box_number === 6) {
+        box6++;
+      }
     }
-
     setCardsNumInBox1(box1);
     setCardsNumInBox2(box2);
     setCardsNumInBox3(box3);
     setCardsNumInBox4(box4);
     setCardsNumInBox5(box5);
     setCardsNumInBox6(box6);
-}, [cards]);
+  }, [cards]);
   useEffect(() => {
     const fetchBox = async () => {
       const response = await fetch(`/g5Boxes/${boxId}`, {
@@ -164,46 +193,59 @@ useEffect(() => {
           setIsCreatingCard={setIsCreatingCard}
         />
       )}
-      <button
-      onClick={handleBox1}
-      disabled={cardsNumInBox1 === 0 || cardsNumInBox2 > 0 || cardsNumInBox3 > 0 || cardsNumInBox4 > 0 || cardsNumInBox5 > 0}
-      >
-        box 1
-      </button>
-      <button
-      onClick={handleBox2}
-      disabled={cardsNumInBox2 === 0 || cardsNumInBox3 > 0 || cardsNumInBox4 > 0 || cardsNumInBox5 > 0}
-      >
-        box 2
-      </button>
-      <button
-      onClick={handleBox3}
-      disabled={cardsNumInBox3 === 0 || cardsNumInBox4 > 0 || cardsNumInBox5 > 0}
-      >
-        box 3
-      </button>
-      <button
-      onClick={handleBox4}
-      disabled={cardsNumInBox4 === 0 || cardsNumInBox5 > 0}
-      >
-        box 4
-      </button>
-      <button
-      onClick={handleBox5}
-      disabled={cardsNumInBox5 === 0}
-      >
-        box 5
-      </button>
-      <button
-      onClick={handleBox6}
-      // disabled={cardsNumInBox6 === 0}
-      >
-        the repository
-      </button>
-      {cards.length === 0 && !isCreatingCard ? (
+      {!isCreatingCard && !isDeletingCard && !isEditingCard && !isAnswerRevealed && (
+        <div>
+          <button
+            onClick={handleBox1}
+            disabled={cardsNumInBox1 === 0 || cardsNumInBox2 > 0 || cardsNumInBox3 > 0 || cardsNumInBox4 > 0 || cardsNumInBox5 > 0}
+          >
+            box 1
+          </button>
+          <button
+            onClick={handleBox2}
+            disabled={cardsNumInBox2 === 0 || cardsNumInBox3 > 0 || cardsNumInBox4 > 0 || cardsNumInBox5 > 0}
+          >
+            box 2
+          </button>
+          <button
+            onClick={handleBox3}
+            disabled={cardsNumInBox3 === 0 || cardsNumInBox4 > 0 || cardsNumInBox5 > 0}
+          >
+            box 3
+          </button>
+          <button
+            onClick={handleBox4}
+            disabled={cardsNumInBox4 === 0 || cardsNumInBox5 > 0}
+          >
+            box 4
+          </button>
+          <button
+            onClick={handleBox5}
+            disabled={cardsNumInBox5 === 0}
+          >
+            box 5
+          </button>
+          <button onClick={handleBox6}>the repository</button>
+        </div>
+      )}
+      {!isBoxShuffled && (
+        <button onClick={ShuffleTheBox}>
+          {isBox1Shown
+            ? "Shuffle Box 1"
+            : isBox2Shown
+              ? "Shuffle Box 2"
+              : isBox3Shown
+                ? "Shuffle Box 3"
+                : isBox4Shown
+                  ? "Shuffle Box 4"
+                  : isBox5Shown && "Shuffle Box 5"}
+        </button>
+      )}
+      {cards.length === 0 && !isCreatingCard && isBoxShuffled ? (
         <p>This box has no cards yet.</p>
       ) : (
-        !isCreatingCard && (
+        !isCreatingCard &&
+        isBoxShuffled && (
           <div>
             {cards.map(
               (card) =>
@@ -235,17 +277,34 @@ useEffect(() => {
                     error={error}
                     setError={setError}
                     setCards={setCards}
+                    isAnswerRevealed={isAnswerRevealed}
+                    setIsAnswerRevealed={setIsAnswerRevealed}
+                    isDeletingCard={isDeletingCard}
+                    setIsDeletingCard={setIsDeletingCard}
                     isEditing={isEditing}
                     setIsEditing={setIsEditing}
+                    isEditingCard={isEditingCard}
+                    setIsEditingCard={setIsEditingCard}
+                    isReturningToBox1FromRepository={
+                      isReturningToBox1FromRepository
+                    }
+                    setIsReturningToBox1FromRepository={
+                      setIsReturningToBox1FromRepository
+                    }
                   />
                 ),
             )}
           </div>
         )
       )}
-      {!isCreatingCard && (
-        <button onClick={() => setIsCreatingCard(true)}>Add Card</button>
-      )}
+      {!isCreatingCard &&
+        !isReturningToBox1FromRepository &&
+        !isEditingCard &&
+        !isDeletingCard &&
+        !isAnswerRevealed &&
+        isBoxShuffled && (
+          <button onClick={() => setIsCreatingCard(true)}>Add Card</button>
+        )}
     </div>
   );
 }
