@@ -84,13 +84,13 @@ export default function Navbar({
         <div>
           Number of registered users: <strong>{userCount}</strong>
         </div>
-        <button onClick={() => navigate("/register")}>Register</button>
-        <button onClick={() => navigate("/login")}>Login</button>
-        <button onClick={handleLogout}>Logout</button>
-        {currentUser && currentUser.role === "Admin" && !error && (
+        {!isLoggingOut && <button onClick={() => navigate("/register")}>Register</button>}
+        {!isLoggingOut && <button onClick={() => navigate("/login")}>Login</button>}
+        {!isLoggingOut && <button onClick={handleLogout}>Logout</button>}
+        {currentUser && currentUser.role === "Admin" && !error && !isLoggingOut && (
           <button onClick={() => navigate("/users")}>All users</button>
         )}
-        {currentUser && !error && (
+        {currentUser && !error && !isLoggingOut && (
           <button onClick={() => navigate("/profile")}>My Profile</button>
         )}
         {currentUser &&
@@ -100,7 +100,7 @@ export default function Navbar({
           !isProfileEditing &&
           // !isAdEditing &&
           !isCreatingBox &&
-          !error && <button onClick={renderG5}>G5</button>}
+          !error && !isLoggingOut && <button onClick={renderG5}>G5</button>}
         {isLoggingOut && (
           <div>
             <div>Are you sure you want to logout?</div>
