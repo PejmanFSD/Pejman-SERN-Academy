@@ -228,7 +228,9 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
           <button onClick={handleBox6}>the repository</button>
         </div>
       )}
-      {!isBoxShuffled && (
+      {!isBoxShuffled &&
+      (isBox1Shown || isBox2Shown || isBox3Shown || isBox4Shown || isBox5Shown) &&
+      (
         <button onClick={ShuffleTheBox}>
           {isBox1Shown
             ? "Shuffle Box 1"
