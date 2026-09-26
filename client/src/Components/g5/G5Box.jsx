@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import CreateG5CardForm from "./CreateG5CardForm";
 import Card from "./Card";
@@ -26,6 +26,8 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   const [isReturningToBox1FromRepository, setIsReturningToBox1FromRepository] =
     useState(false);
   const [isBoxShuffled, setIsBoxShuffled] = useState(false);
+  const [activeBox, setActiveBox] = useState(-1);
+  const hasInitializedActiveBox = useRef(false); // For evaluating the initial activeBox ONLY AND ONLY one time, on mount
 
   const handleBox1 = () => {
     setIsBoxShuffled(false);
@@ -129,6 +131,67 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     setCardsNumInBox5(box5);
     setCardsNumInBox6(box6);
   }, [cards]);
+
+useEffect(() => {
+  // Don't run the initialization again if the "hasInitializedActiveBox" variable is true
+  // (when the on mount is done, at the end of this useEffect hook it becomes true)
+  if (hasInitializedActiveBox.current) {
+    return;
+  }
+  // Wait until the box counts have been calculated:
+  if (
+    cardsNumInBox1 === 0 &&
+    cardsNumInBox2 === 0 &&
+    cardsNumInBox3 === 0 &&
+    cardsNumInBox4 === 0 &&
+    cardsNumInBox5 === 0 &&
+    cardsNumInBox6 === 0
+  ) {
+    return;
+  }
+  if (cardsNumInBox5 > 0) {
+    setActiveBox(5);
+  } else if (cardsNumInBox4 > 0) {
+    setActiveBox(4);
+  } else if (cardsNumInBox3 > 0) {
+    setActiveBox(3);
+  } else if (cardsNumInBox2 > 0) {
+    setActiveBox(2);
+  } else if (cardsNumInBox1 > 0) {
+    setActiveBox(1);
+  }
+  // Mark initialization as complete, so from now on the value of "activeBox" depends on the situations
+  hasInitializedActiveBox.current = true;
+}, [
+  cardsNumInBox1,
+  cardsNumInBox2,
+  cardsNumInBox3,
+  cardsNumInBox4,
+  cardsNumInBox5,
+  cardsNumInBox6
+]);
+
+  useEffect(() => {
+    if (activeBox === 5 && cardsNumInBox5 === 0) {
+      setActiveBox(4);
+    } else if (activeBox === 4 && cardsNumInBox4 === 0) {
+      setActiveBox(3);
+    } else if (activeBox === 3 && cardsNumInBox3 === 0) {
+      setActiveBox(2);
+    } else if (activeBox === 2 && cardsNumInBox2 === 0) {
+      setActiveBox(1);
+    } else if (activeBox === 1 && cardsNumInBox1 === 0) {
+      setActiveBox(0);
+    }
+  }, [
+  cardsNumInBox1,
+  cardsNumInBox2,
+  cardsNumInBox3,
+  cardsNumInBox4,
+  cardsNumInBox5,
+  cardsNumInBox6
+  ]);
+
   useEffect(() => {
     const fetchBox = async () => {
       const response = await fetch(`/g5Boxes/${boxId}`, {
@@ -176,6 +239,8 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
 
   return (
     <div>
+      <div>activeBox: {activeBox}</div>
+      <div>--------------------------------</div>
       <div>cardsNumInBox1: {cardsNumInBox1}</div>
       <div>cardsNumInBox2: {cardsNumInBox2}</div>
       <div>cardsNumInBox3: {cardsNumInBox3}</div>
@@ -197,31 +262,31 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
         <div>
           <button
             onClick={handleBox1}
-            disabled={cardsNumInBox1 === 0 || cardsNumInBox2 > 0 || cardsNumInBox3 > 0 || cardsNumInBox4 > 0 || cardsNumInBox5 > 0}
+            disabled={activeBox !== 1}
           >
             box 1
           </button>
           <button
             onClick={handleBox2}
-            disabled={cardsNumInBox2 === 0 || cardsNumInBox3 > 0 || cardsNumInBox4 > 0 || cardsNumInBox5 > 0}
+            disabled={activeBox !== 2}
           >
             box 2
           </button>
           <button
             onClick={handleBox3}
-            disabled={cardsNumInBox3 === 0 || cardsNumInBox4 > 0 || cardsNumInBox5 > 0}
+            disabled={activeBox !== 3}
           >
             box 3
           </button>
           <button
             onClick={handleBox4}
-            disabled={cardsNumInBox4 === 0 || cardsNumInBox5 > 0}
+            disabled={activeBox !== 4}
           >
             box 4
           </button>
           <button
             onClick={handleBox5}
-            disabled={cardsNumInBox5 === 0}
+            disabled={activeBox !== 5}
           >
             box 5
           </button>
