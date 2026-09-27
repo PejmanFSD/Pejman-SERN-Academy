@@ -26,10 +26,12 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   const [isReturningToBox1FromRepository, setIsReturningToBox1FromRepository] =
     useState(false);
   const [isBoxShuffled, setIsBoxShuffled] = useState(false);
+  const [isBoxStarted, setIsBoxStarted] = useState(false);
   const [activeBox, setActiveBox] = useState(-1);
   const hasInitializedActiveBox = useRef(false); // For evaluating the initial activeBox ONLY AND ONLY one time, on mount
 
   const handleBox1 = () => {
+    setIsBoxStarted(false);
     setIsBoxShuffled(false);
     setIsBox1Shown(true);
     setIsBox2Shown(false);
@@ -39,6 +41,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     setIsBox6Shown(false);
   };
   const handleBox2 = () => {
+    setIsBoxStarted(false);
     setIsBoxShuffled(false);
     setIsBox1Shown(false);
     setIsBox2Shown(true);
@@ -48,6 +51,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     setIsBox6Shown(false);
   };
   const handleBox3 = () => {
+    setIsBoxStarted(false);
     setIsBoxShuffled(false);
     setIsBox1Shown(false);
     setIsBox2Shown(false);
@@ -57,6 +61,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     setIsBox6Shown(false);
   };
   const handleBox4 = () => {
+    setIsBoxStarted(false);
     setIsBoxShuffled(false);
     setIsBox1Shown(false);
     setIsBox2Shown(false);
@@ -66,6 +71,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     setIsBox6Shown(false);
   };
   const handleBox5 = () => {
+    setIsBoxStarted(false);
     setIsBoxShuffled(false);
     setIsBox1Shown(false);
     setIsBox2Shown(false);
@@ -75,6 +81,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     setIsBox6Shown(false);
   };
   const handleBox6 = () => {
+    setIsBoxStarted(true);
     setIsBoxShuffled(false);
     setIsBox1Shown(false);
     setIsBox2Shown(false);
@@ -100,6 +107,9 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
       return shuffledCards;
     });
     setIsBoxShuffled(true);
+  };
+  const handleStartBox = () => {
+    setIsBoxStarted(true);
   };
   useEffect(() => {
     let box1 = 0;
@@ -132,44 +142,44 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     setCardsNumInBox6(box6);
   }, [cards]);
 
-useEffect(() => {
-  // Don't run the initialization again if the "hasInitializedActiveBox" variable is true
-  // (when the on mount is done, at the end of this useEffect hook it becomes true)
-  if (hasInitializedActiveBox.current) {
-    return;
-  }
-  // Wait until the box counts have been calculated:
-  if (
-    cardsNumInBox1 === 0 &&
-    cardsNumInBox2 === 0 &&
-    cardsNumInBox3 === 0 &&
-    cardsNumInBox4 === 0 &&
-    cardsNumInBox5 === 0 &&
-    cardsNumInBox6 === 0
-  ) {
-    return;
-  }
-  if (cardsNumInBox5 > 0) {
-    setActiveBox(5);
-  } else if (cardsNumInBox4 > 0) {
-    setActiveBox(4);
-  } else if (cardsNumInBox3 > 0) {
-    setActiveBox(3);
-  } else if (cardsNumInBox2 > 0) {
-    setActiveBox(2);
-  } else if (cardsNumInBox1 > 0) {
-    setActiveBox(1);
-  }
-  // Mark initialization as complete, so from now on the value of "activeBox" depends on the situations
-  hasInitializedActiveBox.current = true;
-}, [
-  cardsNumInBox1,
-  cardsNumInBox2,
-  cardsNumInBox3,
-  cardsNumInBox4,
-  cardsNumInBox5,
-  cardsNumInBox6
-]);
+  useEffect(() => {
+    // Don't run the initialization again if the "hasInitializedActiveBox" variable is true
+    // (when the on mount is done, at the end of this useEffect hook it becomes true)
+    if (hasInitializedActiveBox.current) {
+      return;
+    }
+    // Wait until the box counts have been calculated:
+    if (
+      cardsNumInBox1 === 0 &&
+      cardsNumInBox2 === 0 &&
+      cardsNumInBox3 === 0 &&
+      cardsNumInBox4 === 0 &&
+      cardsNumInBox5 === 0 &&
+      cardsNumInBox6 === 0
+    ) {
+      return;
+    }
+    if (cardsNumInBox5 > 0) {
+      setActiveBox(5);
+    } else if (cardsNumInBox4 > 0) {
+      setActiveBox(4);
+    } else if (cardsNumInBox3 > 0) {
+      setActiveBox(3);
+    } else if (cardsNumInBox2 > 0) {
+      setActiveBox(2);
+    } else if (cardsNumInBox1 > 0) {
+      setActiveBox(1);
+    }
+    // Mark initialization as complete, so from now on the value of "activeBox" depends on the situations
+    hasInitializedActiveBox.current = true;
+  }, [
+    cardsNumInBox1,
+    cardsNumInBox2,
+    cardsNumInBox3,
+    cardsNumInBox4,
+    cardsNumInBox5,
+    cardsNumInBox6,
+  ]);
 
   useEffect(() => {
     if (activeBox === 5 && cardsNumInBox5 === 0) {
@@ -184,12 +194,12 @@ useEffect(() => {
       setActiveBox(0);
     }
   }, [
-  cardsNumInBox1,
-  cardsNumInBox2,
-  cardsNumInBox3,
-  cardsNumInBox4,
-  cardsNumInBox5,
-  cardsNumInBox6
+    cardsNumInBox1,
+    cardsNumInBox2,
+    cardsNumInBox3,
+    cardsNumInBox4,
+    cardsNumInBox5,
+    cardsNumInBox6,
   ]);
 
   useEffect(() => {
@@ -239,15 +249,21 @@ useEffect(() => {
 
   return (
     <div>
-      <div>activeBox: {activeBox}</div>
-      <div>--------------------------------</div>
-      <div>cardsNumInBox1: {cardsNumInBox1}</div>
-      <div>cardsNumInBox2: {cardsNumInBox2}</div>
-      <div>cardsNumInBox3: {cardsNumInBox3}</div>
-      <div>cardsNumInBox4: {cardsNumInBox4}</div>
-      <div>cardsNumInBox5: {cardsNumInBox5}</div>
-      <div>cardsNumInBox6: {cardsNumInBox6}</div>
-      {!isCreatingCard && <h1>{box.box_name}</h1>}
+      <div>The number of cards in Box 1: {cardsNumInBox1}</div>
+      <div>The number of cards in Box 2: {cardsNumInBox2}</div>
+      <div>The number of cards in Box 3: {cardsNumInBox3}</div>
+      <div>The number of cards in Box 4: {cardsNumInBox4}</div>
+      <div>The number of cards in Box 5: {cardsNumInBox5}</div>
+      <div>The number of cards in the repository: {cardsNumInBox6}</div>
+      <h1>{box.box_name}</h1>
+      {!isCreatingCard &&
+        !isReturningToBox1FromRepository &&
+        !isCreatingCard &&
+        !isEditingCard &&
+        !isDeletingCard &&
+        !isAnswerRevealed && (
+          <button onClick={() => setIsCreatingCard(true)}>Add Card</button>
+        )}
       {isCreatingCard && (
         <CreateG5CardForm
           boxId={boxId}
@@ -258,61 +274,87 @@ useEffect(() => {
           setIsCreatingCard={setIsCreatingCard}
         />
       )}
-      {!isCreatingCard && !isDeletingCard && !isEditingCard && !isAnswerRevealed && (
-        <div>
-          <button
-            onClick={handleBox1}
-            disabled={activeBox !== 1}
-          >
-            box 1
-          </button>
-          <button
-            onClick={handleBox2}
-            disabled={activeBox !== 2}
-          >
-            box 2
-          </button>
-          <button
-            onClick={handleBox3}
-            disabled={activeBox !== 3}
-          >
-            box 3
-          </button>
-          <button
-            onClick={handleBox4}
-            disabled={activeBox !== 4}
-          >
-            box 4
-          </button>
-          <button
-            onClick={handleBox5}
-            disabled={activeBox !== 5}
-          >
-            box 5
-          </button>
-          <button onClick={handleBox6}>the repository</button>
-        </div>
-      )}
+      {!isCreatingCard &&
+        !isDeletingCard &&
+        !isEditingCard &&
+        !isAnswerRevealed && (
+          <div>
+            <button onClick={handleBox1} disabled={activeBox !== 1}>
+              box 1
+            </button>
+            <button onClick={handleBox2} disabled={activeBox !== 2}>
+              box 2
+            </button>
+            <button onClick={handleBox3} disabled={activeBox !== 3}>
+              box 3
+            </button>
+            <button onClick={handleBox4} disabled={activeBox !== 4}>
+              box 4
+            </button>
+            <button onClick={handleBox5} disabled={activeBox !== 5}>
+              box 5
+            </button>
+            <button onClick={handleBox6}>the repository</button>
+          </div>
+        )}
       {!isBoxShuffled &&
-      (isBox1Shown || isBox2Shown || isBox3Shown || isBox4Shown || isBox5Shown) &&
-      (
-        <button onClick={ShuffleTheBox}>
-          {isBox1Shown
-            ? "Shuffle Box 1"
-            : isBox2Shown
-              ? "Shuffle Box 2"
-              : isBox3Shown
-                ? "Shuffle Box 3"
-                : isBox4Shown
-                  ? "Shuffle Box 4"
-                  : isBox5Shown && "Shuffle Box 5"}
-        </button>
-      )}
-      {cards.length === 0 && !isCreatingCard && isBoxShuffled ? (
+        !isCreatingCard &&
+        !isDeletingCard &&
+        !isEditingCard &&
+        !isAnswerRevealed &&
+        (isBox1Shown ||
+          isBox2Shown ||
+          isBox3Shown ||
+          isBox4Shown ||
+          isBox5Shown) && (
+          <button onClick={ShuffleTheBox}>
+            {isBox1Shown
+              ? "Shuffle Box 1"
+              : isBox2Shown
+                ? "Shuffle Box 2"
+                : isBox3Shown
+                  ? "Shuffle Box 3"
+                  : isBox4Shown
+                    ? "Shuffle Box 4"
+                    : isBox5Shown && "Shuffle Box 5"}
+          </button>
+        )}
+      {isBoxShuffled &&
+        !isBoxStarted &&
+        !isCreatingCard &&
+        !isDeletingCard &&
+        !isEditingCard &&
+        !isAnswerRevealed && (
+          <div>
+            <div>
+              {isBox1Shown
+                ? "Box 1 is shuffled"
+                : isBox2Shown
+                  ? "Box 2 is shuffled"
+                  : isBox3Shown
+                    ? "Box 3 is shuffled"
+                    : isBox4Shown
+                      ? "Box 4 is shuffled"
+                      : isBox5Shown && "Box 5 is shuffled"}
+            </div>
+            <button onClick={handleStartBox}>
+              {isBox1Shown
+                ? "Start Box 1"
+                : isBox2Shown
+                  ? "Start Box 2"
+                  : isBox3Shown
+                    ? "Start Box 3"
+                    : isBox4Shown
+                      ? "Start Box 4"
+                      : isBox5Shown && "Start Box 5"}
+            </button>
+          </div>
+        )}
+      {cards.length === 0 && !isCreatingCard && isBoxStarted ? (
         <p>This box has no cards yet.</p>
       ) : (
         !isCreatingCard &&
-        isBoxShuffled && (
+        isBoxStarted && (
           <div>
             {cards.map(
               (card) =>
@@ -364,14 +406,6 @@ useEffect(() => {
           </div>
         )
       )}
-      {!isCreatingCard &&
-        !isReturningToBox1FromRepository &&
-        !isEditingCard &&
-        !isDeletingCard &&
-        !isAnswerRevealed &&
-        isBoxShuffled && (
-          <button onClick={() => setIsCreatingCard(true)}>Add Card</button>
-        )}
     </div>
   );
 }
