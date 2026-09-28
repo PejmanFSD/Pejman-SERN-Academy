@@ -134,8 +134,30 @@ module.exports.moveToNextBox = async (cardId, userId) => {
 
     return result.recordset[0];
 };
-// Returning the card to the first box (If the user answers wrong):
+// Returning the card to the starting area (If the user answers wrong):
 module.exports.resetToFirstBox = async (cardId, userId) => {
+    const pool = await connectDB();
+
+    const result = await pool
+        .request()
+        .input("id", sql.Int, cardId)
+        .input("user_id", sql.Int, userId)
+        .query(`
+            UPDATE c
+            SET c.box_number = 0
+            OUTPUT INSERTED.*
+            FROM G5_Cards AS c
+            INNER JOIN G5_Boxes AS b
+                ON c.box_id = b.id
+            WHERE c.id = @id
+              AND b.user_id = @user_id;
+        `);
+
+    return result.recordset[0];
+};
+
+// Sending the card to the first box (from the starting area):
+module.exports.startAnswering = async (cardId, userId) => {
     const pool = await connectDB();
 
     const result = await pool

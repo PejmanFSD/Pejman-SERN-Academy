@@ -110,10 +110,10 @@ export default function Card({
     }
     setIsAnswerRevealed((currIsAnswerRevealed) => !currIsAnswerRevealed);
   };
-  const ReturnToBox1 = () => {
+  const ReturnToBox0 = () => {
     setIsReturningToBox1FromRepository(true);
   };
-  const ReturnToBox1Yes = async () => {
+  const ReturnToBox0Yes = async () => {
     try {
       const response = await fetch(`/g5Cards/${card.id}/reset-box`, {
         method: "PUT",
@@ -131,9 +131,29 @@ export default function Card({
     } catch (err) {
       setError("Something went wrong while returning the card to Box 1.");
     }
-  };
-  const ReturnToBox1No = () => {
     setIsReturningToBox1FromRepository(false);
+  };
+  const ReturnToBox0No = () => {
+    setIsReturningToBox1FromRepository(false);
+  };
+  const ReturnToBox1 = async () => {
+    try {
+      const response = await fetch(`/g5Cards/${card.id}/start-box`, {
+        method: "PUT",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Failed to return the card to Box 1.");
+        return;
+      }
+
+      onCardUpdated(data.card);
+    } catch (err) {
+      setError("Something went wrong while returning the card to Box 1.");
+    }
   };
   const deleteCard = () => {
     setIsDeletingCard(true);
@@ -200,9 +220,11 @@ export default function Card({
       !isDeletingCard &&
       !isEditingCard &&
       !isReturningToBox1FromRepository &&
-      card.box_number !== 6 ? (
+      card.box_number !== 6 &&
+      card.box_number !== 0
+      ? (
         <button onClick={RevealTheAnswer}>Reveal the answer</button>
-      ) : !isDeletingCard && !isEditingCard && card.box_number !== 6 && !isReturningToBox1FromRepository ? (
+      ) : !isDeletingCard && !isEditingCard && card.box_number !== 6 && card.box_number !== 0 && !isReturningToBox1FromRepository ? (
         <div>
           <div>Answer: {card.answer}</div>
           <div>
@@ -224,7 +246,7 @@ export default function Card({
       {!isAnswerRevealed &&
         !isDeletingCard &&
         !isEditingCard &&
-        card.box_number !== 6 && <div>Box: {card.box_number}</div>}
+        card.box_number !== 6 && card.box_number !== 0 && <div>Box: {card.box_number}</div>}
       {!isAnswerRevealed && !isDeletingCard && !isEditingCard && !isReturningToBox1FromRepository && (
         <div>
           <button onClick={editCard}>Edit</button>
@@ -235,18 +257,23 @@ export default function Card({
       )}
       {card.box_number === 6 && !isReturningToBox1FromRepository && !isEditingCard && !isDeletingCard ? (
         <div>
-          <button onClick={ReturnToBox1}>Return to Box 1</button>
+          <button onClick={ReturnToBox0}>Return to Starting Area</button>
         </div>
       ) : (
         card.box_number === 6 &&
         isReturningToBox1FromRepository && (
           <div>
-            <div>Are you sure you want to return this card to Box 1?</div>
-            <button onClick={ReturnToBox1Yes}>Yes</button>
-            <button onClick={ReturnToBox1No}>No</button>
+            <div>Are you sure you want to return this card to Starting Area?</div>
+            <button onClick={ReturnToBox0Yes}>Yes</button>
+            <button onClick={ReturnToBox0No}>No</button>
           </div>
         )
       )}
+      {card.box_number === 0 && !isReturningToBox1FromRepository && !isEditingCard && !isDeletingCard &&
+        <div>
+          <button onClick={ReturnToBox1}>Send to the answering process</button>
+        </div>
+      }
       -----------------------
     </div>
   );

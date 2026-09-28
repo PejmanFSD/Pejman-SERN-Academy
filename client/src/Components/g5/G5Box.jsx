@@ -8,12 +8,14 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   const [box, setBox] = useState(null);
   const [isCreatingCard, setIsCreatingCard] = useState(false);
   const [cards, setCards] = useState([]);
+  const [isBox0Shown, setIsBox0Shown] = useState(false);
   const [isBox1Shown, setIsBox1Shown] = useState(false);
   const [isBox2Shown, setIsBox2Shown] = useState(false);
   const [isBox3Shown, setIsBox3Shown] = useState(false);
   const [isBox4Shown, setIsBox4Shown] = useState(false);
   const [isBox5Shown, setIsBox5Shown] = useState(false);
   const [isBox6Shown, setIsBox6Shown] = useState(false);
+  const [cardsNumInBox0, setCardsNumInBox0] = useState(0);
   const [cardsNumInBox1, setCardsNumInBox1] = useState(0);
   const [cardsNumInBox2, setCardsNumInBox2] = useState(0);
   const [cardsNumInBox3, setCardsNumInBox3] = useState(0);
@@ -30,9 +32,21 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   const [activeBox, setActiveBox] = useState(-1);
   const hasInitializedActiveBox = useRef(false); // For evaluating the initial activeBox ONLY AND ONLY one time, on mount
 
+  const handleBox0 = () => {
+    setIsBoxStarted(false);
+    setIsBoxShuffled(false);
+    setIsBox0Shown(true);
+    setIsBox1Shown(false);
+    setIsBox2Shown(false);
+    setIsBox3Shown(false);
+    setIsBox4Shown(false);
+    setIsBox5Shown(false);
+    setIsBox6Shown(false);
+  };
   const handleBox1 = () => {
     setIsBoxStarted(false);
     setIsBoxShuffled(false);
+    setIsBox0Shown(false);
     setIsBox1Shown(true);
     setIsBox2Shown(false);
     setIsBox3Shown(false);
@@ -43,6 +57,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   const handleBox2 = () => {
     setIsBoxStarted(false);
     setIsBoxShuffled(false);
+    setIsBox0Shown(false);
     setIsBox1Shown(false);
     setIsBox2Shown(true);
     setIsBox3Shown(false);
@@ -53,6 +68,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   const handleBox3 = () => {
     setIsBoxStarted(false);
     setIsBoxShuffled(false);
+    setIsBox0Shown(false);
     setIsBox1Shown(false);
     setIsBox2Shown(false);
     setIsBox3Shown(true);
@@ -63,6 +79,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   const handleBox4 = () => {
     setIsBoxStarted(false);
     setIsBoxShuffled(false);
+    setIsBox0Shown(false);
     setIsBox1Shown(false);
     setIsBox2Shown(false);
     setIsBox3Shown(false);
@@ -73,6 +90,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   const handleBox5 = () => {
     setIsBoxStarted(false);
     setIsBoxShuffled(false);
+    setIsBox0Shown(false);
     setIsBox1Shown(false);
     setIsBox2Shown(false);
     setIsBox3Shown(false);
@@ -83,6 +101,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   const handleBox6 = () => {
     setIsBoxStarted(true);
     setIsBoxShuffled(false);
+    setIsBox0Shown(false);
     setIsBox1Shown(false);
     setIsBox2Shown(false);
     setIsBox3Shown(false);
@@ -111,7 +130,21 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   const handleStartBox = () => {
     setIsBoxStarted(true);
   };
+  const startNewRound = () => {
+    if (cardsNumInBox5 > 0) {
+      setActiveBox(5);
+    } else if (cardsNumInBox4 > 0) {
+      setActiveBox(4);
+    } else if (cardsNumInBox3 > 0) {
+      setActiveBox(3);
+    } else if (cardsNumInBox2 > 0) {
+      setActiveBox(2);
+    } else {
+      setActiveBox(1);
+    }
+  }
   useEffect(() => {
+    let box0 = 0;
     let box1 = 0;
     let box2 = 0;
     let box3 = 0;
@@ -120,7 +153,9 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     let box6 = 0;
 
     for (const card of cards) {
-      if (card.box_number === 1) {
+      if (card.box_number === 0) {
+        box0++;
+      } else if (card.box_number === 1) {
         box1++;
       } else if (card.box_number === 2) {
         box2++;
@@ -134,6 +169,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
         box6++;
       }
     }
+    setCardsNumInBox0(box0);
     setCardsNumInBox1(box1);
     setCardsNumInBox2(box2);
     setCardsNumInBox3(box3);
@@ -150,6 +186,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     }
     // Wait until the box counts have been calculated:
     if (
+      cardsNumInBox0 === 0 &&
       cardsNumInBox1 === 0 &&
       cardsNumInBox2 === 0 &&
       cardsNumInBox3 === 0 &&
@@ -170,9 +207,13 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     } else if (cardsNumInBox1 > 0) {
       setActiveBox(1);
     }
+     else if (cardsNumInBox1 > 0) {
+      setActiveBox(0);
+    }
     // Mark initialization as complete, so from now on the value of "activeBox" depends on the situations
     hasInitializedActiveBox.current = true;
   }, [
+    cardsNumInBox0,
     cardsNumInBox1,
     cardsNumInBox2,
     cardsNumInBox3,
@@ -192,8 +233,11 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
       setActiveBox(1);
     } else if (activeBox === 1 && cardsNumInBox1 === 0) {
       setActiveBox(0);
+    } else if (activeBox === 0 && cardsNumInBox1 === 0) {
+      setActiveBox(-1);
     }
   }, [
+    cardsNumInBox0,
     cardsNumInBox1,
     cardsNumInBox2,
     cardsNumInBox3,
@@ -249,6 +293,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
 
   return (
     <div>
+      <div>The number of cards in Starting Area: {cardsNumInBox0}</div>
       <div>The number of cards in Box 1: {cardsNumInBox1}</div>
       <div>The number of cards in Box 2: {cardsNumInBox2}</div>
       <div>The number of cards in Box 3: {cardsNumInBox3}</div>
@@ -279,6 +324,9 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
         !isEditingCard &&
         !isAnswerRevealed && (
           <div>
+            <button onClick={handleBox0} disabled={activeBox !== 0}>
+              Starting Area
+            </button>
             <button onClick={handleBox1} disabled={activeBox !== 1}>
               box 1
             </button>
@@ -324,7 +372,13 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
         !isCreatingCard &&
         !isDeletingCard &&
         !isEditingCard &&
-        !isAnswerRevealed && (
+        !isAnswerRevealed &&
+        (isBox1Shown ||
+          isBox2Shown ||
+          isBox3Shown ||
+          isBox4Shown ||
+          isBox5Shown) &&
+        (
           <div>
             <div>
               {isBox1Shown
@@ -358,7 +412,8 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
           <div>
             {cards.map(
               (card) =>
-                ((isBox1Shown && card.box_number === 1) ||
+                ((isBox0Shown && card.box_number === 0) ||
+                  (isBox1Shown && card.box_number === 1) ||
                   (isBox2Shown && card.box_number === 2) ||
                   (isBox3Shown && card.box_number === 3) ||
                   (isBox4Shown && card.box_number === 4) ||
@@ -405,6 +460,67 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
             )}
           </div>
         )
+      )}
+      {cards.length === 0 && !isCreatingCard && !isBoxStarted && !isBoxShuffled && activeBox === 0 ? (
+        <p>This box has no cards yet.</p>
+      ) : (
+        cards.length > 0 && !isCreatingCard && !isBoxStarted && !isBoxShuffled && activeBox === 0 && cardsNumInBox0 === 0 &&
+        (cardsNumInBox1 !== 0 || cardsNumInBox2 !== 0 || cardsNumInBox3 !== 0 || cardsNumInBox4 !== 0 || cardsNumInBox5 !== 0)
+      ) ? (
+        <div>
+          <div>The current round of answering the cards is finished</div>
+          <button onClick={startNewRound}>Start the new round</button>
+        </div>
+      ) : (
+        cards.length > 0 && !isCreatingCard && !isBoxStarted && !isBoxShuffled && activeBox === 0 && cardsNumInBox0 === 0 &&
+        cardsNumInBox1 === 0 && cardsNumInBox2 === 0 && cardsNumInBox3 === 0 && cardsNumInBox4 === 0 && cardsNumInBox5 === 0
+      ) ? (
+        <div>There's no cards in the boxes, either return the cards from the repository to the starting area or add new cards!</div>
+      ) : (cards.length > 0 && !isCreatingCard && !isBoxStarted && !isBoxShuffled && activeBox === 0 &&
+          <div>
+            {cards.map(
+              (card) =>
+                (isBox0Shown && card.box_number === 0) && (
+                  <Card
+                    key={card.id}
+                    card={card}
+                    onCardUpdated={(updatedCard) => {
+                      setCards((currentCards) =>
+                        currentCards.map((currentCard) =>
+                          currentCard.id === updatedCard.id
+                            ? updatedCard
+                            : currentCard,
+                        ),
+                      );
+                    }}
+                    onCardDeleted={(deletedCardId) => {
+                      setCards((currentCards) =>
+                        currentCards.filter(
+                          (currentCard) => currentCard.id !== deletedCardId,
+                        ),
+                      );
+                    }}
+                    error={error}
+                    setError={setError}
+                    setCards={setCards}
+                    isAnswerRevealed={isAnswerRevealed}
+                    setIsAnswerRevealed={setIsAnswerRevealed}
+                    isDeletingCard={isDeletingCard}
+                    setIsDeletingCard={setIsDeletingCard}
+                    isEditing={isEditing}
+                    setIsEditing={setIsEditing}
+                    isEditingCard={isEditingCard}
+                    setIsEditingCard={setIsEditingCard}
+                    isReturningToBox1FromRepository={
+                      isReturningToBox1FromRepository
+                    }
+                    setIsReturningToBox1FromRepository={
+                      setIsReturningToBox1FromRepository
+                    }
+                  />
+                ),
+            )}
+          </div>
       )}
     </div>
   );

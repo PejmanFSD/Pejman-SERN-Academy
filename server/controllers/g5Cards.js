@@ -121,7 +121,7 @@ module.exports.moveToNextBox = async (req, res) => {
         message: "Card moved to the next box!"
     });
 };
-// Returning the card to the first box (If the user answers wrong):
+// Returning the card to the starting area (If the user answers wrong):
 module.exports.resetToFirstBox = async (req, res) => {
     const userId = req.session.user_id;
     const cardId = Number(req.params.id);
@@ -139,6 +139,27 @@ module.exports.resetToFirstBox = async (req, res) => {
 
     res.json({
         card,
-        message: "Card moved back to Box 1!"
+        message: "Card moved back to the starting area!"
+    });
+};
+// Sending the card to the first box (from the starting area):
+module.exports.startAnswering = async (req, res) => {
+    const userId = req.session.user_id;
+    const cardId = Number(req.params.id);
+
+    const card = await G5Cards.startAnswering(
+        cardId,
+        userId
+    );
+
+    if (!card) {
+        return res.status(404).json({
+            error: "Card not found."
+        });
+    }
+
+    res.json({
+        card,
+        message: "Card is moved to Box 1 for the process of answering!"
     });
 };
