@@ -30,6 +30,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   const [isBoxShuffled, setIsBoxShuffled] = useState(false);
   const [isBoxStarted, setIsBoxStarted] = useState(false);
   const [activeBox, setActiveBox] = useState(-1);
+  const [revealedCardId, setRevealedCardId] = useState(null);
   const hasInitializedActiveBox = useRef(false); // For evaluating the initial activeBox ONLY AND ONLY one time, on mount
 
   const handleBox0 = () => {
@@ -142,7 +143,10 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     } else {
       setActiveBox(1);
     }
-  }
+  };
+  const revealTheCard = (cardId) => {
+    setRevealedCardId(cardId);
+  };
   useEffect(() => {
     let box0 = 0;
     let box1 = 0;
@@ -206,8 +210,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
       setActiveBox(2);
     } else if (cardsNumInBox1 > 0) {
       setActiveBox(1);
-    }
-     else if (cardsNumInBox1 > 0) {
+    } else if (cardsNumInBox1 > 0) {
       setActiveBox(0);
     }
     // Mark initialization as complete, so from now on the value of "activeBox" depends on the situations
@@ -226,64 +229,126 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
     if (activeBox === 5) {
       if (cardsNumInBox5 === 0 && cardsNumInBox4 > 0) {
         setActiveBox(4);
-      } else if (cardsNumInBox5 === 0 && cardsNumInBox4 === 0 && cardsNumInBox3 > 0) {
+      } else if (
+        cardsNumInBox5 === 0 &&
+        cardsNumInBox4 === 0 &&
+        cardsNumInBox3 > 0
+      ) {
         setActiveBox(3);
-      } else if (cardsNumInBox5 === 0 && cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 > 0) {
+      } else if (
+        cardsNumInBox5 === 0 &&
+        cardsNumInBox4 === 0 &&
+        cardsNumInBox3 === 0 &&
+        cardsNumInBox2 > 0
+      ) {
         setActiveBox(2);
-      } else if (cardsNumInBox5 === 0 && cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 > 0) {
+      } else if (
+        cardsNumInBox5 === 0 &&
+        cardsNumInBox4 === 0 &&
+        cardsNumInBox3 === 0 &&
+        cardsNumInBox2 === 0 &&
+        cardsNumInBox1 > 0
+      ) {
         setActiveBox(1);
-      } else if (cardsNumInBox5 === 0 && cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 > 0) {
+      } else if (
+        cardsNumInBox5 === 0 &&
+        cardsNumInBox4 === 0 &&
+        cardsNumInBox3 === 0 &&
+        cardsNumInBox2 === 0 &&
+        cardsNumInBox1 === 0 &&
+        cardsNumInBox0 > 0
+      ) {
         setActiveBox(0);
-      } else if (cardsNumInBox5 === 0 && cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 === 0) {
+      } else if (
+        cardsNumInBox5 === 0 &&
+        cardsNumInBox4 === 0 &&
+        cardsNumInBox3 === 0 &&
+        cardsNumInBox2 === 0 &&
+        cardsNumInBox1 === 0 &&
+        cardsNumInBox0 === 0
+      ) {
         setActiveBox(-1);
       }
-    }
-
-    else if (activeBox === 4) {
+    } else if (activeBox === 4) {
       if (cardsNumInBox4 === 0 && cardsNumInBox3 > 0) {
         setActiveBox(3);
-      } else if (cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 > 0) {
+      } else if (
+        cardsNumInBox4 === 0 &&
+        cardsNumInBox3 === 0 &&
+        cardsNumInBox2 > 0
+      ) {
         setActiveBox(2);
-      } else if (cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 > 0) {
+      } else if (
+        cardsNumInBox4 === 0 &&
+        cardsNumInBox3 === 0 &&
+        cardsNumInBox2 === 0 &&
+        cardsNumInBox1 > 0
+      ) {
         setActiveBox(1);
-      } else if (cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 > 0) {
+      } else if (
+        cardsNumInBox4 === 0 &&
+        cardsNumInBox3 === 0 &&
+        cardsNumInBox2 === 0 &&
+        cardsNumInBox1 === 0 &&
+        cardsNumInBox0 > 0
+      ) {
         setActiveBox(0);
-      } else if (cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 === 0) {
+      } else if (
+        cardsNumInBox4 === 0 &&
+        cardsNumInBox3 === 0 &&
+        cardsNumInBox2 === 0 &&
+        cardsNumInBox1 === 0 &&
+        cardsNumInBox0 === 0
+      ) {
         setActiveBox(-1);
       }
-    }
-    
-    else if (activeBox === 3) {
+    } else if (activeBox === 3) {
       if (cardsNumInBox3 === 0 && cardsNumInBox2 > 0) {
         setActiveBox(2);
-      } else if (cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 > 0) {
+      } else if (
+        cardsNumInBox3 === 0 &&
+        cardsNumInBox2 === 0 &&
+        cardsNumInBox1 > 0
+      ) {
         setActiveBox(1);
-      } else if (cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 > 0) {
+      } else if (
+        cardsNumInBox3 === 0 &&
+        cardsNumInBox2 === 0 &&
+        cardsNumInBox1 === 0 &&
+        cardsNumInBox0 > 0
+      ) {
         setActiveBox(0);
-      } else if (cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 === 0) {
+      } else if (
+        cardsNumInBox3 === 0 &&
+        cardsNumInBox2 === 0 &&
+        cardsNumInBox1 === 0 &&
+        cardsNumInBox0 === 0
+      ) {
         setActiveBox(-1);
       }
-    }
-    
-    else if (activeBox === 2) {
+    } else if (activeBox === 2) {
       if (cardsNumInBox2 === 0 && cardsNumInBox1 > 0) {
         setActiveBox(1);
-      } else if (cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 > 0) {
+      } else if (
+        cardsNumInBox2 === 0 &&
+        cardsNumInBox1 === 0 &&
+        cardsNumInBox0 > 0
+      ) {
         setActiveBox(0);
-      } else if (cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 === 0) {
+      } else if (
+        cardsNumInBox2 === 0 &&
+        cardsNumInBox1 === 0 &&
+        cardsNumInBox0 === 0
+      ) {
         setActiveBox(-1);
       }
-    }
-
-    else if (activeBox === 1) {
+    } else if (activeBox === 1) {
       if (cardsNumInBox1 === 0 && cardsNumInBox0 > 0) {
         setActiveBox(0);
       } else if (cardsNumInBox1 === 0 && cardsNumInBox0 === 0) {
         setActiveBox(-1);
       }
-    }
-
-    else if (activeBox === 0) {
+    } else if (activeBox === 0) {
       if (cardsNumInBox1 === 0) {
         setActiveBox(-1);
       }
@@ -354,6 +419,8 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
       <div>The number of cards in Box 4: {cardsNumInBox4}</div>
       <div>The number of cards in Box 5: {cardsNumInBox5}</div>
       <div>The number of cards in the repository: {cardsNumInBox6}</div>
+      <div>------------------------------------------------------</div>
+      <div>revealedCardId: {revealedCardId}</div>
       <h1>{box.box_name}</h1>
       {!isCreatingCard &&
         !isReturningToBox1FromRepository &&
@@ -431,8 +498,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
           isBox2Shown ||
           isBox3Shown ||
           isBox4Shown ||
-          isBox5Shown) &&
-        (
+          isBox5Shown) && (
           <div>
             <div>
               {isBox1Shown
@@ -464,18 +530,26 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
         !isCreatingCard &&
         isBoxStarted && (
           <div>
-            {cards.map(
-              (card) =>
-                ((isBox0Shown && card.box_number === 0) ||
-                  (isBox1Shown && card.box_number === 1) ||
-                  (isBox2Shown && card.box_number === 2) ||
-                  (isBox3Shown && card.box_number === 3) ||
-                  (isBox4Shown && card.box_number === 4) ||
-                  (isBox5Shown && card.box_number === 5) ||
-                  (isBox6Shown && card.box_number === 6)) && (
+            {cards.map((card) => {
+              const isCardInShownBox =
+                (isBox0Shown && card.box_number === 0) ||
+                (isBox1Shown && card.box_number === 1) ||
+                (isBox2Shown && card.box_number === 2) ||
+                (isBox3Shown && card.box_number === 3) ||
+                (isBox4Shown && card.box_number === 4) ||
+                (isBox5Shown && card.box_number === 5) ||
+                (isBox6Shown && card.box_number === 6);
+
+              if (!isCardInShownBox) {
+                return null;
+              }
+
+              if (revealedCardId === card.id) {
+                return (
                   <Card
                     key={card.id}
                     card={card}
+                    onClick={() => revealTheCard(card.id)}
                     onCardUpdated={(updatedCard) => {
                       setCards((currentCards) =>
                         currentCards.map((currentCard) =>
@@ -509,35 +583,98 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
                     setIsReturningToBox1FromRepository={
                       setIsReturningToBox1FromRepository
                     }
+                    revealTheCard={revealTheCard}
                   />
-                ),
-            )}
+                );
+              }
+              if (
+                !isCreatingCard &&
+                !isAnswerRevealed &&
+                !isEditingCard &&
+                !isDeletingCard &&
+                !isReturningToBox1FromRepository
+              ) {
+                return (
+                  <div key={card.id}>
+                    <div>!!!!!!!!!!!!!!</div>
+                    <button onClick={() => revealTheCard(card.id)}>
+                      Reveal the card
+                    </button>
+                    <div>-----------------------</div>
+                  </div>
+                );
+              }
+            })}
           </div>
         )
       )}
-      {cards.length === 0 && !isCreatingCard && !isBoxStarted && !isBoxShuffled && activeBox === 0 ? (
+      {cards.length === 0 &&
+      !isCreatingCard &&
+      !isBoxStarted &&
+      !isBoxShuffled &&
+      activeBox === 0 ? (
         <p>This box has no cards yet.</p>
-      ) : (
-        cards.length > 0 && !isCreatingCard && !isBoxStarted && !isBoxShuffled && activeBox === 0 && cardsNumInBox0 === 0 &&
-        (cardsNumInBox1 !== 0 || cardsNumInBox2 !== 0 || cardsNumInBox3 !== 0 || cardsNumInBox4 !== 0 || cardsNumInBox5 !== 0)
-      ) ? (
+      ) : cards.length > 0 &&
+        !isCreatingCard &&
+        !isBoxStarted &&
+        !isBoxShuffled &&
+        activeBox === 0 &&
+        cardsNumInBox0 === 0 &&
+        (cardsNumInBox1 !== 0 ||
+          cardsNumInBox2 !== 0 ||
+          cardsNumInBox3 !== 0 ||
+          cardsNumInBox4 !== 0 ||
+          cardsNumInBox5 !== 0) ? (
         <div>
           <div>The current round of answering the cards is finished</div>
           <button onClick={startNewRound}>Start the new round</button>
         </div>
+      ) : cards.length > 0 &&
+        !isCreatingCard &&
+        !isBoxStarted &&
+        !isBoxShuffled &&
+        activeBox === 0 &&
+        cardsNumInBox0 === 0 &&
+        cardsNumInBox1 === 0 &&
+        cardsNumInBox2 === 0 &&
+        cardsNumInBox3 === 0 &&
+        cardsNumInBox4 === 0 &&
+        cardsNumInBox5 === 0 ? (
+        <div>
+          There's no cards in the boxes, either return the cards from the
+          repository to the starting area or add new cards!
+        </div>
       ) : (
-        cards.length > 0 && !isCreatingCard && !isBoxStarted && !isBoxShuffled && activeBox === 0 && cardsNumInBox0 === 0 &&
-        cardsNumInBox1 === 0 && cardsNumInBox2 === 0 && cardsNumInBox3 === 0 && cardsNumInBox4 === 0 && cardsNumInBox5 === 0
-      ) ? (
-        <div>There's no cards in the boxes, either return the cards from the repository to the starting area or add new cards!</div>
-      ) : (cards.length > 0 && !isCreatingCard && !isBoxStarted && !isBoxShuffled && activeBox === 0 &&
+        cards.length > 0 &&
+        !isCreatingCard &&
+        !isBoxStarted &&
+        !isBoxShuffled &&
+        activeBox === 0 && (
           <div>
-            {cards.map(
-              (card) =>
-                (isBox0Shown && card.box_number === 0) && (
+            {cards.map((card) => {
+              const isCardInShownBox =
+                (isBox0Shown && card.box_number === 0) ||
+                (isBox1Shown && card.box_number === 1) ||
+                (isBox2Shown && card.box_number === 2) ||
+                (isBox3Shown && card.box_number === 3) ||
+                (isBox4Shown && card.box_number === 4) ||
+                (isBox5Shown && card.box_number === 5) ||
+                (isBox6Shown && card.box_number === 6);
+
+              if (!isCardInShownBox) {
+                return null;
+              }
+
+              if (
+                revealedCardId === card.id &&
+                isBox0Shown &&
+                card.box_number === 0
+              ) {
+                return (
                   <Card
                     key={card.id}
                     card={card}
+                    onClick={() => revealTheCard(card.id)}
                     onCardUpdated={(updatedCard) => {
                       setCards((currentCards) =>
                         currentCards.map((currentCard) =>
@@ -571,10 +708,32 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
                     setIsReturningToBox1FromRepository={
                       setIsReturningToBox1FromRepository
                     }
+                    revealTheCard={revealTheCard}
                   />
-                ),
-            )}
+                );
+              }
+              if (
+                !isCreatingCard &&
+                !isAnswerRevealed &&
+                !isEditingCard &&
+                !isDeletingCard &&
+                !isReturningToBox1FromRepository &&
+                isBox0Shown &&
+                card.box_number === 0
+              ) {
+                return (
+                  <div key={card.id}>
+                    <div>!!!!!!!!!!!!!!</div>
+                    <button onClick={() => revealTheCard(card.id)}>
+                      Reveal the card
+                    </button>
+                    <div>-----------------------</div>
+                  </div>
+                );
+              }
+            })}
           </div>
+        )
       )}
     </div>
   );
