@@ -223,18 +223,70 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
   ]);
 
   useEffect(() => {
-    if (activeBox === 5 && cardsNumInBox5 === 0) {
-      setActiveBox(4);
-    } else if (activeBox === 4 && cardsNumInBox4 === 0) {
-      setActiveBox(3);
-    } else if (activeBox === 3 && cardsNumInBox3 === 0) {
-      setActiveBox(2);
-    } else if (activeBox === 2 && cardsNumInBox2 === 0) {
-      setActiveBox(1);
-    } else if (activeBox === 1 && cardsNumInBox1 === 0) {
-      setActiveBox(0);
-    } else if (activeBox === 0 && cardsNumInBox1 === 0) {
-      setActiveBox(-1);
+    if (activeBox === 5) {
+      if (cardsNumInBox5 === 0 && cardsNumInBox4 > 0) {
+        setActiveBox(4);
+      } else if (cardsNumInBox5 === 0 && cardsNumInBox4 === 0 && cardsNumInBox3 > 0) {
+        setActiveBox(3);
+      } else if (cardsNumInBox5 === 0 && cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 > 0) {
+        setActiveBox(2);
+      } else if (cardsNumInBox5 === 0 && cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 > 0) {
+        setActiveBox(1);
+      } else if (cardsNumInBox5 === 0 && cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 > 0) {
+        setActiveBox(0);
+      } else if (cardsNumInBox5 === 0 && cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 === 0) {
+        setActiveBox(-1);
+      }
+    }
+
+    else if (activeBox === 4) {
+      if (cardsNumInBox4 === 0 && cardsNumInBox3 > 0) {
+        setActiveBox(3);
+      } else if (cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 > 0) {
+        setActiveBox(2);
+      } else if (cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 > 0) {
+        setActiveBox(1);
+      } else if (cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 > 0) {
+        setActiveBox(0);
+      } else if (cardsNumInBox4 === 0 && cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 === 0) {
+        setActiveBox(-1);
+      }
+    }
+    
+    else if (activeBox === 3) {
+      if (cardsNumInBox3 === 0 && cardsNumInBox2 > 0) {
+        setActiveBox(2);
+      } else if (cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 > 0) {
+        setActiveBox(1);
+      } else if (cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 > 0) {
+        setActiveBox(0);
+      } else if (cardsNumInBox3 === 0 && cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 === 0) {
+        setActiveBox(-1);
+      }
+    }
+    
+    else if (activeBox === 2) {
+      if (cardsNumInBox2 === 0 && cardsNumInBox1 > 0) {
+        setActiveBox(1);
+      } else if (cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 > 0) {
+        setActiveBox(0);
+      } else if (cardsNumInBox2 === 0 && cardsNumInBox1 === 0 && cardsNumInBox0 === 0) {
+        setActiveBox(-1);
+      }
+    }
+
+    else if (activeBox === 1) {
+      if (cardsNumInBox1 === 0 && cardsNumInBox0 > 0) {
+        setActiveBox(0);
+      } else if (cardsNumInBox1 === 0 && cardsNumInBox0 === 0) {
+        setActiveBox(-1);
+      }
+    }
+
+    else if (activeBox === 0) {
+      if (cardsNumInBox1 === 0) {
+        setActiveBox(-1);
+      }
     }
   }, [
     cardsNumInBox0,
@@ -293,6 +345,8 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
 
   return (
     <div>
+      <div>Active Box: {activeBox}</div>
+      <div>------------------------------------------------------</div>
       <div>The number of cards in Starting Area: {cardsNumInBox0}</div>
       <div>The number of cards in Box 1: {cardsNumInBox1}</div>
       <div>The number of cards in Box 2: {cardsNumInBox2}</div>
