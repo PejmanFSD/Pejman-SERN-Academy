@@ -12,6 +12,7 @@ const usersAuthRoutes = require("./routes/usersAuth");
 const usersRoutes = require("./routes/users.js");
 const g5BoxesRoutes = require("./routes/g5Boxes.js");
 const g5CardsRoutes = require("./routes/g5Cards.js");
+const todosRoutes = require("./routes/todos");
 
 const { connectDB } = require("./config/db");
 // Create Express app
@@ -37,6 +38,7 @@ app.use("/users", usersRoutes);
 app.use("/g5Boxes", g5BoxesRoutes);
 app.use(handleDatabaseBoxErrors);
 app.use("/g5Cards", g5CardsRoutes);
+app.use("/todos", todosRoutes);
 // Test route
 app.get("/", (req, res) => {
   res.json({
