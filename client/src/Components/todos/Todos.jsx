@@ -1,14 +1,10 @@
 import { useState, useEffect } from "react";
+import Todo from "./Todo";
 
 export default function Todos({
   error,
   setError,
-  currentUser,
   // setFlash,
-  isLoggingOut,
-  isDeleting,
-  setIsDeleting,
-  isProfileEditing,
 }) {
   const [todos, setTodos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,17 +51,7 @@ export default function Todos({
       ) : (
         <div>
           {todos.map((todo) => (
-            <div key={todo.id}>
-              <div>{todo.text}</div>
-              <div>Created: {new Date(todo.created_date).toLocaleDateString()}</div>
-              <div>
-                Due:{" "}
-                {todo.due_date
-                  ? new Date(todo.due_date).toLocaleDateString()
-                  : "No due date"}
-              </div>
-              <div>Status: {todo.status ? "Completed" : "Not completed"}</div>
-            </div>
+            <Todo key={todo.id} todo={todo} />
           ))}
         </div>
       )}

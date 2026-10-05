@@ -243,12 +243,7 @@ export default function App() {
                 <Todos
                   error={error}
                   setError={setError}
-                  currentUser={currentUser}
                   // setFlash={setFlash}
-                  isLoggingOut={isLoggingOut}
-                  isDeleting={isDeleting}
-                  setIsDeleting={setIsDeleting}
-                  isProfileEditing={isProfileEditing}
                 />
               </ProtectedRoute>
             }
