@@ -27,6 +27,8 @@ export default function Navbar({
   setIsCreatingBox,
   isG5,
   setIsG5,
+  isTodos,
+  setIsTodos
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,6 +66,10 @@ export default function Navbar({
     setIsG5(true);
     navigate("/G5");
   };
+  const renderTodos = () => {
+    setIsTodos(true);
+    navigate("/Todos");
+  };
   // Fetching the total number of the registered users:
   useEffect(() => {
     const fetchUserCount = async () => {
@@ -100,7 +106,14 @@ export default function Navbar({
           !isProfileEditing &&
           // !isAdEditing &&
           !isCreatingBox &&
-          !error && !isLoggingOut && <button onClick={renderG5}>G5</button>}
+          !error && <button onClick={renderG5}>G5</button>}
+        {currentUser &&
+          location.pathname !== "/Todos" &&
+          !isLoggingOut &&
+          !isDeleting &&
+          !isProfileEditing &&
+          // !isAdEditing &&
+          !error && <button onClick={renderTodos}>Todos</button>}
         {isLoggingOut && (
           <div>
             <div>Are you sure you want to logout?</div>

@@ -25,8 +25,10 @@ export default function Home({
   // setYouShouldLoginMessage,
   isCreatingBox,
   setIsCreatingBox,
-    isG5,
-  setIsG5
+  isG5,
+  setIsG5,
+  isTodos,
+  setIsTodos
 }) {
   const navigate = useNavigate();
   useEffect(() => {
@@ -57,6 +59,8 @@ export default function Home({
         setIsCreatingBox={setIsCreatingBox}
         isG5={isG5}
         setIsG5={setIsG5}
+        isTodos={isTodos}
+        setIsTodos={setIsTodos}
       />
       {/* <Footer className="mt-auto" /> */}
     </div>

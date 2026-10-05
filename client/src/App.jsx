@@ -8,6 +8,7 @@ import Users from "./Components/users/Users";
 import Profile from "./Components/users/Profile";
 import EditProfile from "./Components/users/EditProfile";
 import G5 from "./Components/g5/G5";
+import Todos from "./Components/todos/Todos";
 import G5Box from "./Components/g5/G5Box";
 import CreateG5Form from "./Components/g5/CreateG5Form";
 
@@ -26,6 +27,7 @@ export default function App() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isG5, setIsG5] = useState(false);
+  const [isTodos, setIsTodos] = useState(false);
   // const [youShouldLoginMessage, setYouShouldLoginMessage] = useState(false);
   // const [flash, setFlash] = useState(null);
   // const [theme, setTheme] = useState("Blue");
@@ -111,6 +113,8 @@ export default function App() {
                 setIsCreatingBox={setIsCreatingBox}
                 isG5={isG5}
                 setIsG5={setIsG5}
+                isTodos={isTodos}
+                setIsTodos={setIsTodos}
               />
             }
           />
@@ -221,6 +225,26 @@ export default function App() {
                   // setFlash={setFlash}
                   isCreatingBox={isCreatingBox}
                   setIsCreatingBox={setIsCreatingBox}
+                  isLoggingOut={isLoggingOut}
+                  isDeleting={isDeleting}
+                  setIsDeleting={setIsDeleting}
+                  isProfileEditing={isProfileEditing}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Todos"
+            element={
+              <ProtectedRoute
+                currentUser={currentUser}
+                isAuthChecked={isAuthChecked}
+              >
+                <Todos
+                  error={error}
+                  setError={setError}
+                  currentUser={currentUser}
+                  // setFlash={setFlash}
                   isLoggingOut={isLoggingOut}
                   isDeleting={isDeleting}
                   setIsDeleting={setIsDeleting}

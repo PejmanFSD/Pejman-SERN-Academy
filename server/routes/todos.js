@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {createTodo, getTodos, getTodo, updateTodo, deleteTodo} = require("../controllers/todosController");
+const {createTodo, getTodos, getTodo, updateTodo, deleteTodo} = require("../controllers/todos");
 const { isLoggedIn } = require("../middleware.js");
 // CREATE
 router.post("/", isLoggedIn, createTodo);
