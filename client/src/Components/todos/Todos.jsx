@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Todo from "./Todo";
+import CreateTodo from "./CreateTodo";
 
 export default function Todos({
   error,
@@ -109,31 +110,15 @@ export default function Todos({
       )}
       {/* Creating a new todo */}
       <h4>Create a new todo</h4>
-      <form onSubmit={handleCreateTodo}>
-        <div>
-          <label htmlFor="todo-text">Todo:</label>
-          <input
-            id="todo-text"
-            type="text"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Enter your todo"
-          />
-        </div>
-        <div>
-          <label htmlFor="due-date">Due date:</label>
-          <input
-            id="due-date"
-            type="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
-        </div>
-        {error && <p>{error}</p>}
-        <button type="submit" disabled={isCreating}>
-          {isCreating ? "Creating..." : "Add Todo"}
-        </button>
-      </form>
+      <CreateTodo
+        handleCreateTodo={handleCreateTodo}
+        text={text}
+        setText={setText}
+        dueDate={dueDate}
+        setDueDate={setDueDate}
+        error={error}
+        isCreating={isCreating}
+      />
     </div>
   );
 }
