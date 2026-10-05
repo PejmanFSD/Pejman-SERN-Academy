@@ -7,8 +7,11 @@ export default function Todos({
   // setFlash,
 }) {
   const [todos, setTodos] = useState([]);
+  const [text, setText] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-
+  const [isCreating, setIsCreating] = useState(false);
+  // Fetching all the user's todos
   useEffect(() => {
     const getTodos = async () => {
       try {
@@ -34,7 +37,56 @@ export default function Todos({
 
     getTodos();
   }, []);
+  // Creating a new todo
+  const handleCreateTodo = async (e) => {
+    e.preventDefault();
 
+    setError("");
+
+    if (!text.trim()) {
+      setError("Please enter a todo.");
+      return;
+    }
+
+    if (!dueDate) {
+      setError("Please select a due date.");
+      return;
+    }
+
+    setIsCreating(true);
+
+    try {
+      const response = await fetch("/todos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          text: text.trim(),
+          due_date: dueDate,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create todo.");
+      }
+
+      // Add the newly-created Todo to the existing array
+      setTodos((previousTodos) => [...previousTodos, data]);
+
+      // Clear the form
+      setText("");
+      setDueDate("");
+    } catch (error) {
+      console.error("Error creating todo:", error);
+      setError(error.message);
+    } finally {
+      setIsCreating(false);
+    }
+  };
   if (isLoading) {
     return <p>Loading todos...</p>;
   }
@@ -55,6 +107,33 @@ export default function Todos({
           ))}
         </div>
       )}
+      {/* Creating a new todo */}
+      <h4>Create a new todo</h4>
+      <form onSubmit={handleCreateTodo}>
+        <div>
+          <label htmlFor="todo-text">Todo:</label>
+          <input
+            id="todo-text"
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Enter your todo"
+          />
+        </div>
+        <div>
+          <label htmlFor="due-date">Due date:</label>
+          <input
+            id="due-date"
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+          />
+        </div>
+        {error && <p>{error}</p>}
+        <button type="submit" disabled={isCreating}>
+          {isCreating ? "Creating..." : "Add Todo"}
+        </button>
+      </form>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 export default function Todo({todo}) {
   return (
     <div>
-      <div>{todo.text}</div>
+      <h4>{todo.text}</h4>
       <div>Created: {new Date(todo.created_date).toLocaleDateString()}</div>
       <div>
         Due:{" "}
