@@ -12,6 +12,8 @@ export default function Todos({
   const [dueDate, setDueDate] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+
+  const today = new Date().toISOString().split("T")[0];
   // Fetching all the user's todos
   useEffect(() => {
     const getTodos = async () => {
@@ -52,6 +54,11 @@ export default function Todos({
     if (!dueDate) {
       setError("Please select a due date.");
       return;
+    }
+
+    if (dueDate < today) {
+        setError("Due date cannot be before today.");
+        return;
     }
 
     setIsCreating(true);
@@ -118,6 +125,7 @@ export default function Todos({
         setDueDate={setDueDate}
         error={error}
         isCreating={isCreating}
+        today={today}
       />
     </div>
   );

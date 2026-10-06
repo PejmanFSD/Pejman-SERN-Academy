@@ -14,7 +14,11 @@ module.exports.createTodo = async (userId, text, dueDate) => {
         .query(`
             INSERT INTO todos (user_id, text, due_date)
             OUTPUT INSERTED.*
-            VALUES (@user_id, @text, @due_date)
+            SELECT
+                @user_id,
+                @text,
+                @due_date
+            WHERE @due_date >= CAST(GETDATE() AS DATE)
         `);
 
     return result.recordset[0];

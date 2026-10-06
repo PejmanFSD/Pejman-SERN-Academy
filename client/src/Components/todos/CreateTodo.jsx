@@ -5,7 +5,8 @@ export default function CreateTodo({
     dueDate,
     setDueDate,
     error,
-    isCreating
+    isCreating,
+    today
 }) {
   return (
     <form onSubmit={handleCreateTodo}>
@@ -25,6 +26,7 @@ export default function CreateTodo({
           id="due-date"
           type="date"
           value={dueDate}
+          min={today}
           onChange={(e) => setDueDate(e.target.value)}
         />
       </div>
