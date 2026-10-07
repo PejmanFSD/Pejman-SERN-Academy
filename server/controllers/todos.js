@@ -29,6 +29,11 @@ module.exports.createTodo = async (req, res) => {
 
     res.status(201).json(todo);
   } catch (error) {
+    if (error.number === 2627) {
+      return res.status(409).json({
+        message: "You already have a todo with this text and due date.",
+      });
+    }
     console.error("Error creating todo:", error);
 
     res.status(500).json({
