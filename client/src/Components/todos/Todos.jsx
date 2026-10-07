@@ -12,6 +12,13 @@ export default function Todos({
   const [dueDate, setDueDate] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1); // Pagination
+
+  const todosPerPage = 5;
+  const indexOfLastTodo = currentPage * todosPerPage;
+  const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
+  const currentTodos = todos.slice(indexOfFirstTodo, indexOfLastTodo);
+  const totalPages = Math.ceil(todos.length / todosPerPage);
 
   const today = new Date().toISOString().split("T")[0];
   // Fetching all the user's todos
@@ -57,8 +64,8 @@ export default function Todos({
     }
 
     if (dueDate < today) {
-        setError("Due date cannot be before today.");
-        return;
+      setError("Due date cannot be before today.");
+      return;
     }
 
     setIsCreating(true);
@@ -109,10 +116,48 @@ export default function Todos({
       {todos.length === 0 ? (
         <p>You don't have any todos yet.</p>
       ) : (
+        // <div>
+        //   {todos.map((todo) => (
+        //     <Todo key={todo.id} todo={todo} />
+        //   ))}
+        // </div>
         <div>
-          {todos.map((todo) => (
-            <Todo key={todo.id} todo={todo} />
-          ))}
+          <table>
+            <thead>
+              <tr>
+                <th>Todo</th>
+                <th>Created Date</th>
+                <th>Due Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {currentTodos.map((todo) => (
+                <Todo key={todo.id} todo={todo} />
+              ))}
+            </tbody>
+          </table>
+          <div>
+            <button
+              onClick={() => setCurrentPage((page) => page - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+
+            <span>
+              {" "}
+              Page {currentPage} of {totalPages}{" "}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage((page) => page + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
       {/* Creating a new todo */}
