@@ -13,6 +13,7 @@ export default function Todos({
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // Pagination
+  const [startCreating, setStartCreating] = useState(false);
 
   const todosPerPage = 5;
   const indexOfLastTodo = currentPage * todosPerPage;
@@ -21,6 +22,13 @@ export default function Todos({
   const totalPages = Math.ceil(todos.length / todosPerPage);
 
   const today = new Date().toISOString().split("T")[0];
+
+  const startCreatingTodo = () => {
+    setStartCreating(true);
+  }
+  const backToTodos = () => {
+    setStartCreating(false);
+  }
   // Fetching all the user's todos
   useEffect(() => {
     const getTodos = async () => {
@@ -113,9 +121,9 @@ export default function Todos({
   return (
     <div>
       <h2>My Todos</h2>
-      {todos.length === 0 ? (
+      {todos.length === 0 && !startCreating ? (
         <p>You don't have any todos yet.</p>
-      ) : (
+      ) : (!startCreating &&
         // <div>
         //   {todos.map((todo) => (
         //     <Todo key={todo.id} todo={todo} />
@@ -161,17 +169,23 @@ export default function Todos({
         </div>
       )}
       {/* Creating a new todo */}
-      <h4>Create a new todo</h4>
-      <CreateTodo
-        handleCreateTodo={handleCreateTodo}
-        text={text}
-        setText={setText}
-        dueDate={dueDate}
-        setDueDate={setDueDate}
-        error={error}
-        isCreating={isCreating}
-        today={today}
-      />
+      {!startCreating && <button onClick={startCreatingTodo}>Create a new todo</button>}
+      {startCreating &&
+      <div>
+        <h4>Create a new todo</h4>
+        <CreateTodo
+            handleCreateTodo={handleCreateTodo}
+            text={text}
+            setText={setText}
+            dueDate={dueDate}
+            setDueDate={setDueDate}
+            error={error}
+            isCreating={isCreating}
+            today={today}
+        />
+        <button onClick={backToTodos}>Back to my Todos</button>
+      </div>
+    }
     </div>
   );
 }
