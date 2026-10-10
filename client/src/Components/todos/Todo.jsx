@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function Todo({ todo, onTodoCompleted, error, setError }) {
+export default function Todo({ todo, onTodoCompleted, onTodoUndo, error, setError }) {
   const [isCompleting, setIsCompleting] = useState(false);
 
   const handleComplete = async () => {
@@ -25,6 +25,28 @@ export default function Todo({ todo, onTodoCompleted, error, setError }) {
       setIsCompleting(false);
     }
   };
+  const handleUndo = async () => {
+    if (!todo.status || isCompleting) return;
+    setIsCompleting(true);
+    setError("");
+    try {
+      const response = await fetch(`/todos/${todo.id}/undo`, {
+        method: "PATCH",
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to complete Todo.");
+      }
+      // Update the Todo in the parent component.
+      onTodoUndo(data);
+    } catch (error) {
+      console.error(error);
+      setError(error.message);
+    } finally {
+      setIsCompleting(false);
+    }
+  };
 
   return (
     <tr>
@@ -37,9 +59,17 @@ export default function Todo({ todo, onTodoCompleted, error, setError }) {
       </td>
       <td>
         {todo.status ? (
-          <span aria-label="Completed" title="Completed">
-            ✓
-          </span>
+          <button
+            type="button"
+            onClick={handleUndo}
+            disabled={isCompleting}
+            aria-label={`Complete ${todo.text}`}
+            title="Completed"
+            style={{backgroundColor : isCompleting ? "gray" : "lightGreen", width: "40px"}}
+            // light green
+          >
+            {isCompleting ? "…" : "✓"}
+          </button>
         ) : (
           <button
             type="button"
@@ -47,6 +77,7 @@ export default function Todo({ todo, onTodoCompleted, error, setError }) {
             disabled={isCompleting}
             aria-label={`Complete ${todo.text}`}
             title="Mark as completed"
+            style={{backgroundColor : isCompleting ? "gray" : "pink", width: "40px"}}
           >
             {isCompleting ? "…" : "○"}
           </button>

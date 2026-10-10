@@ -146,27 +146,45 @@ module.exports.deleteTodo = async (req, res) => {
 module.exports.completeTodo = async (req, res) => {
     const userId = req.session.user_id;
     const todoId = Number(req.params.id);
-
     if (!Number.isInteger(todoId) || todoId <= 0) {
         return res.status(400).json({
             message: "Invalid Todo ID."
         });
     }
-
     try {
         const todo = await Todo.completeTodo(todoId, userId);
-
         if (!todo) {
             return res.status(404).json({
                 message: "Todo not found or already completed."
             });
         }
-
         res.status(200).json(todo);
-
     } catch (error) {
         console.error("Error completing Todo:", error);
-
+        res.status(500).json({
+            message: "Something went wrong while completing the Todo."
+        });
+    }
+};
+// Undo a completed todo
+module.exports.undoTodo = async (req, res) => {
+    const userId = req.session.user_id;
+    const todoId = Number(req.params.id);
+    if (!Number.isInteger(todoId) || todoId <= 0) {
+        return res.status(400).json({
+            message: "Invalid Todo ID."
+        });
+    }
+    try {
+        const todo = await Todo.undoTodo(todoId, userId);
+        if (!todo) {
+            return res.status(404).json({
+                message: "Todo not found or already completed."
+            });
+        }
+        res.status(200).json(todo);
+    } catch (error) {
+        console.error("Error completing Todo:", error);
         res.status(500).json({
             message: "Something went wrong while completing the Todo."
         });
