@@ -25,10 +25,10 @@ export default function Todos({
 
   const startCreatingTodo = () => {
     setStartCreating(true);
-  }
+  };
   const backToTodos = () => {
     setStartCreating(false);
-  }
+  };
   // Fetching all the user's todos
   useEffect(() => {
     const getTodos = async () => {
@@ -110,6 +110,13 @@ export default function Todos({
       setIsCreating(false);
     }
   };
+  const handleTodoCompleted = (updatedTodo) => {
+    setTodos((previousTodos) =>
+      previousTodos.map((todo) =>
+        todo.id === updatedTodo.id ? updatedTodo : todo,
+      ),
+    );
+  };
   if (isLoading) {
     return <p>Loading todos...</p>;
   }
@@ -123,57 +130,67 @@ export default function Todos({
       <h2>My Todos</h2>
       {todos.length === 0 && !startCreating ? (
         <p>You don't have any todos yet.</p>
-      ) : (!startCreating &&
-        // <div>
-        //   {todos.map((todo) => (
-        //     <Todo key={todo.id} todo={todo} />
-        //   ))}
-        // </div>
-        <div>
-          <table>
-            <thead>
-              <tr>
-                <th>Todo</th>
-                <th>Created Date</th>
-                <th>Due Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {currentTodos.map((todo) => (
-                <Todo key={todo.id} todo={todo} />
-              ))}
-            </tbody>
-          </table>
+      ) : (
+        !startCreating && (
+          // <div>
+          //   {todos.map((todo) => (
+          //     <Todo key={todo.id} todo={todo} />
+          //   ))}
+          // </div>
           <div>
-            <button
-              onClick={() => setCurrentPage((page) => page - 1)}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </button>
+            <table>
+              <thead>
+                <tr>
+                  <th>Todo</th>
+                  <th>Created Date</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
 
-            <span>
-              {" "}
-              Page {currentPage} of {totalPages}{" "}
-            </span>
+              <tbody>
+                {currentTodos.map((todo) => (
+                  <Todo
+                    key={todo.id}
+                    todo={todo}
+                    onTodoCompleted={handleTodoCompleted}
+                    error={error}
+                    setError={setError}
+                  />
+                ))}
+              </tbody>
+            </table>
+            <div>
+              <button
+                onClick={() => setCurrentPage((page) => page - 1)}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
 
-            <button
-              onClick={() => setCurrentPage((page) => page + 1)}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </button>
+              <span>
+                {" "}
+                Page {currentPage} of {totalPages}{" "}
+              </span>
+
+              <button
+                onClick={() => setCurrentPage((page) => page + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </div>
           </div>
-        </div>
+        )
       )}
       {/* Creating a new todo */}
-      {!startCreating && <button onClick={startCreatingTodo}>Create a new todo</button>}
-      {startCreating &&
-      <div>
-        <h4>Create a new todo</h4>
-        <CreateTodo
+      {!startCreating && (
+        <button onClick={startCreatingTodo}>Create a new todo</button>
+      )}
+      {startCreating && (
+        <div>
+          <h4>Create a new todo</h4>
+          <CreateTodo
             handleCreateTodo={handleCreateTodo}
             text={text}
             setText={setText}
@@ -182,10 +199,10 @@ export default function Todos({
             error={error}
             isCreating={isCreating}
             today={today}
-        />
-        <button onClick={backToTodos}>Back to my Todos</button>
-      </div>
-    }
+          />
+          <button onClick={backToTodos}>Back to my Todos</button>
+        </div>
+      )}
     </div>
   );
 }

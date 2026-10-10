@@ -105,3 +105,22 @@ module.exports.deleteTodo = async (todoId, userId) => {
 
     return result.recordset[0];
 };
+// Completind a todo
+module.exports.completeTodo = async (todoId, userId) => {
+    const pool = await connectDB();
+
+    const result = await pool
+        .request()
+        .input("id", sql.Int, todoId)
+        .input("user_id", sql.Int, userId)
+        .query(`
+            UPDATE todos
+            SET status = 1
+            OUTPUT INSERTED.*
+            WHERE id = @id
+              AND user_id = @user_id
+              AND status = 0
+        `);
+
+    return result.recordset[0];
+};

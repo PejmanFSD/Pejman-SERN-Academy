@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {createTodo, getTodos, getTodo, updateTodo, deleteTodo} = require("../controllers/todos");
+const {createTodo, getTodos, getTodo, updateTodo, deleteTodo, completeTodo} = require("../controllers/todos");
 const { isLoggedIn } = require("../middleware.js");
 // CREATE
 router.post("/", isLoggedIn, createTodo);
@@ -12,5 +12,7 @@ router.get("/:id", isLoggedIn, getTodo);
 router.put("/:id", isLoggedIn, updateTodo);
 // DELETE
 router.delete("/:id", isLoggedIn, deleteTodo);
+// Completind a todo
+router.patch("/:id/complete", isLoggedIn, completeTodo);
 
 module.exports = router;
