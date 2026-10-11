@@ -9,7 +9,9 @@ export default function Todo({
   setError,
   isEditingATodo,
   setIsEditingATodo,
-  onTodoDeleted
+  onTodoDeleted,
+  isDeletingATodo,
+  setIsDeletingATodo
 }) {
   const [isCompleting, setIsCompleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -126,7 +128,11 @@ export default function Todo({
     if (!date) return "—";
     return String(date).slice(0, 10);
   };
-  const handleDelete = async () => {
+  const handleDelete = () => {
+    setIsConfirmingDelete(true);
+    setIsDeletingATodo(true);
+  }
+  const handleDeleteYes = async () => {
     setIsDeleting(true);
     setError("");
     try {
@@ -145,6 +151,10 @@ export default function Todo({
         setIsDeleting(false);
     }
   };
+  const handleDeleteNo = () => {
+    setIsConfirmingDelete(false);
+    setIsDeletingATodo(false);
+  }
   return (
     // <tr>
     //   <td>{todo.text}</td>
@@ -217,7 +227,7 @@ export default function Todo({
           <button
             type="button"
             onClick={handleUndo}
-            disabled={isCompleting || isEditingATodo}
+            disabled={isCompleting || isEditingATodo || isDeletingATodo}
             aria-label={`Complete ${todo.text}`}
             title="Completed"
             style={{
@@ -232,7 +242,7 @@ export default function Todo({
           <button
             type="button"
             onClick={handleComplete}
-            disabled={isCompleting || isEditingATodo}
+            disabled={isCompleting || isEditingATodo || isDeletingATodo}
             aria-label={`Complete ${todo.text}`}
             title="Mark as completed"
             style={{
@@ -255,37 +265,38 @@ export default function Todo({
               Cancel
             </button>
           </>
-        ) : (!isConfirmingDelete &&
+        ) : (!isConfirmingDelete && !isEditingATodo &&
           <button
             type="button"
             onClick={startEditing}
-            disabled={Boolean(todo.status) || isEditingATodo}
+            disabled={Boolean(todo.status) || isEditingATodo || isDeletingATodo}
           >
             Edit
           </button>
         )}
-        {!isConfirmingDelete ? (
+        {!isConfirmingDelete && !isEditingATodo ? (
         <button
           type="button"
-          onClick={() => setIsConfirmingDelete(true)}
+        //   onClick={() => setIsConfirmingDelete(true)}
+          onClick={handleDelete}
+          disabled={isEditingATodo || isDeletingATodo}
         >
           Delete
         </button>
-      ) : (
+      ) : (isDeletingATodo &&
         <div>
-          Are you sure you want to delete this todo?
-
+          Delete this todo?
           <button
             type="button"
-            onClick={handleDelete}
+            onClick={handleDeleteYes}
             disabled={isDeleting}
           >
             {isDeleting ? "Deleting..." : "Yes"}
           </button>
-
           <button
             type="button"
-            onClick={() => setIsConfirmingDelete(false)}
+            // onClick={() => setIsConfirmingDelete(false)}
+            onClick={handleDeleteNo}
             disabled={isDeleting}
           >
             No
