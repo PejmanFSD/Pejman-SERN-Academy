@@ -12,6 +12,7 @@ export default function Todos({
   const [dueDate, setDueDate] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [isEditingATodo, setIsEditingATodo] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // Pagination
   const [startCreating, setStartCreating] = useState(false);
 
@@ -173,6 +174,8 @@ export default function Todos({
                     onTodoUpdated={handleTodoUpdated}
                     error={error}
                     setError={setError}
+                    isEditingATodo={isEditingATodo}
+                    setIsEditingATodo={setIsEditingATodo}
                   />
                 ))}
               </tbody>
@@ -180,7 +183,7 @@ export default function Todos({
             <div>
               <button
                 onClick={() => setCurrentPage((page) => page - 1)}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || isEditingATodo}
               >
                 Previous
               </button>
@@ -192,7 +195,7 @@ export default function Todos({
 
               <button
                 onClick={() => setCurrentPage((page) => page + 1)}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || isEditingATodo}
               >
                 Next
               </button>
@@ -202,7 +205,7 @@ export default function Todos({
       )}
       {/* Creating a new todo */}
       {!startCreating && (
-        <button onClick={startCreatingTodo}>Create a new todo</button>
+        <button onClick={startCreatingTodo} disabled={isEditingATodo}>Create a new todo</button>
       )}
       {startCreating && (
         <div>

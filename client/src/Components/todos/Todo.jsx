@@ -7,6 +7,8 @@ export default function Todo({
   onTodoUpdated,
   error,
   setError,
+  isEditingATodo,
+  setIsEditingATodo
 }) {
   const [isCompleting, setIsCompleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -71,12 +73,14 @@ export default function Todo({
     setDueDate(String(todo.due_date).slice(0, 10));
     setError("");
     setIsEditing(true);
+    setIsEditingATodo(true);
   };
   const cancelEditing = () => {
     setText(todo.text);
     setDueDate(String(todo.due_date).slice(0, 10));
     setError("");
     setIsEditing(false);
+    setIsEditingATodo(false);
   };
   const handleSave = async (event) => {
     event.preventDefault();
@@ -112,6 +116,7 @@ export default function Todo({
       setError(err.message || "Something went wrong.");
     } finally {
       setIsSaving(false);
+      setIsEditingATodo(false);
     }
   };
   const formatDate = (date) => {
@@ -190,7 +195,7 @@ export default function Todo({
           <button
             type="button"
             onClick={handleUndo}
-            disabled={isCompleting}
+            disabled={isCompleting || isEditingATodo}
             aria-label={`Complete ${todo.text}`}
             title="Completed"
             style={{
@@ -205,7 +210,7 @@ export default function Todo({
           <button
             type="button"
             onClick={handleComplete}
-            disabled={isCompleting}
+            disabled={isCompleting || isEditingATodo}
             aria-label={`Complete ${todo.text}`}
             title="Mark as completed"
             style={{
@@ -232,7 +237,7 @@ export default function Todo({
           <button
             type="button"
             onClick={startEditing}
-            disabled={Boolean(todo.status)}
+            disabled={Boolean(todo.status) || isEditingATodo}
           >
             Edit
           </button>
