@@ -124,6 +124,13 @@ export default function Todos({
       ),
     );
   };
+  const handleTodoUpdated = (updatedTodo) => {
+    setTodos((previousTodos) =>
+        previousTodos.map((todo) =>
+        todo.id === updatedTodo.id ? updatedTodo : todo
+        )
+    );
+  };
   if (isLoading) {
     return <p>Loading todos...</p>;
   }
@@ -152,6 +159,7 @@ export default function Todos({
                   <th>Created Date</th>
                   <th>Due Date</th>
                   <th>Status</th>
+                  <th>Action</th>
                 </tr>
               </thead>
 
@@ -162,6 +170,7 @@ export default function Todos({
                     todo={todo}
                     onTodoCompleted={handleTodoCompleted}
                     onTodoUndo={handleTodoUndo}
+                    onTodoUpdated={handleTodoUpdated}
                     error={error}
                     setError={setError}
                   />

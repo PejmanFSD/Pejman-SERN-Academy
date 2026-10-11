@@ -82,37 +82,61 @@ module.exports.getTodo = async (req, res) => {
 };
 // UPDATE TODO
 module.exports.updateTodo = async (req, res) => {
-  const userId = req.session.user_id;
-  const todoId = parseInt(req.params.id);
-  // (We don't de-structure "Created_date" because the user shouldn't be able to change it)
-  const { text, due_date, status } = req.body;
-
-  if (!text || text.trim() === "") {
-    return res.status(400).json({
-      message: "Todo text is required.",
-    });
-  }
-
   try {
-    const todo = await Todo.updateTodo(
+    const userId = req.session.user_id;
+    const todoId = Number(req.params.id);
+    const { text, due_date } = req.body;
+
+    if (!Number.isInteger(todoId) || todoId <= 0) {
+      return res.status(400).json({
+        message: "Invalid todo ID.",
+      });
+    }
+    if (typeof text !== "string" || !text.trim()) {
+      return res.status(400).json({
+        message: "Todo text is required.",
+      });
+    }
+    if (text.trim().length > 500) {
+      return res.status(400).json({
+        message: "Todo text cannot exceed 500 characters.",
+      });
+    }
+    // Validate YYYY-MM-DD and prevent past due dates.
+    if (
+      typeof due_date !== "string" ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(due_date) ||
+      !Number.isFinite(Date.parse(`${due_date}T00:00:00Z`)) ||
+      new Date(`${due_date}T00:00:00Z`)
+        .toISOString().slice(0, 10) !== due_date
+    ) {
+      return res.status(400).json({
+        message: "Please provide a valid due date.",
+      });
+    }
+    const updatedTodo = await Todo.updateTodo(
       todoId,
       userId,
       text.trim(),
-      due_date,
-      status,
+      due_date
     );
-
-    if (!todo) {
+    if (!updatedTodo) {
       return res.status(404).json({
-        message: "Todo not found.",
+        message:
+          "Todo not found, already completed, or the due date is in the past.",
       });
     }
-
-    res.status(200).json(todo);
+    return res.status(200).json(updatedTodo);
   } catch (error) {
+    // SQL Server duplicate-key errors for your unique constraint.
+    if (error.number === 2627 || error.number === 2601) {
+      return res.status(409).json({
+        message:
+          "You already have a todo with this text and due date.",
+      });
+    }
     console.error("Error updating todo:", error);
-
-    res.status(500).json({
+    return res.status(500).json({
       message: "Something went wrong while updating the todo.",
     });
   }

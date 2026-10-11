@@ -74,16 +74,16 @@ module.exports.updateTodo = async (todoId, userId, text, dueDate, status) => {
         .input("user_id", sql.Int, userId)
         .input("text", sql.VarChar(500), text)
         .input("due_date", sql.Date, dueDate)
-        .input("status", sql.Bit, status)
+        // .input("status", sql.Bit, status)
         .query(`
             UPDATE todos
-            SET
-                text = @text,
-                due_date = @due_date,
-                status = @status
+            SET text = @text,
+                due_date = @due_date
             OUTPUT INSERTED.*
             WHERE id = @id
-            AND user_id = @user_id
+                AND user_id = @user_id
+                AND status = 0
+                AND @due_date >= CAST(GETDATE() AS DATE)
         `);
 
     return result.recordset[0];
