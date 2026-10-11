@@ -107,8 +107,7 @@ module.exports.updateTodo = async (req, res) => {
       typeof due_date !== "string" ||
       !/^\d{4}-\d{2}-\d{2}$/.test(due_date) ||
       !Number.isFinite(Date.parse(`${due_date}T00:00:00Z`)) ||
-      new Date(`${due_date}T00:00:00Z`)
-        .toISOString().slice(0, 10) !== due_date
+      new Date(`${due_date}T00:00:00Z`).toISOString().slice(0, 10) !== due_date
     ) {
       return res.status(400).json({
         message: "Please provide a valid due date.",
@@ -118,7 +117,7 @@ module.exports.updateTodo = async (req, res) => {
       todoId,
       userId,
       text.trim(),
-      due_date
+      due_date,
     );
     if (!updatedTodo) {
       return res.status(404).json({
@@ -131,8 +130,7 @@ module.exports.updateTodo = async (req, res) => {
     // SQL Server duplicate-key errors for your unique constraint.
     if (error.number === 2627 || error.number === 2601) {
       return res.status(409).json({
-        message:
-          "You already have a todo with this text and due date.",
+        message: "You already have a todo with this text and due date.",
       });
     }
     console.error("Error updating todo:", error);
@@ -143,74 +141,76 @@ module.exports.updateTodo = async (req, res) => {
 };
 // DELETE TODO
 module.exports.deleteTodo = async (req, res) => {
-  const userId = req.session.user_id;
-  const todoId = parseInt(req.params.id);
-
   try {
+    const userId = req.session.user_id;
+    const todoId = Number(req.params.id);
+    if (!Number.isInteger(todoId) || todoId <= 0) {
+      return res.status(400).json({
+        message: "Invalid todo ID.",
+      });
+    }
     const deletedTodo = await Todo.deleteTodo(todoId, userId);
-
     if (!deletedTodo) {
       return res.status(404).json({
         message: "Todo not found.",
       });
     }
-
-    res.status(200).json({
+    return res.status(200).json({
       message: "Todo deleted successfully.",
+      todo: deletedTodo,
     });
   } catch (error) {
     console.error("Error deleting todo:", error);
-
-    res.status(500).json({
+    return res.status(500).json({
       message: "Something went wrong while deleting the todo.",
     });
   }
 };
 // Completind a todo
 module.exports.completeTodo = async (req, res) => {
-    const userId = req.session.user_id;
-    const todoId = Number(req.params.id);
-    if (!Number.isInteger(todoId) || todoId <= 0) {
-        return res.status(400).json({
-            message: "Invalid Todo ID."
-        });
+  const userId = req.session.user_id;
+  const todoId = Number(req.params.id);
+  if (!Number.isInteger(todoId) || todoId <= 0) {
+    return res.status(400).json({
+      message: "Invalid Todo ID.",
+    });
+  }
+  try {
+    const todo = await Todo.completeTodo(todoId, userId);
+    if (!todo) {
+      return res.status(404).json({
+        message: "Todo not found or already completed.",
+      });
     }
-    try {
-        const todo = await Todo.completeTodo(todoId, userId);
-        if (!todo) {
-            return res.status(404).json({
-                message: "Todo not found or already completed."
-            });
-        }
-        res.status(200).json(todo);
-    } catch (error) {
-        console.error("Error completing Todo:", error);
-        res.status(500).json({
-            message: "Something went wrong while completing the Todo."
-        });
-    }
+    res.status(200).json(todo);
+  } catch (error) {
+    console.error("Error completing Todo:", error);
+    res.status(500).json({
+      message: "Something went wrong while completing the Todo.",
+    });
+  }
 };
 // Undo a completed todo
 module.exports.undoTodo = async (req, res) => {
-    const userId = req.session.user_id;
-    const todoId = Number(req.params.id);
-    if (!Number.isInteger(todoId) || todoId <= 0) {
-        return res.status(400).json({
-            message: "Invalid Todo ID."
-        });
+  const userId = req.session.user_id;
+  const todoId = Number(req.params.id);
+  if (!Number.isInteger(todoId) || todoId <= 0) {
+    return res.status(400).json({
+      message: "Invalid Todo ID.",
+    });
+  }
+  try {
+    const todo = await Todo.undoTodo(todoId, userId);
+    if (!todo) {
+      return res.status(404).json({
+        message: "Todo not found or already completed.",
+      });
     }
-    try {
-        const todo = await Todo.undoTodo(todoId, userId);
-        if (!todo) {
-            return res.status(404).json({
-                message: "Todo not found or already completed."
-            });
-        }
-        res.status(200).json(todo);
-    } catch (error) {
-        console.error("Error completing Todo:", error);
-        res.status(500).json({
-            message: "Something went wrong while completing the Todo."
-        });
-    }
+    res.status(200).json(todo);
+  } catch (error) {
+    console.error("Error completing Todo:", error);
+    res.status(500).json({
+      message: "Something went wrong while completing the Todo.",
+    });
+  }
 };

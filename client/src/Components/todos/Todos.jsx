@@ -132,6 +132,11 @@ export default function Todos({
         )
     );
   };
+  const handleTodoDeleted = (todoId) => {
+    setTodos((previousTodos) =>
+        previousTodos.filter((todo) => todo.id !== todoId)
+    );
+  };
   if (isLoading) {
     return <p>Loading todos...</p>;
   }
@@ -176,6 +181,7 @@ export default function Todos({
                     setError={setError}
                     isEditingATodo={isEditingATodo}
                     setIsEditingATodo={setIsEditingATodo}
+                    onTodoDeleted={handleTodoDeleted}
                   />
                 ))}
               </tbody>

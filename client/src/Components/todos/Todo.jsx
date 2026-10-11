@@ -8,13 +8,16 @@ export default function Todo({
   error,
   setError,
   isEditingATodo,
-  setIsEditingATodo
+  setIsEditingATodo,
+  onTodoDeleted
 }) {
   const [isCompleting, setIsCompleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(todo.text);
   const [dueDate, setDueDate] = useState(String(todo.due_date).slice(0, 10));
   const [isSaving, setIsSaving] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const getLocalToday = () => {
     const date = new Date();
@@ -122,6 +125,25 @@ export default function Todo({
   const formatDate = (date) => {
     if (!date) return "—";
     return String(date).slice(0, 10);
+  };
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    setError("");
+    try {
+        const response = await fetch(`/todos/${todo.id}`, {
+        method: "DELETE",
+        credentials: "include",
+        });
+        const data = await response.json();
+        if (!response.ok) {
+        throw new Error(data.message || "Could not delete todo.");
+        }
+        onTodoDeleted(todo.id);
+    } catch (err) {
+        setError(err.message || "Something went wrong.");
+    } finally {
+        setIsDeleting(false);
+    }
   };
   return (
     // <tr>
@@ -233,7 +255,7 @@ export default function Todo({
               Cancel
             </button>
           </>
-        ) : (
+        ) : (!isConfirmingDelete &&
           <button
             type="button"
             onClick={startEditing}
@@ -242,6 +264,34 @@ export default function Todo({
             Edit
           </button>
         )}
+        {!isConfirmingDelete ? (
+        <button
+          type="button"
+          onClick={() => setIsConfirmingDelete(true)}
+        >
+          Delete
+        </button>
+      ) : (
+        <div>
+          Are you sure you want to delete this todo?
+
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Yes"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsConfirmingDelete(false)}
+            disabled={isDeleting}
+          >
+            No
+          </button>
+        </div>
+      )}
       </td>
     </tr>
   );
