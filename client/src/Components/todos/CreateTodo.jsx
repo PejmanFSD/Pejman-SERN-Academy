@@ -31,7 +31,7 @@ export default function CreateTodo({
         />
       </div>
       {error && <p>{error}</p>}
-      <button type="submit" disabled={isCreating}>
+      <button type="submit" disabled={isCreating || !text || !dueDate}>
         {isCreating ? "Creating..." : "Add Todo"}
       </button>
     </form>

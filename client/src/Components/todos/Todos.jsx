@@ -110,6 +110,7 @@ export default function Todos({
       setError(error.message);
     } finally {
       setIsCreating(false);
+      setStartCreating(false);
     }
   };
   const handleTodoCompleted = (updatedTodo) => {
@@ -189,6 +190,7 @@ export default function Todos({
                 ))}
               </tbody>
             </table>
+            {totalPages > 1 &&
             <div>
               <button
                 onClick={() => setCurrentPage((page) => page - 1)}
@@ -209,6 +211,7 @@ export default function Todos({
                 Next
               </button>
             </div>
+            }
           </div>
         )
       )}

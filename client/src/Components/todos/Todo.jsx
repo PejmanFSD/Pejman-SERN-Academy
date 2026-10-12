@@ -149,6 +149,7 @@ export default function Todo({
         setError(err.message || "Something went wrong.");
     } finally {
         setIsDeleting(false);
+        setIsDeletingATodo(false);
     }
   };
   const handleDeleteNo = () => {
