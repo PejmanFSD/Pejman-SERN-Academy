@@ -16,14 +16,19 @@ export default function Todos({
   const [isDeletingATodo, setIsDeletingATodo] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // Pagination
   const [startCreating, setStartCreating] = useState(false);
+  const [searchText, setSearchText] = useState("");
 
   const todosPerPage = 5;
   const indexOfLastTodo = currentPage * todosPerPage;
   const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
-  const currentTodos = todos.slice(indexOfFirstTodo, indexOfLastTodo);
-  const totalPages = Math.ceil(todos.length / todosPerPage);
+  const filteredTodos = todos.filter((todo) =>
+    todo.text.toLowerCase().includes(searchText.trim().toLowerCase())
+  );
+  const currentTodos = filteredTodos.slice(indexOfFirstTodo, indexOfLastTodo);
+  const totalPages = Math.ceil(filteredTodos.length / todosPerPage);
 
   const today = new Date().toISOString().split("T")[0];
+
 
   const startCreatingTodo = () => {
     setStartCreating(true);
@@ -160,15 +165,32 @@ export default function Todos({
           //   ))}
           // </div>
           <div>
+            <input
+                type="text"
+                placeholder="Search todos..."
+                value={searchText}
+                onChange={(e) => {
+                    setSearchText(e.target.value);
+                    setCurrentPage(1);
+                }}
+            />
             <table>
               <thead>
-                <tr>
-                  <th>Todo</th>
-                  <th>Created Date</th>
-                  <th>Due Date</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
+                {filteredTodos.length === 0 ? (
+                    <tr>
+                        <td colSpan="5">
+                        No todos found.
+                        </td>
+                    </tr>
+                ) : (
+                    <tr>
+                    <th>Todo</th>
+                    <th>Created Date</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                    </tr>
+                )}
               </thead>
 
               <tbody>
