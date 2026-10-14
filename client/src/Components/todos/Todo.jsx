@@ -11,7 +11,7 @@ export default function Todo({
   setIsEditingATodo,
   onTodoDeleted,
   isDeletingATodo,
-  setIsDeletingATodo
+  setIsDeletingATodo,
 }) {
   const [isCompleting, setIsCompleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -29,6 +29,12 @@ export default function Todo({
 
     return `${year}-${month}-${day}`;
   };
+
+  const today = new Date().toLocaleDateString("en-CA");
+
+  const isOverdue =
+    !todo.status && todo.due_date && String(todo.due_date).slice(0, 10) < today;
+
   const handleComplete = async () => {
     if (todo.status || isCompleting) return;
     setIsCompleting(true);
@@ -131,31 +137,31 @@ export default function Todo({
   const handleDelete = () => {
     setIsConfirmingDelete(true);
     setIsDeletingATodo(true);
-  }
+  };
   const handleDeleteYes = async () => {
     setIsDeleting(true);
     setError("");
     try {
-        const response = await fetch(`/todos/${todo.id}`, {
+      const response = await fetch(`/todos/${todo.id}`, {
         method: "DELETE",
         credentials: "include",
-        });
-        const data = await response.json();
-        if (!response.ok) {
+      });
+      const data = await response.json();
+      if (!response.ok) {
         throw new Error(data.message || "Could not delete todo.");
-        }
-        onTodoDeleted(todo.id);
+      }
+      onTodoDeleted(todo.id);
     } catch (err) {
-        setError(err.message || "Something went wrong.");
+      setError(err.message || "Something went wrong.");
     } finally {
-        setIsDeleting(false);
-        setIsDeletingATodo(false);
+      setIsDeleting(false);
+      setIsDeletingATodo(false);
     }
   };
   const handleDeleteNo = () => {
     setIsConfirmingDelete(false);
     setIsDeletingATodo(false);
-  }
+  };
   return (
     // <tr>
     //   <td>{todo.text}</td>
@@ -243,15 +249,23 @@ export default function Todo({
           <button
             type="button"
             onClick={handleComplete}
-            disabled={isCompleting || isEditingATodo || isDeletingATodo}
-            aria-label={`Complete ${todo.text}`}
-            title="Mark as completed"
+            disabled={
+              isCompleting || isEditingATodo || isDeletingATodo || isOverdue
+            }
+            aria-label={
+              isOverdue ? `Overdue: ${todo.text}` : `Complete ${todo.text}`
+            }
+            title={isOverdue ? "Overdue!" : "Mark as completed"}
             style={{
-              backgroundColor: isCompleting ? "gray" : "pink",
+              backgroundColor: isCompleting
+                ? "gray"
+                : isOverdue
+                  ? "white"
+                  : "pink",
               width: "40px",
             }}
           >
-            {isCompleting ? "…" : "○"}
+            {isCompleting ? "…" : isOverdue ? ":(" : "○"}
           </button>
         )}
       </td>
@@ -266,44 +280,54 @@ export default function Todo({
               Cancel
             </button>
           </>
-        ) : (!isConfirmingDelete && !isEditingATodo &&
-          <button
-            type="button"
-            onClick={startEditing}
-            disabled={Boolean(todo.status) || isEditingATodo || isDeletingATodo}
-          >
-            Edit
-          </button>
+        ) : (
+          !isConfirmingDelete &&
+          !isEditingATodo && (
+            <button
+              type="button"
+              onClick={startEditing}
+              disabled={
+                Boolean(todo.status) ||
+                isEditingATodo ||
+                isDeletingATodo ||
+                isOverdue
+              }
+            >
+              Edit
+            </button>
+          )
         )}
         {!isConfirmingDelete && !isEditingATodo ? (
-        <button
-          type="button"
-        //   onClick={() => setIsConfirmingDelete(true)}
-          onClick={handleDelete}
-          disabled={isEditingATodo || isDeletingATodo}
-        >
-          Delete
-        </button>
-      ) : (isDeletingATodo &&
-        <div>
-          Delete this todo?
           <button
             type="button"
-            onClick={handleDeleteYes}
-            disabled={isDeleting}
+            //   onClick={() => setIsConfirmingDelete(true)}
+            onClick={handleDelete}
+            disabled={isEditingATodo || isDeletingATodo}
           >
-            {isDeleting ? "Deleting..." : "Yes"}
+            Delete
           </button>
-          <button
-            type="button"
-            // onClick={() => setIsConfirmingDelete(false)}
-            onClick={handleDeleteNo}
-            disabled={isDeleting}
-          >
-            No
-          </button>
-        </div>
-      )}
+        ) : (
+          isDeletingATodo && (
+            <div>
+              Delete this todo?
+              <button
+                type="button"
+                onClick={handleDeleteYes}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Yes"}
+              </button>
+              <button
+                type="button"
+                // onClick={() => setIsConfirmingDelete(false)}
+                onClick={handleDeleteNo}
+                disabled={isDeleting}
+              >
+                No
+              </button>
+            </div>
+          )
+        )}
       </td>
     </tr>
   );
