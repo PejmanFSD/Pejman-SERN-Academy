@@ -194,6 +194,7 @@ export default function Todos({
                 setSearchText(e.target.value);
                 setCurrentPage(1);
               }}
+              disabled={isEditingATodo || isDeletingATodo}
             />
             <label htmlFor="sortTodos">Sort todos by:</label>
             <select
@@ -203,6 +204,7 @@ export default function Todos({
                 setSortBy(e.target.value);
                 setCurrentPage(1);
               }}
+              disabled={isEditingATodo || isDeletingATodo}
             >
               <option value="text">Text</option>
               <option value="due_date">Due Date</option>
