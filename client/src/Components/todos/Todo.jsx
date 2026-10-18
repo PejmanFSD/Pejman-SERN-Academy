@@ -234,11 +234,11 @@ export default function Todo({
           <button
             type="button"
             onClick={handleUndo}
-            disabled={isCompleting || isEditingATodo || isDeletingATodo}
+            disabled={isCompleting || isEditingATodo || isDeletingATodo || String(todo.due_date).slice(0, 10) < today}
             aria-label={`Complete ${todo.text}`}
             title="Completed"
             style={{
-              backgroundColor: isCompleting ? "gray" : "lightGreen",
+              backgroundColor: isCompleting ? "lightgray" : String(todo.due_date).slice(0, 10) < today ? "white" : "lightGreen",
               width: "40px",
             }}
             // light green
@@ -258,7 +258,7 @@ export default function Todo({
             title={isOverdue ? "Overdue!" : "Mark as completed"}
             style={{
               backgroundColor: isCompleting
-                ? "gray"
+                ? "lightgray"
                 : isOverdue
                   ? "white"
                   : "pink",

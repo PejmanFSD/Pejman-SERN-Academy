@@ -49,8 +49,33 @@ export default function Todos({
   });
   const currentTodos = sortedTodos.slice(indexOfFirstTodo, indexOfLastTodo);
   const totalPages = Math.ceil(sortedTodos.length / todosPerPage);
-  const today = new Date().toISOString().split("T")[0];
+  // const today = new Date().toISOString().split("T")[0];
+  const formatDate = (date) => {
+    if (!date) return "";
+    if (typeof date === "string") {
+      return date.slice(0, 10);
+    }
+    // Read the date using local calendar fields, not UTC.
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
 
+    return `${year}-${month}-${day}`;
+  };
+  const now = new Date();
+  const today = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("-");
+  const todayTodos = todos.filter((todo) => {
+    const dueDate = formatDate(todo.due_date);
+    const isDueToday = dueDate === today;
+    const matchesSearch = todo.text
+      .toLowerCase()
+      .includes(searchText.trim().toLowerCase());
+    return isDueToday && matchesSearch;
+  });
   const startCreatingTodo = () => {
     setStartCreating(true);
   };
@@ -285,6 +310,11 @@ export default function Todos({
         >
           Create a new todo
         </button>
+      )}
+      <h3>Your today's todos</h3>
+      {todayTodos.length === 0 ? <div>Today, You don't have anything to do!</div> :
+      todayTodos.map((todo) =>
+        <div>{todo.text} - {todo.status ? "✓" : "x"}</div>
       )}
       {startCreating && (
         <div>
