@@ -200,7 +200,18 @@ export default function Todos({
 
   return (
     <div>
-      <h2>My Todos</h2>
+      {!startCreating && <h3>My today's todos</h3>}
+      {todayTodos.length === 0 && !startCreating ? (
+        <div>Today, You don't have anything to do!</div>
+      ) : (
+        !startCreating &&
+        todayTodos.map((todo) => (
+          <div>
+            {todo.text} - {todo.status ? "✓" : "x"}
+          </div>
+        ))
+      )}
+      {!startCreating && <h3>All my today's</h3>}
       {todos.length === 0 && !startCreating ? (
         <p>You don't have any todos yet.</p>
       ) : (
@@ -311,14 +322,9 @@ export default function Todos({
           Create a new todo
         </button>
       )}
-      <h3>Your today's todos</h3>
-      {todayTodos.length === 0 ? <div>Today, You don't have anything to do!</div> :
-      todayTodos.map((todo) =>
-        <div>{todo.text} - {todo.status ? "✓" : "x"}</div>
-      )}
       {startCreating && (
         <div>
-          <h4>Create a new todo</h4>
+          <h3>Create your new todo</h3>
           <CreateTodo
             handleCreateTodo={handleCreateTodo}
             text={text}
