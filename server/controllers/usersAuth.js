@@ -23,15 +23,24 @@ module.exports.register = async (req, res) => {
     }
     let finalRole = "Student"; // The default role of the user is "Student"
     // Checking the "Admin secret" if the user chooses "Admin as their role":
-    if (role === "Admin") {
-      if (adminSecret !== process.env.ADMIN_SECRET) { // The Admin secret has been saved in the .env file
-        // Send the error message to the front-end by the status code of 403
+    if (role === "Student") {
+      finalRole = "Student";
+    } else if (role === "Teacher") {
+      finalRole = "Teacher";
+    } else if (role === "Admin") {
+      if (!process.env.ADMIN_SECRET ||
+          adminSecret !== process.env.ADMIN_SECRET) { // The Admin secret has been saved in the .env file
+            // Send the error message to the front-end by the status code of 403
         return res.status(403).json({
           error: "Invalid admin secret",
         });
       }
       // Changing the default role to "Admin":
       finalRole = "Admin";
+    } else {
+      return res.status(400).json({
+        error: "Invalid role selected",
+      });
     }
     // Hashing the password;
     const passwordHash = await bcrypt.hash(password, 12);

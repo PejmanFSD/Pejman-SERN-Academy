@@ -217,6 +217,7 @@ export default function Register({
             id="role"
           >
             <option value="Student">Student</option>
+            <option value="Teacher">Teacher</option>
             <option value="Admin">Admin</option>
           </select>
           {role === "Admin" && (
