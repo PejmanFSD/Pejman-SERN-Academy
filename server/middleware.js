@@ -1,3 +1,4 @@
+const { connectDB } = require("./config/db");
 const User = require("./models/users");
 // Creating the middleware that assures that the user is logged-in:
 module.exports.isLoggedIn = (req, res, next) => {
@@ -90,4 +91,44 @@ module.exports.handleDatabaseBoxErrors = (err, req, res, next) => {
         });
     }
     next(err);
+};
+// Giving the permission to multiple roles:
+module.exports.requireRole = (...allowedRoles) => {
+  return async (req, res, next) => {
+    try {
+      if (!req.session?.user_id) {
+        return res.status(401).json({
+          error: "Please log in first",
+        });
+      }
+
+      const pool = await connectDB();
+
+      const result = await pool.request()
+        .input("userId", require("mssql").Int, req.session.user_id)
+        .query(`
+          SELECT role
+          FROM dbo.Users
+          WHERE user_id = @userId;
+        `);
+
+      const user = result.recordset[0];
+
+      if (!user) {
+        return res.status(401).json({
+          error: "User account not found",
+        });
+      }
+
+      if (!allowedRoles.includes(user.role)) {
+        return res.status(403).json({
+          error: "You are not authorized to perform this action",
+        });
+      }
+
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
 };

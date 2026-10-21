@@ -27,8 +27,8 @@ module.exports.register = async (req, res) => {
       finalRole = "Student";
     } else if (role === "Teacher") {
       finalRole = "Teacher";
-    } else if (role === "Principle") {
-      finalRole = "Principle";
+    } else if (role === "Principal") {
+      finalRole = "Principal";
     } else if (role === "Admin") {
       if (!process.env.ADMIN_SECRET ||
           adminSecret !== process.env.ADMIN_SECRET) { // The Admin secret has been saved in the .env file
