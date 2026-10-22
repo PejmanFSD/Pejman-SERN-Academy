@@ -11,6 +11,7 @@ import G5 from "./Components/g5/G5";
 import Todos from "./Components/todos/Todos";
 import G5Box from "./Components/g5/G5Box";
 import CreateG5Form from "./Components/g5/CreateG5Form";
+import CreateSchool from "./Components/schools/CreateSchool";
 
 // import AboutAcademy from "./Components/AboutAcademy";
 import "./App.css";
@@ -164,6 +165,17 @@ export default function App() {
                   isDeleting={isDeleting}
                   setIsDeleting={setIsDeleting}
                 />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/add-school"
+            element={
+              <ProtectedRoute
+                currentUser={currentUser}
+                isAuthChecked={isAuthChecked}
+              >
+                <CreateSchool />
               </ProtectedRoute>
             }
           />

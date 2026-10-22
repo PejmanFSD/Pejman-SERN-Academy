@@ -1,6 +1,7 @@
 import Navbar from "./Components/Navbar";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import ApprovingSchoolsByAdmins from "./Components/users/ApprovingSchoolsByAdmins";
 // import Footer from "./Components/Footer";
 
 export default function Home({
@@ -28,7 +29,7 @@ export default function Home({
   isG5,
   setIsG5,
   isTodos,
-  setIsTodos
+  setIsTodos,
 }) {
   const navigate = useNavigate();
   useEffect(() => {
@@ -62,6 +63,10 @@ export default function Home({
         isTodos={isTodos}
         setIsTodos={setIsTodos}
       />
+      {currentUser &&
+        currentUser.role === "Admin" &&
+        !error &&
+        !isLoggingOut && <ApprovingSchoolsByAdmins />}
       {/* <Footer className="mt-auto" /> */}
     </div>
   );

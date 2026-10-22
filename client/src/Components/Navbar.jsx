@@ -28,7 +28,7 @@ export default function Navbar({
   isG5,
   setIsG5,
   isTodos,
-  setIsTodos
+  setIsTodos,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -90,15 +90,28 @@ export default function Navbar({
         <div>
           Number of registered users: <strong>{userCount}</strong>
         </div>
-        {!isLoggingOut && <button onClick={() => navigate("/register")}>Register</button>}
-        {!isLoggingOut && <button onClick={() => navigate("/login")}>Login</button>}
-        {!isLoggingOut && <button onClick={handleLogout}>Logout</button>}
-        {currentUser && currentUser.role === "Admin" && !error && !isLoggingOut && (
-          <button onClick={() => navigate("/users")}>All users</button>
+        {!isLoggingOut && (
+          <button onClick={() => navigate("/register")}>Register</button>
         )}
+        {!isLoggingOut && (
+          <button onClick={() => navigate("/login")}>Login</button>
+        )}
+        {!isLoggingOut && <button onClick={handleLogout}>Logout</button>}
+        {currentUser &&
+          currentUser.role === "Admin" &&
+          !error &&
+          !isLoggingOut && (
+            <button onClick={() => navigate("/users")}>All users</button>
+          )}
         {currentUser && !error && !isLoggingOut && (
           <button onClick={() => navigate("/profile")}>My Profile</button>
         )}
+        {currentUser &&
+          currentUser.role === "Principal" &&
+          !error &&
+          !isLoggingOut && (
+            <button onClick={() => navigate("/add-school")}>Add School</button>
+          )}
         {currentUser &&
           location.pathname !== "/G5" &&
           !isLoggingOut &&
