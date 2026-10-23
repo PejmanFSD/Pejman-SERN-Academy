@@ -176,3 +176,86 @@ module.exports.rejectApplication = async (
     throw error;
   }
 };
+
+module.exports.getMySchools = async (principalId) => {
+  const pool = await connectDB();
+
+  return pool.request()
+    .input("principalId", sql.Int, principalId)
+    .query(`
+      SELECT
+        s.id,
+        s.school_name,
+        s.principal_id,
+        s.country_code,
+        c.country_name,
+        s.city,
+        s.address,
+        s.zip_code,
+        a.reviewed_at AS approved_at,
+        admin.username AS approved_by
+      FROM dbo.Schools AS s
+      INNER JOIN dbo.Countries AS c
+        ON c.country_code = s.country_code
+      LEFT JOIN dbo.SchoolApplications AS a
+        ON a.id = s.application_id
+       AND a.status = 'Approved'
+      LEFT JOIN dbo.Users AS admin
+        ON admin.user_id = a.reviewed_by
+      WHERE s.principal_id = @principalId
+      ORDER BY s.id DESC;
+    `);
+};
+
+module.exports.updateMySchool = async (
+  schoolId,
+  principalId,
+  {
+    schoolName,
+    countryCode,
+    city,
+    address,
+    zipCode,
+  }
+) => {
+  const pool = await connectDB();
+
+  return pool.request()
+    .input("id", sql.Int, schoolId)
+    .input("principalId", sql.Int, principalId)
+    .input("schoolName", sql.NVarChar(200), schoolName)
+    .input("countryCode", sql.Char(2), countryCode)
+    .input("city", sql.NVarChar(100), city)
+    .input("address", sql.NVarChar(255), address)
+    .input("zipCode", sql.NVarChar(20), zipCode || null)
+    .query(`
+      UPDATE dbo.Schools
+      SET school_name = @schoolName,
+          country_code = @countryCode,
+          city = @city,
+          address = @address,
+          zip_code = @zipCode
+      WHERE id = @id
+        AND principal_id = @principalId;
+
+      SELECT @@ROWCOUNT AS affectedRows;
+    `);
+};
+
+module.exports.deleteMySchool = async (
+  schoolId,
+  principalId
+) => {
+  const pool = await connectDB();
+
+  return pool.request()
+    .input("id", sql.Int, schoolId)
+    .input("principalId", sql.Int, principalId)
+    .query(`
+      DELETE FROM dbo.Schools
+      WHERE id = @id
+        AND principal_id = @principalId;
+
+      SELECT @@ROWCOUNT AS affectedRows;
+    `);
+};

@@ -2,6 +2,7 @@ import {
   useNavigate,
   useLocation, // For hiding the button of the current page
 } from "react-router-dom";
+import MySchool from "../schools/MySchool";
 
 export default function Profile({
   currentUser,
@@ -31,6 +32,7 @@ export default function Profile({
         </div>
       )}
       <br />
+      {currentUser?.role === "Principal" && <MySchool />}
     </div>
   );
 }

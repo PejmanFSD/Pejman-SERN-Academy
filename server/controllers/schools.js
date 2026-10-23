@@ -115,3 +115,115 @@ module.exports.rejectApplication = async (req, res) => {
     message: "School application rejected.",
   });
 };
+
+module.exports.getMySchools = async (req, res) => {
+  const result = await Schools.getMySchools(
+    req.session.user_id
+  );
+
+  res.status(200).json({
+    schools: result.recordset,
+  });
+};
+
+module.exports.updateMySchool = async (req, res) => {
+  const schoolId = Number(req.params.id);
+
+  if (!Number.isSafeInteger(schoolId) || schoolId < 1) {
+    return res.status(400).json({
+      error: "Invalid school ID.",
+    });
+  }
+
+  const {
+    schoolName,
+    countryCode,
+    city,
+    address,
+    zipCode,
+  } = req.body;
+
+  if (
+    typeof schoolName !== "string" ||
+    !schoolName.trim() ||
+    schoolName.trim().length > 200 ||
+    typeof countryCode !== "string" ||
+    !/^[A-Za-z]{2}$/.test(countryCode) ||
+    typeof city !== "string" ||
+    !city.trim() ||
+    city.trim().length > 100 ||
+    typeof address !== "string" ||
+    !address.trim() ||
+    address.trim().length > 255 ||
+    (zipCode != null &&
+      (typeof zipCode !== "string" || zipCode.length > 20))
+  ) {
+    return res.status(400).json({
+      error: "Please provide valid school information.",
+    });
+  }
+
+  try {
+    const result = await Schools.updateMySchool(
+      schoolId,
+      req.session.user_id,
+      {
+        schoolName: schoolName.trim(),
+        countryCode: countryCode.toUpperCase(),
+        city: city.trim(),
+        address: address.trim(),
+        zipCode: zipCode?.trim() || null,
+      }
+    );
+
+    if (result.recordset[0].affectedRows === 0) {
+      return res.status(404).json({
+        error: "School not found or you do not own this school.",
+      });
+    }
+
+    return res.status(200).json({
+      message: "School information updated successfully.",
+    });
+  } catch (error) {
+    if (error.number === 2601 || error.number === 2627) {
+      return res.status(409).json({
+        error: "A school with this name already exists.",
+      });
+    }
+
+    if (error.number === 547) {
+      return res.status(400).json({
+        error: "The selected country is invalid.",
+      });
+    }
+
+    throw error;
+  }
+};
+
+module.exports.deleteMySchool = async (req, res) => {
+  const schoolId = Number(req.params.id);
+
+  if (!Number.isSafeInteger(schoolId) || schoolId < 1) {
+    return res.status(400).json({
+      error: "Invalid school ID.",
+    });
+  }
+
+  const result = await Schools.deleteMySchool(
+    schoolId,
+    req.session.user_id
+  );
+
+  if (result.recordset[0].affectedRows === 0) {
+    return res.status(404).json({
+      error: "School not found or you do not own this school.",
+    });
+  }
+
+  return res.status(200).json({
+    message: "School deleted successfully.",
+  });
+};
+

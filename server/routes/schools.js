@@ -32,5 +32,23 @@ router.patch(
   requireRole("Admin"),
   catchAsync(schoolsController.rejectApplication)
 );
+// Principal: retrieve their approved schools
+router.get(
+  "/my-schools",
+  requireRole("Principal"),
+  catchAsync(schoolsController.getMySchools)
+);
+// Principal: edit their own school
+router.put(
+  "/:id",
+  requireRole("Principal"),
+  catchAsync(schoolsController.updateMySchool)
+);
+// Principal: delete their own school
+router.delete(
+  "/:id",
+  requireRole("Principal"),
+  catchAsync(schoolsController.deleteMySchool)
+);
 
 module.exports = router;
