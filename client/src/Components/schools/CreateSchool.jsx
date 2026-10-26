@@ -82,7 +82,6 @@ export default function CreateSchool() {
         <option value="CA">Canada</option>
         <option value="US">United States of America</option>
         <option value="GB">United Kingdom</option>
-
         <option value="FR">France</option>
         <option value="DE">Germany</option>
         <option value="JP">Japan</option>

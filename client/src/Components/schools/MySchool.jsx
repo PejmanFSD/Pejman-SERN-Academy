@@ -172,13 +172,14 @@ export default function MySchool({ isDeleting, setIsDeleting }) {
           <article
             key={school.id}
             style={{
-              border: "1px solid #ccc",
-              borderRadius: "8px",
+              //   border: "1px solid #ccc",
+              //   borderRadius: "8px",
               padding: "16px",
               marginBottom: "16px",
             }}
           >
-            {editingId !== school.id ? (
+            {/* {editingId !== school.id ? ( */}
+            {editingId === null ? (
               <>
                 <h3>{school.school_name}</h3>
                 <p>
@@ -213,66 +214,84 @@ export default function MySchool({ isDeleting, setIsDeleting }) {
                 </button>
               </>
             ) : (
-              <form onSubmit={saveSchool}>
-                <h3>Edit School Information</h3>
-                <label htmlFor={`schoolName-${school.id}`}>School Name</label>
-                <input
-                  id={`schoolName-${school.id}`}
-                  name="schoolName"
-                  value={formData.schoolName}
-                  onChange={handleChange}
-                  maxLength={200}
-                  required
-                />
-                <label htmlFor={`countryCode-${school.id}`}>Country</label>
-                <select
-                  id={`countryCode-${school.id}`}
-                  name="countryCode"
-                  value={formData.countryCode}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="CA">Canada</option>
-                  <option value="US">United States</option>
-                  <option value="GB">United Kingdom</option>
-                </select>
-                <label htmlFor={`city-${school.id}`}>City</label>
-                <input
-                  id={`city-${school.id}`}
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  maxLength={100}
-                  required
-                />
-                <label htmlFor={`address-${school.id}`}>Address</label>
-                <input
-                  id={`address-${school.id}`}
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  maxLength={255}
-                  required
-                />
-                <label htmlFor={`zipCode-${school.id}`}>Postal Code</label>
-                <input
-                  id={`zipCode-${school.id}`}
-                  name="zipCode"
-                  value={formData.zipCode}
-                  onChange={handleChange}
-                  maxLength={20}
-                />
-                <button type="submit" disabled={saving}>
-                  {saving ? "Saving..." : "Save Changes"}
-                </button>{" "}
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={() => setEditingId(null)}
-                >
-                  Cancel
-                </button>
-              </form>
+              editingId === school.id && (
+                <form onSubmit={saveSchool}>
+                  <h3>Edit School Information</h3>
+                  <label htmlFor={`schoolName-${school.id}`}>School Name</label>
+                  <input
+                    id={`schoolName-${school.id}`}
+                    name="schoolName"
+                    value={formData.schoolName}
+                    onChange={handleChange}
+                    maxLength={200}
+                    required
+                  />
+                  <label htmlFor={`countryCode-${school.id}`}>Country</label>
+                  <select
+                    id={`countryCode-${school.id}`}
+                    name="countryCode"
+                    value={formData.countryCode}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="CA">Canada</option>
+                    <option value="US">United States of America</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="FR">France</option>
+                    <option value="DE">Germany</option>
+                    <option value="JP">Japan</option>
+                    <option value="ES">Spain</option>
+                    <option value="IT">Italy</option>
+                    <option value="NL">Netherlands</option>
+                    <option value="NO">Norway</option>
+                    <option value="DK">Denmark</option>
+                    <option value="AU">Australia</option>
+                    <option value="SE">Sweden</option>
+                    <option value="CH">Switzerland</option>
+                    <option value="CN">China</option>
+                    <option value="AT">Austria</option>
+                    <option value="BE">Belgium</option>
+                    <option value="MX">Mexico</option>
+                    <option value="BR">Brazil</option>
+                  </select>
+                  <label htmlFor={`city-${school.id}`}>City</label>
+                  <input
+                    id={`city-${school.id}`}
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    maxLength={100}
+                    required
+                  />
+                  <label htmlFor={`address-${school.id}`}>Address</label>
+                  <input
+                    id={`address-${school.id}`}
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    maxLength={255}
+                    required
+                  />
+                  <label htmlFor={`zipCode-${school.id}`}>Postal Code</label>
+                  <input
+                    id={`zipCode-${school.id}`}
+                    name="zipCode"
+                    value={formData.zipCode}
+                    onChange={handleChange}
+                    maxLength={20}
+                  />
+                  <button type="submit" disabled={saving}>
+                    {saving ? "Saving..." : "Save Changes"}
+                  </button>{" "}
+                  <button
+                    type="button"
+                    disabled={saving}
+                    onClick={() => setEditingId(null)}
+                  >
+                    Cancel
+                  </button>
+                </form>
+              )
             )}
           </article>
         ))
