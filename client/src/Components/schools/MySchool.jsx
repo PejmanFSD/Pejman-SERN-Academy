@@ -1,12 +1,12 @@
-
 import { useEffect, useState } from "react";
 
-export default function MySchool() {
+export default function MySchool({ isDeleting, setIsDeleting }) {
   const [schools, setSchools] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
   const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -75,17 +75,14 @@ export default function MySchool() {
       setError("");
       setMessage("");
 
-      const response = await fetch(
-        `/schools/${editingId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch(`/schools/${editingId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(formData),
+      });
 
       const json = await response.json();
 
@@ -104,13 +101,12 @@ export default function MySchool() {
     }
   };
 
-  const deleteSchool = async (schoolId) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this school? This action cannot be undone."
-    );
+  const deleteSchool = (id) => {
+    setDeletingId(id);
+    setIsDeleting(true);
+  };
 
-    if (!confirmed) return;
-
+  const deleteSchoolYes = async (schoolId) => {
     try {
       setError("");
       setMessage("");
@@ -127,17 +123,25 @@ export default function MySchool() {
       }
 
       setSchools((current) =>
-        current.filter((school) => school.id !== schoolId)
+        current.filter((school) => school.id !== schoolId),
       );
 
       if (editingId === schoolId) {
         setEditingId(null);
       }
 
-      setMessage(json.message);
+      setMessage(json.message || "School deleted successfully.");
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsDeleting(false);
+      setDeletingId(null);
     }
+  };
+
+  const deleteSchoolNo = () => {
+    setIsDeleting(false);
+    setDeletingId(null);
   };
 
   if (loading) {
@@ -160,11 +164,10 @@ export default function MySchool() {
         </p>
       )}
 
-      {schools.length === 0 ? (
-        <p>
-          You don't have any approved schools yet.
-        </p>
+      {!isDeleting && schools.length === 0 ? (
+        <p>You don't have any approved schools yet.</p>
       ) : (
+        !isDeleting &&
         schools.map((school) => (
           <article
             key={school.id}
@@ -178,61 +181,41 @@ export default function MySchool() {
             {editingId !== school.id ? (
               <>
                 <h3>{school.school_name}</h3>
-
                 <p>
-                  <strong>Location:</strong>{" "}
-                  {school.city}, {school.country_name}
+                  <strong>Location:</strong> {school.city},{" "}
+                  {school.country_name}
                 </p>
-
                 <p>
-                  <strong>Address:</strong>{" "}
-                  {school.address}
+                  <strong>Address:</strong> {school.address}
                 </p>
-
                 <p>
                   <strong>Postal code:</strong>{" "}
                   {school.zip_code || "Not provided"}
                 </p>
-
                 <p>
                   <strong>Approval status:</strong> Approved
                 </p>
-
                 <p>
                   <strong>Approved by:</strong>{" "}
                   {school.approved_by || "Approval record unavailable"}
                 </p>
-
                 <p>
                   <strong>Approval date:</strong>{" "}
                   {school.approved_at
                     ? new Date(school.approved_at).toLocaleDateString()
                     : "Unavailable"}
                 </p>
-
-                <button
-                  type="button"
-                  onClick={() => startEditing(school)}
-                >
+                <button type="button" onClick={() => startEditing(school)}>
                   Edit School
-                </button>
-
-                {" "}
-
-                <button
-                  type="button"
-                  onClick={() => deleteSchool(school.id)}
-                >
+                </button>{" "}
+                <button type="button" onClick={() => deleteSchool(school.id)}>
                   Delete School
                 </button>
               </>
             ) : (
               <form onSubmit={saveSchool}>
                 <h3>Edit School Information</h3>
-
-                <label htmlFor={`schoolName-${school.id}`}>
-                  School Name
-                </label>
+                <label htmlFor={`schoolName-${school.id}`}>School Name</label>
                 <input
                   id={`schoolName-${school.id}`}
                   name="schoolName"
@@ -241,10 +224,7 @@ export default function MySchool() {
                   maxLength={200}
                   required
                 />
-
-                <label htmlFor={`countryCode-${school.id}`}>
-                  Country
-                </label>
+                <label htmlFor={`countryCode-${school.id}`}>Country</label>
                 <select
                   id={`countryCode-${school.id}`}
                   name="countryCode"
@@ -256,10 +236,7 @@ export default function MySchool() {
                   <option value="US">United States</option>
                   <option value="GB">United Kingdom</option>
                 </select>
-
-                <label htmlFor={`city-${school.id}`}>
-                  City
-                </label>
+                <label htmlFor={`city-${school.id}`}>City</label>
                 <input
                   id={`city-${school.id}`}
                   name="city"
@@ -268,10 +245,7 @@ export default function MySchool() {
                   maxLength={100}
                   required
                 />
-
-                <label htmlFor={`address-${school.id}`}>
-                  Address
-                </label>
+                <label htmlFor={`address-${school.id}`}>Address</label>
                 <input
                   id={`address-${school.id}`}
                   name="address"
@@ -280,10 +254,7 @@ export default function MySchool() {
                   maxLength={255}
                   required
                 />
-
-                <label htmlFor={`zipCode-${school.id}`}>
-                  Postal Code
-                </label>
+                <label htmlFor={`zipCode-${school.id}`}>Postal Code</label>
                 <input
                   id={`zipCode-${school.id}`}
                   name="zipCode"
@@ -291,13 +262,9 @@ export default function MySchool() {
                   onChange={handleChange}
                   maxLength={20}
                 />
-
                 <button type="submit" disabled={saving}>
                   {saving ? "Saving..." : "Save Changes"}
-                </button>
-
-                {" "}
-
+                </button>{" "}
                 <button
                   type="button"
                   disabled={saving}
@@ -309,6 +276,17 @@ export default function MySchool() {
             )}
           </article>
         ))
+      )}
+      {isDeleting && deletingId !== null && (
+        <div>
+          <p>{`Are you sure you want to delete ${schools.find((s) => s.id === deletingId).school_name}?`}</p>
+          <button type="button" onClick={() => deleteSchoolYes(deletingId)}>
+            Yes
+          </button>
+          <button type="button" onClick={deleteSchoolNo}>
+            No
+          </button>
+        </div>
       )}
     </section>
   );

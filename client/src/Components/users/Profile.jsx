@@ -8,6 +8,8 @@ export default function Profile({
   currentUser,
   setIsProfileEditing,
   isLoggingOut,
+  isDeleting,
+  setIsDeleting
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,7 +34,12 @@ export default function Profile({
         </div>
       )}
       <br />
-      {currentUser?.role === "Principal" && <MySchool />}
+      {currentUser?.role === "Principal" &&
+        <MySchool
+          isDeleting={isDeleting}
+          setIsDeleting={setIsDeleting}
+        />
+      }
     </div>
   );
 }

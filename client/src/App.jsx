@@ -192,6 +192,8 @@ export default function App() {
                   setError={setError}
                   setIsProfileEditing={setIsProfileEditing}
                   isLoggingOut={isLoggingOut}
+                  isDeleting={isDeleting}
+                  setIsDeleting={setIsDeleting}
                 />
               </ProtectedRoute>
             }
