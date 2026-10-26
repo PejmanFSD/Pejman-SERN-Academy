@@ -8,6 +8,7 @@ export default function MySchool({ isDeleting, setIsDeleting }) {
   const [editingId, setEditingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [rejectedApplications, setRejectedApplications] = useState([]);
 
   const [formData, setFormData] = useState({
     schoolName: "",
@@ -143,6 +144,34 @@ export default function MySchool({ isDeleting, setIsDeleting }) {
     setIsDeleting(false);
     setDeletingId(null);
   };
+
+  const loadRejectedApplications = async () => {
+    try {
+        const response = await fetch(
+        "/schools/my-applications/rejected",
+        {
+            credentials: "include",
+        }
+        );
+
+        const json = await response.json();
+
+        if (!response.ok) {
+        throw new Error(
+            json.error || "Failed to load rejected applications."
+        );
+        }
+
+        setRejectedApplications(json.applications || []);
+    } catch (err) {
+        setError(err.message);
+    }
+  };
+
+  useEffect(() => {
+    loadSchools();
+    loadRejectedApplications();
+  }, []);
 
   if (loading) {
     return <p>Loading your schools...</p>;
@@ -307,6 +336,40 @@ export default function MySchool({ isDeleting, setIsDeleting }) {
           </button>
         </div>
       )}
+      {rejectedApplications.length === 0 ? (
+            <p>You have no rejected school applications.</p>
+        ) : (
+            rejectedApplications.map((application) => (
+            <div
+                key={application.id}
+                style={{
+                        border: "1px solid #d9534f",
+                        borderRadius: "8px",
+                        padding: "16px",
+                        marginBottom: "16px"
+                }}
+            >
+                <h3>School Application Rejected</h3>
+
+                <p>
+                Your application for{" "}
+                <strong>{application.school_name}</strong> has been rejected.
+                </p>
+
+                <p>
+                <strong>Rejected by:</strong>{" "}
+                {application.rejected_by || "Admin name unavailable"}
+                </p>
+
+                <p>
+                <strong>Rejection date:</strong>{" "}
+                {application.reviewed_at
+                    ? new Date(application.reviewed_at).toLocaleString()
+                    : "Date unavailable"}
+                </p>
+            </div>
+            ))
+       )}
     </section>
   );
 }

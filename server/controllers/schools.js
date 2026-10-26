@@ -227,3 +227,29 @@ module.exports.deleteMySchool = async (req, res) => {
   });
 };
 
+module.exports.rejectApplication = async (req, res) => {
+  const applicationId = Number(req.params.id);
+
+  if (!Number.isSafeInteger(applicationId) || applicationId <= 0) {
+    return res.status(400).json({
+      error: "Invalid application ID.",
+    });
+  }
+
+  const result = await Schools.rejectApplication(
+    applicationId,
+    req.session.user_id
+  );
+
+  return res.status(200).json(result);
+};
+
+module.exports.getMyRejectedApplications = async (req, res) => {
+  const result = await Schools.getMyRejectedApplications(
+    req.session.user_id
+  );
+
+  return res.status(200).json({
+    applications: result.recordset,
+  });
+};

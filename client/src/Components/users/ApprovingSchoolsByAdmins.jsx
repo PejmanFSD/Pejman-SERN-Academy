@@ -5,8 +5,9 @@ export default function ApprovingSchoolsByAdmins() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [processingId, setProcessingId] = useState(null);
+  const [message, setMessage] = useState("");
 
-  // 1. Fetch pending school applications when the component mounts
+  // Fetch pending school applications when the component mounts
   useEffect(() => {
     const fetchApplications = async () => {
       try {
@@ -33,9 +34,8 @@ export default function ApprovingSchoolsByAdmins() {
 
     fetchApplications();
   }, []);
-
-  // 2. Approve a school application
-  const approveSchool = async (applicationId) => {
+  // Approve a school application
+  const approveApplication = async (applicationId) => {
     try {
       setError("");
       setProcessingId(applicationId);
@@ -53,7 +53,6 @@ export default function ApprovingSchoolsByAdmins() {
       if (!response.ok) {
         throw new Error(json.error || "Approval failed.");
       }
-
       // Remove the approved application from the table
       setApplications((currentApplications) =>
         currentApplications.filter((app) => app.id !== applicationId),
@@ -64,8 +63,36 @@ export default function ApprovingSchoolsByAdmins() {
       setProcessingId(null);
     }
   };
+  // Reject a school application
+  const rejectApplication = async (applicationId) => {
+    try {
+      setError("");
+      setMessage("");
 
-  // 3. Render loading, error, empty, or table states
+      const response = await fetch(
+        `/schools/applications/${applicationId}/reject`,
+        {
+          method: "PATCH",
+          credentials: "include",
+        },
+      );
+
+      const json = await response.json();
+
+      if (!response.ok) {
+        throw new Error(json.error || "Failed to reject school application.");
+      }
+
+      setApplications((current) =>
+        current.filter((application) => application.id !== applicationId),
+      );
+
+      setMessage("School application rejected successfully.");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+  // Render loading, error, empty, or table states
   if (loading) {
     return <p>Loading pending school applications...</p>;
   }
@@ -101,24 +128,23 @@ export default function ApprovingSchoolsByAdmins() {
             {applications.map((app) => (
               <tr key={app.id}>
                 <td style={cellStyle}>{app.school_name}</td>
-
                 <td style={cellStyle}>{app.principal_username}</td>
-
                 <td style={cellStyle}>{app.country_name}</td>
-
                 <td style={cellStyle}>{app.city}</td>
-
                 <td style={cellStyle}>{app.address}</td>
-
                 <td style={cellStyle}>{app.zip_code || "—"}</td>
-
-                <td style={cellStyle}>
+                <td>
                   <button
                     type="button"
-                    onClick={() => approveSchool(app.id)}
-                    disabled={processingId !== null}
+                    onClick={() => approveApplication(app.id)}
                   >
-                    {processingId === app.id ? "Approving..." : "Approve"}
+                    Approve
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => rejectApplication(app.id)}
+                  >
+                    Reject
                   </button>
                 </td>
               </tr>

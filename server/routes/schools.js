@@ -1,7 +1,6 @@
 
 const express = require("express");
 const router = express.Router();
-
 const { requireRole } = require("../middleware");
 const catchAsync = require("../utils/catchAsync");
 const schoolsController = require("../controllers/schools");
@@ -12,32 +11,37 @@ router.post(
   requireRole("Principal"),
   catchAsync(schoolsController.createApplication)
 );
-
 // Admins see pending applications
 router.get(
   "/applications/pending",
   requireRole("Admin"),
   catchAsync(schoolsController.getPendingApplications)
 );
-
-// Admins approve or reject applications
+// Admins approve applications
 router.patch(
   "/applications/:id/approve",
   requireRole("Admin"),
   catchAsync(schoolsController.approveApplication)
 );
-
+// Admins reject applications
 router.patch(
   "/applications/:id/reject",
   requireRole("Admin"),
   catchAsync(schoolsController.rejectApplication)
 );
-// Principal: retrieve their approved schools
+// Principals retrieve their approved schools
 router.get(
   "/my-schools",
   requireRole("Principal"),
   catchAsync(schoolsController.getMySchools)
 );
+// Principals retrieve their rejected schools
+router.get(
+  "/my-applications/rejected",
+  requireRole("Principal"),
+  catchAsync(schoolsController.getMyRejectedApplications)
+);
+
 // Principal: edit their own school
 router.put(
   "/:id",

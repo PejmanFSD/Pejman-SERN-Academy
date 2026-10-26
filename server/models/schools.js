@@ -276,3 +276,59 @@ module.exports.deleteMySchool = async (
       SELECT @@ROWCOUNT AS affectedRows;
     `);
 };
+
+module.exports.rejectApplication = async (applicationId, adminId) => {
+  const pool = await connectDB();
+
+  const result = await pool.request()
+    .input("id", sql.Int, applicationId)
+    .input("adminId", sql.Int, adminId)
+    .query(`
+      UPDATE dbo.SchoolApplications
+      SET status = 'Rejected',
+          reviewed_by = @adminId,
+          reviewed_at = SYSUTCDATETIME()
+      WHERE id = @id
+        AND status = 'Pending';
+
+      SELECT @@ROWCOUNT AS affectedRows;
+    `);
+
+  if (result.recordset[0].affectedRows !== 1) {
+    const error = new Error(
+      "Application not found or already reviewed."
+    );
+    error.statusCode = 409;
+    throw error;
+  }
+
+  return { message: "School application rejected successfully." };
+};
+
+module.exports.getMyRejectedApplications = async (principalId) => {
+  const pool = await connectDB();
+
+  return pool.request()
+    .input("principalId", sql.Int, principalId)
+    .query(`
+      SELECT
+        a.id,
+        a.school_name,
+        a.country_code,
+        c.country_name,
+        a.city,
+        a.address,
+        a.zip_code,
+        a.status,
+        a.reviewed_at,
+        u.username AS rejected_by
+      FROM dbo.SchoolApplications AS a
+      LEFT JOIN dbo.Users AS u
+        ON u.user_id = a.reviewed_by
+      LEFT JOIN dbo.Countries AS c
+        ON c.country_code = a.country_code
+      WHERE a.principal_id = @principalId
+        AND a.status = 'Rejected'
+      ORDER BY a.reviewed_at DESC;
+    `);
+};
