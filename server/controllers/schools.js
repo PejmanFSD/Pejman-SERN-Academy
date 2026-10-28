@@ -235,10 +235,17 @@ module.exports.rejectApplication = async (req, res) => {
       error: "Invalid application ID.",
     });
   }
-
+  const { rejectionReason } = req.body || {};
+  if (typeof rejectionReason !== "string" || !rejectionReason.trim()) {
+    return res.status(400).json({
+      error: "Please provide a reason for rejecting the school application.",
+    });
+  }
+  console.log("Rejection reason received:", rejectionReason);
   const result = await Schools.rejectApplication(
     applicationId,
-    req.session.user_id
+    req.session.user_id,
+    rejectionReason
   );
 
   return res.status(200).json(result);

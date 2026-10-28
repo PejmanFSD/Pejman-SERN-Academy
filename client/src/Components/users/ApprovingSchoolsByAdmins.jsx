@@ -6,6 +6,9 @@ export default function ApprovingSchoolsByAdmins() {
   const [error, setError] = useState("");
   const [processingId, setProcessingId] = useState(null);
   const [message, setMessage] = useState("");
+  const [rejectingId, setRejectingId] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [isRejecting, setIsRejecting] = useState(false);
 
   // Fetch pending school applications when the component mounts
   useEffect(() => {
@@ -63,9 +66,22 @@ export default function ApprovingSchoolsByAdmins() {
       setProcessingId(null);
     }
   };
-  // Reject a school application
-  const rejectApplication = async (applicationId) => {
+
+  const submitRejection = async (applicationId) => {
+    const reason = rejectionReason.trim();
+
+    if (!reason) {
+      setError("Please enter a reason for rejecting this application.");
+      return;
+    }
+
+    if (reason.length > 1000) {
+      setError("The rejection reason cannot exceed 1000 characters.");
+      return;
+    }
+
     try {
+      setIsRejecting(true);
       setError("");
       setMessage("");
 
@@ -74,6 +90,12 @@ export default function ApprovingSchoolsByAdmins() {
         {
           method: "PATCH",
           credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            rejectionReason: reason,
+          }),
         },
       );
 
@@ -87,9 +109,13 @@ export default function ApprovingSchoolsByAdmins() {
         current.filter((application) => application.id !== applicationId),
       );
 
+      setRejectingId(null);
+      setRejectionReason("");
       setMessage("School application rejected successfully.");
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsRejecting(false);
     }
   };
   // Render loading, error, empty, or table states
@@ -142,7 +168,12 @@ export default function ApprovingSchoolsByAdmins() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => rejectApplication(app.id)}
+                    onClick={() => {
+                      setRejectingId(app.id);
+                      setRejectionReason("");
+                      setError("");
+                      setMessage("");
+                    }}
                   >
                     Reject
                   </button>
@@ -151,6 +182,48 @@ export default function ApprovingSchoolsByAdmins() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {rejectingId !== null && (
+        <div className="rejection-form">
+          <h3>Reason for rejecting the school</h3>
+
+          <label htmlFor="rejectionReason">
+            Explain why this school application is being rejected:
+          </label>
+
+          <textarea
+            id="rejectionReason"
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+            placeholder="Enter the reason for rejection..."
+            maxLength={1000}
+            rows={5}
+            required
+          />
+
+          <p>{rejectionReason.length}/1000 characters</p>
+
+          <button
+            type="button"
+            disabled={isRejecting || !rejectionReason.trim()}
+            onClick={() => submitRejection(rejectingId)}
+          >
+            {isRejecting ? "Rejecting..." : "Confirm Rejection"}
+          </button>
+
+          <button
+            type="button"
+            disabled={isRejecting}
+            onClick={() => {
+              setRejectingId(null);
+              setRejectionReason("");
+              setError("");
+            }}
+          >
+            Cancel
+          </button>
+        </div>
       )}
     </div>
   );

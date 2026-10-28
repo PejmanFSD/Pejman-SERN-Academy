@@ -1,4 +1,3 @@
-
 const { sql, connectDB } = require("../config/db");
 // inserting a pending application, not creating an approved school yet!
 module.exports.createApplication = async ({
@@ -11,14 +10,14 @@ module.exports.createApplication = async ({
 }) => {
   const pool = await connectDB();
 
-  return pool.request()
+  return pool
+    .request()
     .input("schoolName", sql.NVarChar(200), schoolName)
     .input("principalId", sql.Int, principalId)
     .input("countryCode", sql.Char(2), countryCode)
     .input("city", sql.NVarChar(100), city)
     .input("address", sql.NVarChar(255), address)
-    .input("zipCode", sql.NVarChar(20), zipCode || null)
-    .query(`
+    .input("zipCode", sql.NVarChar(20), zipCode || null).query(`
       IF EXISTS (
         SELECT 1
         FROM dbo.Schools
@@ -82,9 +81,9 @@ module.exports.approveApplication = async (applicationId, adminId) => {
 
   try {
     // 1. Find and lock the pending application.
-    const applicationResult = await transaction.request()
-      .input("id", sql.Int, applicationId)
-      .query(`
+    const applicationResult = await transaction
+      .request()
+      .input("id", sql.Int, applicationId).query(`
         SELECT *
         FROM dbo.SchoolApplications WITH (UPDLOCK, HOLDLOCK)
         WHERE id = @id AND status = 'Pending';
@@ -94,23 +93,21 @@ module.exports.approveApplication = async (applicationId, adminId) => {
 
     // 2. Check that the application exists before using it.
     if (!application) {
-      const error = new Error(
-        "Application not found or already reviewed."
-      );
+      const error = new Error("Application not found or already reviewed.");
       error.statusCode = 409;
       throw error;
     }
 
     // 3. Insert the approved school, including application_id.
-    const schoolResult = await transaction.request()
+    const schoolResult = await transaction
+      .request()
       .input("applicationId", sql.Int, application.id)
       .input("schoolName", sql.NVarChar(200), application.school_name)
       .input("principalId", sql.Int, application.principal_id)
       .input("countryCode", sql.Char(2), application.country_code)
       .input("city", sql.NVarChar(100), application.city)
       .input("address", sql.NVarChar(255), application.address)
-      .input("zipCode", sql.NVarChar(20), application.zip_code)
-      .query(`
+      .input("zipCode", sql.NVarChar(20), application.zip_code).query(`
         INSERT INTO dbo.Schools (
           application_id,
           school_name,
@@ -133,10 +130,10 @@ module.exports.approveApplication = async (applicationId, adminId) => {
       `);
 
     // 4. Record which admin approved the application and when.
-    const updateResult = await transaction.request()
+    const updateResult = await transaction
+      .request()
       .input("id", sql.Int, application.id)
-      .input("adminId", sql.Int, adminId)
-      .query(`
+      .input("adminId", sql.Int, adminId).query(`
         UPDATE dbo.SchoolApplications
         SET status = 'Approved',
             reviewed_by = @adminId,
@@ -148,7 +145,7 @@ module.exports.approveApplication = async (applicationId, adminId) => {
 
     if (updateResult.recordset[0].affectedRows !== 1) {
       const error = new Error(
-        "The application could not be marked as approved."
+        "The application could not be marked as approved.",
       );
       error.statusCode = 409;
       throw error;
@@ -165,41 +162,66 @@ module.exports.approveApplication = async (applicationId, adminId) => {
     throw error;
   }
 };
-
 // Rejecting a school by an admin:
 module.exports.rejectApplication = async (
   applicationId,
-  adminId
+  adminId,
+  rejectionReason,
 ) => {
+  console.log("MODEL: rejectApplication was called!");
   const pool = await connectDB();
 
-  const result = await pool.request()
+  const reason = rejectionReason?.trim();
+
+  if (!reason) {
+    const error = new Error(
+      "Please provide a reason for rejecting the school application.",
+    );
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (reason.length > 1000) {
+    const error = new Error(
+      "The rejection reason cannot exceed 1000 characters.",
+    );
+    error.statusCode = 400;
+    throw error;
+  }
+console.log("Application ID:", applicationId);
+console.log("Admin ID:", adminId);
+console.log("Rejection reason:", reason);
+  const result = await pool
+    .request()
     .input("id", sql.Int, applicationId)
     .input("adminId", sql.Int, adminId)
-    .query(`
+    .input("rejectionReason", sql.NVarChar(1000), reason).query(`
       UPDATE dbo.SchoolApplications
       SET status = 'Rejected',
           reviewed_by = @adminId,
-          reviewed_at = SYSUTCDATETIME()
+          reviewed_at = SYSUTCDATETIME(),
+          rejection_reason = @rejectionReason
       WHERE id = @id
         AND status = 'Pending';
-    `);
 
-  if (result.rowsAffected[0] !== 1) {
-    const error = new Error(
-      "Application not found or already reviewed."
-    );
+      SELECT @@ROWCOUNT AS affectedRows;
+    `);
+console.log("Database result:", result.recordset);
+  if (result.recordset[0].affectedRows !== 1) {
+    const error = new Error("Application not found or already reviewed.");
     error.statusCode = 409;
     throw error;
   }
+
+  return {
+    message: "School application rejected successfully.",
+  };
 };
 
 module.exports.getMySchools = async (principalId) => {
   const pool = await connectDB();
 
-  return pool.request()
-    .input("principalId", sql.Int, principalId)
-    .query(`
+  return pool.request().input("principalId", sql.Int, principalId).query(`
       SELECT
         s.id,
         s.school_name,
@@ -227,25 +249,19 @@ module.exports.getMySchools = async (principalId) => {
 module.exports.updateMySchool = async (
   schoolId,
   principalId,
-  {
-    schoolName,
-    countryCode,
-    city,
-    address,
-    zipCode,
-  }
+  { schoolName, countryCode, city, address, zipCode },
 ) => {
   const pool = await connectDB();
 
-  return pool.request()
+  return pool
+    .request()
     .input("id", sql.Int, schoolId)
     .input("principalId", sql.Int, principalId)
     .input("schoolName", sql.NVarChar(200), schoolName)
     .input("countryCode", sql.Char(2), countryCode)
     .input("city", sql.NVarChar(100), city)
     .input("address", sql.NVarChar(255), address)
-    .input("zipCode", sql.NVarChar(20), zipCode || null)
-    .query(`
+    .input("zipCode", sql.NVarChar(20), zipCode || null).query(`
       UPDATE dbo.Schools
       SET school_name = @schoolName,
           country_code = @countryCode,
@@ -259,16 +275,13 @@ module.exports.updateMySchool = async (
     `);
 };
 
-module.exports.deleteMySchool = async (
-  schoolId,
-  principalId
-) => {
+module.exports.deleteMySchool = async (schoolId, principalId) => {
   const pool = await connectDB();
 
-  return pool.request()
+  return pool
+    .request()
     .input("id", sql.Int, schoolId)
-    .input("principalId", sql.Int, principalId)
-    .query(`
+    .input("principalId", sql.Int, principalId).query(`
       DELETE FROM dbo.Schools
       WHERE id = @id
         AND principal_id = @principalId;
@@ -277,40 +290,10 @@ module.exports.deleteMySchool = async (
     `);
 };
 
-module.exports.rejectApplication = async (applicationId, adminId) => {
-  const pool = await connectDB();
-
-  const result = await pool.request()
-    .input("id", sql.Int, applicationId)
-    .input("adminId", sql.Int, adminId)
-    .query(`
-      UPDATE dbo.SchoolApplications
-      SET status = 'Rejected',
-          reviewed_by = @adminId,
-          reviewed_at = SYSUTCDATETIME()
-      WHERE id = @id
-        AND status = 'Pending';
-
-      SELECT @@ROWCOUNT AS affectedRows;
-    `);
-
-  if (result.recordset[0].affectedRows !== 1) {
-    const error = new Error(
-      "Application not found or already reviewed."
-    );
-    error.statusCode = 409;
-    throw error;
-  }
-
-  return { message: "School application rejected successfully." };
-};
-
 module.exports.getMyRejectedApplications = async (principalId) => {
   const pool = await connectDB();
 
-  return pool.request()
-    .input("principalId", sql.Int, principalId)
-    .query(`
+  return pool.request().input("principalId", sql.Int, principalId).query(`
       SELECT
         a.id,
         a.school_name,
@@ -320,6 +303,7 @@ module.exports.getMyRejectedApplications = async (principalId) => {
         a.address,
         a.zip_code,
         a.status,
+        a.rejection_reason,
         a.reviewed_at,
         u.username AS rejected_by
       FROM dbo.SchoolApplications AS a
