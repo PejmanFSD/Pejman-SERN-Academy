@@ -260,3 +260,32 @@ module.exports.getMyRejectedApplications = async (req, res) => {
     applications: result.recordset,
   });
 };
+// Sending the request to reconsider the rejected schools
+module.exports.reconsiderApplication = async (req, res) => {
+  const applicationId = Number(req.params.id);
+
+  if (!Number.isSafeInteger(applicationId) || applicationId <= 0) {
+    return res.status(400).json({
+      error: "Invalid application ID.",
+    });
+  }
+
+  const { reconsiderationMessage } = req.body || {};
+
+  if (
+    typeof reconsiderationMessage !== "string" ||
+    !reconsiderationMessage.trim()
+  ) {
+    return res.status(400).json({
+      error: "Please provide a reconsideration message.",
+    });
+  }
+
+  const result = await Schools.reconsiderApplication(
+    applicationId,
+    req.session.user_id,
+    reconsiderationMessage,
+  );
+
+  return res.status(200).json(result);
+};

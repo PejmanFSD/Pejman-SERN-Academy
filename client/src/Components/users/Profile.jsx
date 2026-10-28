@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   useNavigate,
   useLocation, // For hiding the button of the current page
@@ -11,6 +12,11 @@ export default function Profile({
   isDeleting,
   setIsDeleting
 }) {
+  const [editingId, setEditingId] = useState(null);
+  const [reconsideringId, setReconsideringId] = useState(null);
+  const [reconsiderationMessage, setReconsiderationMessage] = useState("");
+  const [isResubmitting, setIsResubmitting] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
   const handleEditMyProfile = () => {
@@ -20,7 +26,7 @@ export default function Profile({
   return (
     <div>
       {currentUser && !isLoggingOut && <h1>My Profile</h1>}
-      {currentUser && !isLoggingOut && (
+      {currentUser && !isLoggingOut && !isDeleting && !editingId && !reconsideringId && (
         <div>
           <div>
             <strong>Username: </strong>
@@ -38,6 +44,14 @@ export default function Profile({
         <MySchool
           isDeleting={isDeleting}
           setIsDeleting={setIsDeleting}
+          editingId={editingId}
+          setEditingId={setEditingId}
+          reconsideringId={reconsideringId}
+          setReconsideringId={setReconsideringId}
+          reconsiderationMessage={reconsiderationMessage}
+          setReconsiderationMessage={setReconsiderationMessage}
+          isResubmitting={isResubmitting}
+          setIsResubmitting={setIsResubmitting}
         />
       }
     </div>

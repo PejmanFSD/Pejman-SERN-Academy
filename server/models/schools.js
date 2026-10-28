@@ -61,6 +61,7 @@ module.exports.getPendingApplications = async () => {
       a.city,
       a.address,
       a.zip_code,
+      a.reconsideration_message,
       a.created_at
     FROM dbo.SchoolApplications AS a
     INNER JOIN dbo.Users AS u
@@ -315,4 +316,58 @@ module.exports.getMyRejectedApplications = async (principalId) => {
         AND a.status = 'Rejected'
       ORDER BY a.reviewed_at DESC;
     `);
+};
+// Sending the request to reconsider the rejected schools
+module.exports.reconsiderApplication = async (
+  applicationId,
+  principalId,
+  reconsiderationMessage,
+) => {
+  const pool = await connectDB();
+
+  const message = reconsiderationMessage?.trim();
+
+  if (!message) {
+    const error = new Error(
+      "Please provide a reconsideration message.",
+    );
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (message.length > 1000) {
+    const error = new Error(
+      "The reconsideration message cannot exceed 1000 characters.",
+    );
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const result = await pool
+    .request()
+    .input("id", sql.Int, applicationId)
+    .input("principalId", sql.Int, principalId)
+    .input("message", sql.NVarChar(1000), message)
+    .query(`
+      UPDATE dbo.SchoolApplications
+      SET status = 'Pending',
+          reconsideration_message = @message
+      WHERE id = @id
+        AND principal_id = @principalId
+        AND status = 'Rejected';
+
+      SELECT @@ROWCOUNT AS affectedRows;
+    `);
+
+  if (result.recordset[0].affectedRows !== 1) {
+    const error = new Error(
+      "Application not found, not owned by you, or not rejected.",
+    );
+    error.statusCode = 409;
+    throw error;
+  }
+
+  return {
+    message: "School application resubmitted for reconsideration.",
+  };
 };

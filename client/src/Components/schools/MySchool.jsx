@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
 
-export default function MySchool({ isDeleting, setIsDeleting }) {
+export default function MySchool({
+  isDeleting,
+  setIsDeleting,
+  editingId,
+  setEditingId,
+  reconsideringId,
+  setReconsideringId,
+  reconsiderationMessage,
+  setReconsiderationMessage,
+  isResubmitting,
+  setIsResubmitting
+}) {
   const [schools, setSchools] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [editingId, setEditingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [rejectedApplications, setRejectedApplications] = useState([]);
@@ -163,6 +173,62 @@ export default function MySchool({ isDeleting, setIsDeleting }) {
     }
   };
 
+  const handleReconsiderationSubmit = async (applicationId) => {
+    const message = reconsiderationMessage.trim();
+
+    if (!message) {
+      setError("Please enter a reconsideration message.");
+      return;
+    }
+
+    if (message.length > 1000) {
+      setError("The reconsideration message cannot exceed 1000 characters.");
+      return;
+    }
+
+    try {
+      setIsResubmitting(true);
+      setError("");
+      setMessage("");
+
+      const response = await fetch(
+        `/schools/applications/${applicationId}/reconsider`,
+        {
+          method: "PATCH",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            reconsiderationMessage: message,
+          }),
+        },
+      );
+
+      const json = await response.json();
+
+      if (!response.ok) {
+        throw new Error(json.error || "Failed to resubmit the application.");
+      }
+
+      // Remove it from the rejected applications list.
+      setRejectedApplications((current) =>
+        current.filter((application) => application.id !== applicationId),
+      );
+
+      setReconsideringId(null);
+      setReconsiderationMessage("");
+
+      setMessage(
+        "Your school application has been resubmitted for reconsideration.",
+      );
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsResubmitting(false);
+    }
+  };
+
   useEffect(() => {
     loadSchools();
     loadRejectedApplications();
@@ -174,7 +240,7 @@ export default function MySchool({ isDeleting, setIsDeleting }) {
 
   return (
     <section>
-      <h2>My School</h2>
+      <h2>My Schools</h2>
 
       {error && (
         <p role="alert" style={{ color: "red" }}>
@@ -192,7 +258,7 @@ export default function MySchool({ isDeleting, setIsDeleting }) {
         <p>You don't have any approved schools yet.</p>
       ) : (
         !isDeleting &&
-        schools.map((school) => (
+        schools.map((school) => (!reconsideringId && (!editingId || editingId === school.id) &&
           <article
             key={school.id}
             style={{
@@ -331,10 +397,11 @@ export default function MySchool({ isDeleting, setIsDeleting }) {
           </button>
         </div>
       )}
-      {rejectedApplications.length === 0 ? (
+      {rejectedApplications.length === 0 && !isDeleting && !editingId ? (
         <p>You have no rejected school applications.</p>
-      ) : (
+      ) : (!isDeleting && !editingId &&
         rejectedApplications.map((application) => (
+          (!reconsideringId || reconsideringId === application.id) &&
           <div
             key={application.id}
             style={{
@@ -363,8 +430,59 @@ export default function MySchool({ isDeleting, setIsDeleting }) {
                 : "Date unavailable"}
             </p>
             <p>
-              <strong>Reason for rejection:</strong>{" "}
-              {application.rejection_reason || "No reason was provided."}
+              <div>
+                <strong>Reason for rejection:</strong>{" "}
+                {application.rejection_reason || "No reason was provided."}
+              </div>
+
+              {reconsideringId !== application.id ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReconsideringId(application.id);
+                    setReconsiderationMessage("");
+                    setError("");
+                  }}
+                >
+                  Re-consider
+                </button>
+              ) : (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleReconsiderationSubmit(application.id);
+                  }}
+                >
+                  <label htmlFor={`reconsideration-${application.id}`}>
+                    Why should this school application be reconsidered?
+                  </label>
+
+                  <textarea
+                    id={`reconsideration-${application.id}`}
+                    value={reconsiderationMessage}
+                    onChange={(e) => setReconsiderationMessage(e.target.value)}
+                    maxLength={1000}
+                    rows={5}
+                    required
+                  />
+
+                  <button type="submit" disabled={isResubmitting}>
+                    {isResubmitting ? "Resubmitting..." : "Re-submit"}
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isResubmitting}
+                    onClick={() => {
+                      setReconsideringId(null);
+                      setReconsiderationMessage("");
+                      setError("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </form>
+              )}
             </p>
           </div>
         ))

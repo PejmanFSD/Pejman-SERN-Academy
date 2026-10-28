@@ -147,6 +147,7 @@ export default function ApprovingSchoolsByAdmins() {
               <th style={cellStyle}>Address</th>
               <th style={cellStyle}>Zip Code</th>
               <th style={cellStyle}>Action</th>
+              <th style={cellStyle}>Reconsideration Message</th>
             </tr>
           </thead>
 
@@ -177,6 +178,9 @@ export default function ApprovingSchoolsByAdmins() {
                   >
                     Reject
                   </button>
+                </td>
+                <td style={cellStyle}>
+                  {app.reconsideration_message || "-"}
                 </td>
               </tr>
             ))}

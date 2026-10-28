@@ -28,6 +28,13 @@ router.patch(
   requireRole("Admin"),
   catchAsync(schoolsController.rejectApplication)
 );
+// Reconsidering the rejected schools
+router.patch(
+  "/applications/:id/reconsider",
+  requireRole("Principal"),
+  catchAsync(schoolsController.reconsiderApplication)
+);
+
 // Principals retrieve their approved schools
 router.get(
   "/my-schools",
