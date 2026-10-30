@@ -29,6 +29,8 @@ export default function Navbar({
   setIsG5,
   isTodos,
   setIsTodos,
+  rejectingSchoolId,
+  approvingSchoolId,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -90,22 +92,36 @@ export default function Navbar({
         <div>
           Number of registered users: <strong>{userCount}</strong>
         </div>
-        {!isLoggingOut && (
-          <button onClick={() => navigate("/register")}>Register</button>
-        )}
-        {!isLoggingOut && (
-          <button onClick={() => navigate("/login")}>Login</button>
-        )}
-        {!isLoggingOut && <button onClick={handleLogout}>Logout</button>}
+        {!isLoggingOut &&
+          approvingSchoolId === null &&
+          rejectingSchoolId === null && (
+            <button onClick={() => navigate("/register")}>Register</button>
+          )}
+        {!isLoggingOut &&
+          approvingSchoolId === null &&
+          rejectingSchoolId === null && (
+            <button onClick={() => navigate("/login")}>Login</button>
+          )}
+        {!isLoggingOut &&
+          approvingSchoolId === null &&
+          rejectingSchoolId === null && (
+            <button onClick={handleLogout}>Logout</button>
+          )}
         {currentUser &&
           currentUser.role === "Admin" &&
           !error &&
-          !isLoggingOut && (
+          !isLoggingOut &&
+          approvingSchoolId === null &&
+          rejectingSchoolId === null && (
             <button onClick={() => navigate("/users")}>All users</button>
           )}
-        {currentUser && !error && !isLoggingOut && (
-          <button onClick={() => navigate("/profile")}>My Profile</button>
-        )}
+        {currentUser &&
+          !error &&
+          !isLoggingOut &&
+          approvingSchoolId === null &&
+          rejectingSchoolId === null && (
+            <button onClick={() => navigate("/profile")}>My Profile</button>
+          )}
         {currentUser &&
           currentUser.role === "Principal" &&
           !error &&
@@ -119,14 +135,20 @@ export default function Navbar({
           !isProfileEditing &&
           // !isAdEditing &&
           !isCreatingBox &&
-          !error && <button onClick={renderG5}>G5</button>}
+          !error &&
+          approvingSchoolId === null &&
+          rejectingSchoolId === null && <button onClick={renderG5}>G5</button>}
         {currentUser &&
           location.pathname !== "/Todos" &&
           !isLoggingOut &&
           !isDeleting &&
           !isProfileEditing &&
           // !isAdEditing &&
-          !error && <button onClick={renderTodos}>Todos</button>}
+          !error &&
+          approvingSchoolId === null &&
+          rejectingSchoolId === null && (
+            <button onClick={renderTodos}>Todos</button>
+          )}
         {isLoggingOut && (
           <div>
             <div>Are you sure you want to logout?</div>

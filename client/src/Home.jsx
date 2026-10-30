@@ -31,6 +31,8 @@ export default function Home({
   isTodos,
   setIsTodos,
 }) {
+  const [approvingSchoolId, setApprovingSchoolId] = useState(null);
+  const [rejectingSchoolId, setRejectingSchoolId] = useState(null);
   const navigate = useNavigate();
   useEffect(() => {
     document.title = "Pejman SERN Academy";
@@ -62,11 +64,20 @@ export default function Home({
         setIsG5={setIsG5}
         isTodos={isTodos}
         setIsTodos={setIsTodos}
+        rejectingSchoolId={rejectingSchoolId}
+        approvingSchoolId={approvingSchoolId}
       />
       {currentUser &&
         currentUser.role === "Admin" &&
         !error &&
-        !isLoggingOut && <ApprovingSchoolsByAdmins />}
+        !isLoggingOut && (
+          <ApprovingSchoolsByAdmins
+            rejectingSchoolId={rejectingSchoolId}
+            setRejectingSchoolId={setRejectingSchoolId}
+            approvingSchoolId={approvingSchoolId}
+            setApprovingSchoolId={setApprovingSchoolId}
+          />
+        )}
       {/* <Footer className="mt-auto" /> */}
     </div>
   );

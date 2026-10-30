@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
 
-export default function ApprovingSchoolsByAdmins() {
+export default function ApprovingSchoolsByAdmins({
+  rejectingSchoolId,
+  setRejectingSchoolId,
+  approvingSchoolId,
+  setApprovingSchoolId,
+}) {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [processingId, setProcessingId] = useState(null);
   const [message, setMessage] = useState("");
-  const [rejectingId, setRejectingId] = useState(null);
+  // const [rejectingSchoolId, setRejectingSchoolId] = useState(null);
   const [rejectionReason, setRejectionReason] = useState("");
+  // const [approvingSchoolId, setApprovingSchoolId] = useState(null);
   const [isRejecting, setIsRejecting] = useState(false);
 
   // Fetch pending school applications when the component mounts
@@ -37,8 +43,11 @@ export default function ApprovingSchoolsByAdmins() {
 
     fetchApplications();
   }, []);
+  const approveApplication = (id) => {
+    setApprovingSchoolId(id);
+  };
   // Approve a school application
-  const approveApplication = async (applicationId) => {
+  const approveApplicationYes = async (applicationId) => {
     try {
       setError("");
       setProcessingId(applicationId);
@@ -64,7 +73,11 @@ export default function ApprovingSchoolsByAdmins() {
       setError(err.message);
     } finally {
       setProcessingId(null);
+      setApprovingSchoolId(null);
     }
+  };
+  const approveApplicationNo = () => {
+    setApprovingSchoolId(null);
   };
 
   const submitRejection = async (applicationId) => {
@@ -109,7 +122,7 @@ export default function ApprovingSchoolsByAdmins() {
         current.filter((application) => application.id !== applicationId),
       );
 
-      setRejectingId(null);
+      setRejectingSchoolId(null);
       setRejectionReason("");
       setMessage("School application rejected successfully.");
     } catch (err) {
@@ -129,66 +142,71 @@ export default function ApprovingSchoolsByAdmins() {
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {applications.length === 0 ? (
+      {applications.length === 0 &&
+      approvingSchoolId === null &&
+      rejectingSchoolId === null ? (
         <p>There are no pending school applications.</p>
       ) : (
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-          }}
-        >
-          <thead>
-            <tr>
-              <th style={cellStyle}>School Name</th>
-              <th style={cellStyle}>Principal</th>
-              <th style={cellStyle}>Country</th>
-              <th style={cellStyle}>City</th>
-              <th style={cellStyle}>Address</th>
-              <th style={cellStyle}>Zip Code</th>
-              <th style={cellStyle}>Action</th>
-              <th style={cellStyle}>Reconsideration Message</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {applications.map((app) => (
-              <tr key={app.id}>
-                <td style={cellStyle}>{app.school_name}</td>
-                <td style={cellStyle}>{app.principal_username}</td>
-                <td style={cellStyle}>{app.country_name}</td>
-                <td style={cellStyle}>{app.city}</td>
-                <td style={cellStyle}>{app.address}</td>
-                <td style={cellStyle}>{app.zip_code || "—"}</td>
-                <td>
-                  <button
-                    type="button"
-                    onClick={() => approveApplication(app.id)}
-                  >
-                    Approve
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setRejectingId(app.id);
-                      setRejectionReason("");
-                      setError("");
-                      setMessage("");
-                    }}
-                  >
-                    Reject
-                  </button>
-                </td>
-                <td style={cellStyle}>
-                  {app.reconsideration_message || "-"}
-                </td>
+        approvingSchoolId === null &&
+        rejectingSchoolId === null && (
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+            }}
+          >
+            <thead>
+              <tr>
+                <th style={cellStyle}>School Name</th>
+                <th style={cellStyle}>Principal</th>
+                <th style={cellStyle}>Country</th>
+                <th style={cellStyle}>City</th>
+                <th style={cellStyle}>Address</th>
+                <th style={cellStyle}>Zip Code</th>
+                <th style={cellStyle}>Action</th>
+                <th style={cellStyle}>Reconsideration Message</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {applications.map((app) => (
+                <tr key={app.id}>
+                  <td style={cellStyle}>{app.school_name}</td>
+                  <td style={cellStyle}>{app.principal_username}</td>
+                  <td style={cellStyle}>{app.country_name}</td>
+                  <td style={cellStyle}>{app.city}</td>
+                  <td style={cellStyle}>{app.address}</td>
+                  <td style={cellStyle}>{app.zip_code || "—"}</td>
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => approveApplication(app.id)}
+                    >
+                      Approve
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRejectingSchoolId(app.id);
+                        setRejectionReason("");
+                        setError("");
+                        setMessage("");
+                      }}
+                    >
+                      Reject
+                    </button>
+                  </td>
+                  <td style={cellStyle}>
+                    {app.reconsideration_message || "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
       )}
 
-      {rejectingId !== null && (
+      {rejectingSchoolId !== null && (
         <div className="rejection-form">
           <h3>Reason for rejecting the school</h3>
 
@@ -211,7 +229,7 @@ export default function ApprovingSchoolsByAdmins() {
           <button
             type="button"
             disabled={isRejecting || !rejectionReason.trim()}
-            onClick={() => submitRejection(rejectingId)}
+            onClick={() => submitRejection(rejectingSchoolId)}
           >
             {isRejecting ? "Rejecting..." : "Confirm Rejection"}
           </button>
@@ -220,12 +238,43 @@ export default function ApprovingSchoolsByAdmins() {
             type="button"
             disabled={isRejecting}
             onClick={() => {
-              setRejectingId(null);
+              setRejectingSchoolId(null);
               setRejectionReason("");
               setError("");
             }}
           >
             Cancel
+          </button>
+        </div>
+      )}
+
+      {approvingSchoolId !== null && (
+        <div>
+          <p>
+            Are you sure you want to approve school{" "}
+            <strong>
+              {
+                applications.find((school) => school.id === approvingSchoolId)
+                  ?.school_name
+              }
+            </strong>
+            ?
+          </p>
+
+          <button
+            type="button"
+            onClick={() => approveApplicationYes(approvingSchoolId)}
+            disabled={processingId === approvingSchoolId}
+          >
+            {processingId === approvingSchoolId ? "Approving..." : "Yes"}
+          </button>
+
+          <button
+            type="button"
+            onClick={approveApplicationNo}
+            disabled={processingId === approvingSchoolId}
+          >
+            No
           </button>
         </div>
       )}
