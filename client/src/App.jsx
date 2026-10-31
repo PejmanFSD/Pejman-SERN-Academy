@@ -126,7 +126,7 @@ export default function App() {
                 // currentUser={currentUser}
                 error={error}
                 setError={setError}
-                // onRegister={(user) => setCurrentUser(user)}
+                onRegister={(user) => setCurrentUser(user)}
                 userCount={userCount}
                 setUserCount={setUserCount}
                 // setFlash={setFlash}

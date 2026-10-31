@@ -7,8 +7,9 @@ export default function Register({
   userCount,
   setUserCount,
   // currentUser,
-  // onRegister,
+  onRegister,
   // setFlash
+  setUsers
 }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -110,7 +111,7 @@ export default function Register({
         return;
       }
       setUserCount((currUserCount) => currUserCount + 1);
-      // onRegister(json.user);
+      onRegister(json.user);
       setUsername("");
       setPassword("");
       setConfirmPassword("");
