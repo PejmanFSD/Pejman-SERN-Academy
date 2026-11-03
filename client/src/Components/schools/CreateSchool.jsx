@@ -13,6 +13,7 @@ export default function CreateSchool() {
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
+    setError("");
     const { name, value } = e.target;
 
     setFormData((current) => ({
@@ -25,7 +26,12 @@ export default function CreateSchool() {
     e.preventDefault();
     setMessage("");
     setError("");
-
+    if (!isValidZipCode(formData.zipCode)) {
+      setError(
+        "The zip code isn't valid! The valid zip code is in the 3 characters + space + 3 characters format where each character is either a capital letter or a number"
+      );
+      return;
+    }
     try {
       const response = await fetch("/schools/applications", {
         method: "POST",
@@ -55,6 +61,10 @@ export default function CreateSchool() {
     } catch {
       setError("Unable to connect to the server.");
     }
+  };
+
+  const isValidZipCode = (zipCode) => {
+    return /^[A-Z0-9]{3} [A-Z0-9]{3}$/.test(zipCode);
   };
 
   return (

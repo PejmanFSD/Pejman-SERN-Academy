@@ -69,6 +69,10 @@ export default function MySchool({
     });
   };
 
+  const isValidZipCode = (zipCode) => {
+    return /^[A-Z0-9]{3} [A-Z0-9]{3}$/.test(zipCode);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -80,7 +84,12 @@ export default function MySchool({
 
   const saveSchool = async (e) => {
     e.preventDefault();
-
+    if (!isValidZipCode(formData.zipCode)) {
+      setError(
+        "The zip code isn't valid! The valid zip code is in the 3 characters + space + 3 characters format where each character is either a capital letter or a number"
+      );
+      return;
+    }
     try {
       setSaving(true);
       setError("");
