@@ -2,6 +2,9 @@
 const Schools = require("../models/schools");
 
 module.exports.createApplication = async (req, res) => {
+  const isValidZipCode = (zipCode) => {
+    return /^[A-Z0-9]{3} [A-Z0-9]{3}$/.test(zipCode);
+  };
   const {
     schoolName,
     countryCode,
@@ -9,7 +12,12 @@ module.exports.createApplication = async (req, res) => {
     address,
     zipCode,
   } = req.body;
-
+  if (!isValidZipCode(zipCode)) {
+    return res.status(400).json({
+      error:
+        "The zip code isn't valid! The valid zip code is in the 3 characters + space + 3 characters format where each character is either a capital letter or a number",
+    });
+  }
   if (
     typeof schoolName !== "string" ||
     !schoolName.trim() ||
@@ -134,7 +142,9 @@ module.exports.updateMySchool = async (req, res) => {
       error: "Invalid school ID.",
     });
   }
-
+  const isValidZipCode = (zipCode) => {
+    return /^[A-Z0-9]{3} [A-Z0-9]{3}$/.test(zipCode);
+  };
   const {
     schoolName,
     countryCode,
@@ -142,7 +152,12 @@ module.exports.updateMySchool = async (req, res) => {
     address,
     zipCode,
   } = req.body;
-
+  if (!isValidZipCode(zipCode)) {
+    return res.status(400).json({
+      error:
+        "The zip code isn't valid! The valid zip code is in the 3 characters + space + 3 characters format where each character is either a capital letter or a number",
+    });
+  }
   if (
     typeof schoolName !== "string" ||
     !schoolName.trim() ||
