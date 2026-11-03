@@ -18,13 +18,15 @@ export default function Users({
   const [totalPages, setTotalPages] = useState(1);
   // For searching a specific user:
   const [search, setSearch] = useState("");
+  // For filtering the users in the table:
+  const [selectedRole, setSelectedRole] = useState("All");
   // const [sortBy, setSortBy] = useState("Username");
 
   const navigate = useNavigate();
   const fetchUsers = async (page = 1, search = "") => {
     // let response;
     // if (sortBy === "Username") {
-    const response = await fetch(`/users?page=${page}&search=${search}`, {
+    const response = await fetch(`/users?page=${page}&search=${search}&role=${selectedRole}`, {
       // "?page=${page}"" is for pagination and "&search=${search}" is for searching
       // Before pagination and search it was just "users"
       credentials: "include",
@@ -45,6 +47,7 @@ export default function Users({
   }, [
     page,
     search,
+    selectedRole
     // sortBy
   ]); // Execute the "fetchUsers" function whenever "page" or "search" or "sortBy" change.
   const handleOk = () => {
@@ -108,6 +111,20 @@ export default function Users({
           />
         </div>
       )}
+      <div>
+        <label htmlFor="roleFilter">Filter by: </label>
+        <select
+          id="roleFilter"
+          value={selectedRole}
+          onChange={(e) => setSelectedRole(e.target.value)}
+        >
+          <option value="All">All Roles</option>
+          <option value="Admin">Admin</option>
+          <option value="Principal">Principal</option>
+          <option value="Teacher">Teacher</option>
+          <option value="Student">Student</option>
+        </select>
+      </div>
       {(!users || (users && users.length === 0)) && !isLoggingOut ? (
         <div>No users available</div>
       ) : (

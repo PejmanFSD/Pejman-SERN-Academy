@@ -8,12 +8,13 @@ module.exports.index = async (req, res) => {
   let page = parseInt(req.query.page) || 1;
   // Fetching the value that we're searching (if there's nothing in the search input, the it would be ""):
   const search = req.query.search || "";
+  const role = req.query.role || "All";
   // The exception of the page:
   if (page < 1) {
     page = 1;
   }
   // Fetching all the registered users and assigning it to the "users" variable:
-  const { users, totalUsers } = await User.getAllUsers(page, search);
+  const { users, totalUsers } = await User.getAllUsers(page, search, role);
 
   const pageSize = 5; // Each page has 5 users
   const totalPages = Math.ceil(totalUsers / pageSize); // Calculating the "totalPages" number

@@ -68,7 +68,7 @@ module.exports.findById = async (userId) => {
   return result.recordset[0];
 };
 // The function for fetching all the users:
-module.exports.getAllUsers = async (page = 1, search = "") => {
+module.exports.getAllUsers = async (page = 1, search = "", role = "All") => {
   const pool = await connectDB(); // "pool" is a collection of database connections
   // that Node.js application can use to communicate with SQL Server.
   const pageSize = 5; // Each page has 5 users
@@ -80,27 +80,31 @@ module.exports.getAllUsers = async (page = 1, search = "") => {
     .input("search", sql.VarChar(100), `%${search}%`) // We need the format of %-% for searching the user
     // In the query we need the "offset" and "pageSize" variables for pagination:
     .input("offset", sql.Int, offset)
-    .input("pageSize", sql.Int, pageSize).query(`
-            SELECT
-                user_id,
-                username,
-                role
-            FROM Users
-            WHERE username LIKE @search
-            ORDER BY
-                CASE
-                    WHEN role = 'admin' THEN 1
-                    WHEN role = 'student' THEN 2
-                    ELSE 3
-                END,
-                username ASC
-            OFFSET @offset ROWS
-            FETCH NEXT @pageSize ROWS ONLY;
+    .input("pageSize", sql.Int, pageSize)
+    .input("role", sql.VarChar(20), role)
+    .query(`
+      SELECT
+        user_id,
+        username,
+        role
+      FROM Users
+      WHERE username LIKE @search
+        AND (@role = 'All' OR role = @role)
+      ORDER BY
+        CASE
+          WHEN role = 'admin' THEN 1
+          WHEN role = 'student' THEN 2
+          ELSE 3
+        END,
+        username ASC
+      OFFSET @offset ROWS
+      FETCH NEXT @pageSize ROWS ONLY;
 
-            SELECT COUNT(*) AS totalUsers
-            FROM Users
-            WHERE username LIKE @search;
-        `);
+      SELECT COUNT(*) AS totalUsers
+      FROM Users
+      WHERE username LIKE @search
+        AND (@role = 'All' OR role = @role);
+    `);
   // Returning all the users to UI ("recordset" contains the rows returned by SQL Server):
   return {
     users: result.recordsets[0],
