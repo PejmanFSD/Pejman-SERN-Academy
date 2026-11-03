@@ -20,18 +20,16 @@ export default function Users({
   const [search, setSearch] = useState("");
   // For filtering the users in the table:
   const [selectedRole, setSelectedRole] = useState("All");
-  // const [sortBy, setSortBy] = useState("Username");
+  const [sortBy, setSortBy] = useState("role");
 
   const navigate = useNavigate();
   const fetchUsers = async (page = 1, search = "") => {
-    // let response;
-    // if (sortBy === "Username") {
-    const response = await fetch(`/users?page=${page}&search=${search}&role=${selectedRole}`, {
-      // "?page=${page}"" is for pagination and "&search=${search}" is for searching
-      // Before pagination and search it was just "users"
-      credentials: "include",
-    });
-    // }
+    const response = await fetch(
+      `/users?page=${page}&search=${search}&role=${selectedRole}&sortBy=${sortBy}`,
+      {
+        credentials: "include",
+      },
+    );
     if (!response.ok) {
       const data = await response.json();
       setError(data.error || "Something went wrong");
@@ -47,8 +45,8 @@ export default function Users({
   }, [
     page,
     search,
-    selectedRole
-    // sortBy
+    selectedRole,
+    sortBy
   ]); // Execute the "fetchUsers" function whenever "page" or "search" or "sortBy" change.
   const handleOk = () => {
     navigate(-1);
@@ -123,6 +121,20 @@ export default function Users({
           <option value="Principal">Principal</option>
           <option value="Teacher">Teacher</option>
           <option value="Student">Student</option>
+        </select>
+      </div>
+      <div>
+        <label htmlFor="sortBy">Sort by: </label>
+        <select
+          id="sortBy"
+          value={sortBy}
+          onChange={(e) => {
+            setSortBy(e.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="role">Role</option>
+          <option value="username">Username</option>
         </select>
       </div>
       {(!users || (users && users.length === 0)) && !isLoggingOut ? (

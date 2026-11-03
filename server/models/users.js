@@ -68,7 +68,12 @@ module.exports.findById = async (userId) => {
   return result.recordset[0];
 };
 // The function for fetching all the users:
-module.exports.getAllUsers = async (page = 1, search = "", role = "All") => {
+module.exports.getAllUsers = async (
+  page = 1,
+  search = "",
+  role = "All",
+  sortBy = "role",
+) => {
   const pool = await connectDB(); // "pool" is a collection of database connections
   // that Node.js application can use to communicate with SQL Server.
   const pageSize = 5; // Each page has 5 users
@@ -82,28 +87,44 @@ module.exports.getAllUsers = async (page = 1, search = "", role = "All") => {
     .input("offset", sql.Int, offset)
     .input("pageSize", sql.Int, pageSize)
     .input("role", sql.VarChar(20), role)
-    .query(`
+    .input("sortBy", sql.VarChar(20), sortBy).query(`
       SELECT
-        user_id,
-        username,
-        role
-      FROM Users
-      WHERE username LIKE @search
-        AND (@role = 'All' OR role = @role)
-      ORDER BY
-        CASE
-          WHEN role = 'admin' THEN 1
-          WHEN role = 'student' THEN 2
-          ELSE 3
-        END,
-        username ASC
-      OFFSET @offset ROWS
-      FETCH NEXT @pageSize ROWS ONLY;
+      user_id,
+      username,
+      role
+    FROM Users
+    WHERE username LIKE @search
+      AND (@role = 'All' OR role = @role)
+    ORDER BY
+      CASE
+        WHEN @sortBy = 'role' THEN
+          CASE
+            WHEN role = 'Admin' THEN 1
+            WHEN role = 'Principal' THEN 2
+            WHEN role = 'Teacher' THEN 3
+            WHEN role = 'Student' THEN 4
+            ELSE 5
+          END
+        ELSE 0
+      END ASC,
 
-      SELECT COUNT(*) AS totalUsers
-      FROM Users
-      WHERE username LIKE @search
-        AND (@role = 'All' OR role = @role);
+      CASE
+        WHEN @sortBy = 'username' THEN username
+        ELSE NULL
+      END ASC,
+
+      CASE
+        WHEN @sortBy = 'role' THEN username
+        ELSE NULL
+      END ASC
+
+    OFFSET @offset ROWS
+    FETCH NEXT @pageSize ROWS ONLY;
+
+    SELECT COUNT(*) AS totalUsers
+    FROM Users
+    WHERE username LIKE @search
+      AND (@role = 'All' OR role = @role);
     `);
   // Returning all the users to UI ("recordset" contains the rows returned by SQL Server):
   return {
