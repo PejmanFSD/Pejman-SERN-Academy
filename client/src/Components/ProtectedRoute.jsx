@@ -4,6 +4,7 @@ export default function ProtectedRoute({
   currentUser,
   isAuthChecked,
   children,
+  allowedRoles,
 }) {
   const location = useLocation();
   // We don't want the user to be redirected to the "Login" page
@@ -20,6 +21,9 @@ export default function ProtectedRoute({
         // page that required login.
       />
     );
+  }
+  if (allowedRoles && !allowedRoles.includes(currentUser.role)) {
+    return <Navigate to="/" replace />;
   }
   return children;
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function MySchool({
   isDeleting,
@@ -10,7 +11,7 @@ export default function MySchool({
   reconsiderationMessage,
   setReconsiderationMessage,
   isResubmitting,
-  setIsResubmitting
+  setIsResubmitting,
 }) {
   const [schools, setSchools] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,22 +28,18 @@ export default function MySchool({
     address: "",
     zipCode: "",
   });
-
+  const navigate = useNavigate();
   const loadSchools = async () => {
     try {
       setLoading(true);
       setError("");
-
       const response = await fetch("/schools/my-schools", {
         credentials: "include",
       });
-
       const json = await response.json();
-
       if (!response.ok) {
         throw new Error(json.error || "Failed to load schools.");
       }
-
       setSchools(json.schools || []);
     } catch (err) {
       setError(err.message);
@@ -86,7 +83,7 @@ export default function MySchool({
     e.preventDefault();
     if (!isValidZipCode(formData.zipCode)) {
       setError(
-        "The zip code isn't valid! The valid zip code is in the 3 characters + space + 3 characters format where each character is either a capital letter or a number"
+        "The zip code isn't valid! The valid zip code is in the 3 characters + space + 3 characters format where each character is either a capital letter or a number",
       );
       return;
     }
@@ -250,150 +247,165 @@ export default function MySchool({
   return (
     <section>
       <h2>My Schools</h2>
-
       {error && (
         <p role="alert" style={{ color: "red" }}>
           {error}
         </p>
       )}
-
       {message && (
         <p role="status" style={{ color: "green" }}>
           {message}
         </p>
       )}
-
       {!isDeleting && schools.length === 0 ? (
         <p>You don't have any approved schools yet.</p>
       ) : (
         !isDeleting &&
-        schools.map((school) => (!reconsideringId && (!editingId || editingId === school.id) &&
-          <article
-            key={school.id}
-            style={{
-              //   border: "1px solid #ccc",
-              //   borderRadius: "8px",
-              padding: "16px",
-              marginBottom: "16px",
-            }}
-          >
-            {/* {editingId !== school.id ? ( */}
-            {editingId === null ? (
-              <>
-                <h3>{school.school_name}</h3>
-                <p>
-                  <strong>Location:</strong> {school.city},{" "}
-                  {school.country_name}
-                </p>
-                <p>
-                  <strong>Address:</strong> {school.address}
-                </p>
-                <p>
-                  <strong>Postal code:</strong>{" "}
-                  {school.zip_code || "Not provided"}
-                </p>
-                <p>
-                  <strong>Approval status:</strong> Approved
-                </p>
-                <p>
-                  <strong>Approved by:</strong>{" "}
-                  {school.approved_by || "Approval record unavailable"}
-                </p>
-                <p>
-                  <strong>Approval date:</strong>{" "}
-                  {school.approved_at
-                    ? new Date(school.approved_at).toLocaleDateString()
-                    : "Unavailable"}
-                </p>
-                <button type="button" onClick={() => startEditing(school)}>
-                  Edit School
-                </button>{" "}
-                <button type="button" onClick={() => deleteSchool(school.id)}>
-                  Delete School
-                </button>
-              </>
-            ) : (
-              editingId === school.id && (
-                <form onSubmit={saveSchool}>
-                  <h3>Edit School Information</h3>
-                  <label htmlFor={`schoolName-${school.id}`}>School Name</label>
-                  <input
-                    id={`schoolName-${school.id}`}
-                    name="schoolName"
-                    value={formData.schoolName}
-                    onChange={handleChange}
-                    maxLength={200}
-                    required
-                  />
-                  <label htmlFor={`countryCode-${school.id}`}>Country</label>
-                  <select
-                    id={`countryCode-${school.id}`}
-                    name="countryCode"
-                    value={formData.countryCode}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="CA">Canada</option>
-                    <option value="US">United States of America</option>
-                    <option value="GB">United Kingdom</option>
-                    <option value="FR">France</option>
-                    <option value="DE">Germany</option>
-                    <option value="JP">Japan</option>
-                    <option value="ES">Spain</option>
-                    <option value="IT">Italy</option>
-                    <option value="NL">Netherlands</option>
-                    <option value="NO">Norway</option>
-                    <option value="DK">Denmark</option>
-                    <option value="AU">Australia</option>
-                    <option value="SE">Sweden</option>
-                    <option value="CH">Switzerland</option>
-                    <option value="CN">China</option>
-                    <option value="AT">Austria</option>
-                    <option value="BE">Belgium</option>
-                    <option value="MX">Mexico</option>
-                    <option value="BR">Brazil</option>
-                  </select>
-                  <label htmlFor={`city-${school.id}`}>City</label>
-                  <input
-                    id={`city-${school.id}`}
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    maxLength={100}
-                    required
-                  />
-                  <label htmlFor={`address-${school.id}`}>Address</label>
-                  <input
-                    id={`address-${school.id}`}
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    maxLength={255}
-                    required
-                  />
-                  <label htmlFor={`zipCode-${school.id}`}>Postal Code</label>
-                  <input
-                    id={`zipCode-${school.id}`}
-                    name="zipCode"
-                    value={formData.zipCode}
-                    onChange={handleChange}
-                    maxLength={20}
-                  />
-                  <button type="submit" disabled={saving}>
-                    {saving ? "Saving..." : "Save Changes"}
-                  </button>{" "}
-                  <button
-                    type="button"
-                    disabled={saving}
-                    onClick={() => setEditingId(null)}
-                  >
-                    Cancel
-                  </button>
-                </form>
-              )
-            )}
-          </article>
-        ))
+        schools.map(
+          (school) =>
+            !reconsideringId &&
+            (!editingId || editingId === school.id) && (
+              <article
+                key={school.id}
+                style={{
+                  padding: "16px",
+                  marginBottom: "16px",
+                }}
+              >
+                {/* {editingId !== school.id ? ( */}
+                {editingId === null ? (
+                  <>
+                    <h3>{school.school_name}</h3>
+                    <p>
+                      <strong>Location:</strong> {school.city},{" "}
+                      {school.country_name}
+                    </p>
+                    <p>
+                      <strong>Address:</strong> {school.address}
+                    </p>
+                    <p>
+                      <strong>Postal code:</strong>{" "}
+                      {school.zip_code || "Not provided"}
+                    </p>
+                    <p>
+                      <strong>Approval status:</strong> Approved
+                    </p>
+                    <p>
+                      <strong>Approved by:</strong>{" "}
+                      {school.approved_by || "Approval record unavailable"}
+                    </p>
+                    <p>
+                      <strong>Approval date:</strong>{" "}
+                      {school.approved_at
+                        ? new Date(school.approved_at).toLocaleDateString()
+                        : "Unavailable"}
+                    </p>
+                    <button
+                      onClick={() =>
+                        navigate(`/principal/schools/${school.id}/details`)
+                      }
+                    >
+                      Details
+                    </button>
+                    <button type="button" onClick={() => startEditing(school)}>
+                      Edit School
+                    </button>{" "}
+                    <button
+                      type="button"
+                      onClick={() => deleteSchool(school.id)}
+                    >
+                      Delete School
+                    </button>
+                  </>
+                ) : (
+                  editingId === school.id && (
+                    <form onSubmit={saveSchool}>
+                      <h3>Edit School Information</h3>
+                      <label htmlFor={`schoolName-${school.id}`}>
+                        School Name
+                      </label>
+                      <input
+                        id={`schoolName-${school.id}`}
+                        name="schoolName"
+                        value={formData.schoolName}
+                        onChange={handleChange}
+                        maxLength={200}
+                        required
+                      />
+                      <label htmlFor={`countryCode-${school.id}`}>
+                        Country
+                      </label>
+                      <select
+                        id={`countryCode-${school.id}`}
+                        name="countryCode"
+                        value={formData.countryCode}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="CA">Canada</option>
+                        <option value="US">United States of America</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="FR">France</option>
+                        <option value="DE">Germany</option>
+                        <option value="JP">Japan</option>
+                        <option value="ES">Spain</option>
+                        <option value="IT">Italy</option>
+                        <option value="NL">Netherlands</option>
+                        <option value="NO">Norway</option>
+                        <option value="DK">Denmark</option>
+                        <option value="AU">Australia</option>
+                        <option value="SE">Sweden</option>
+                        <option value="CH">Switzerland</option>
+                        <option value="CN">China</option>
+                        <option value="AT">Austria</option>
+                        <option value="BE">Belgium</option>
+                        <option value="MX">Mexico</option>
+                        <option value="BR">Brazil</option>
+                      </select>
+                      <label htmlFor={`city-${school.id}`}>City</label>
+                      <input
+                        id={`city-${school.id}`}
+                        name="city"
+                        value={formData.city}
+                        onChange={handleChange}
+                        maxLength={100}
+                        required
+                      />
+                      <label htmlFor={`address-${school.id}`}>Address</label>
+                      <input
+                        id={`address-${school.id}`}
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        maxLength={255}
+                        required
+                      />
+                      <label htmlFor={`zipCode-${school.id}`}>
+                        Postal Code
+                      </label>
+                      <input
+                        id={`zipCode-${school.id}`}
+                        name="zipCode"
+                        value={formData.zipCode}
+                        onChange={handleChange}
+                        maxLength={20}
+                      />
+                      <button type="submit" disabled={saving}>
+                        {saving ? "Saving..." : "Save Changes"}
+                      </button>{" "}
+                      <button
+                        type="button"
+                        disabled={saving}
+                        onClick={() => setEditingId(null)}
+                      >
+                        Cancel
+                      </button>
+                    </form>
+                  )
+                )}
+              </article>
+            ),
+        )
       )}
       {isDeleting && deletingId !== null && (
         <div>
@@ -408,93 +420,92 @@ export default function MySchool({
       )}
       {rejectedApplications.length === 0 && !isDeleting && !editingId ? (
         <p>You have no rejected school applications.</p>
-      ) : (!isDeleting && !editingId &&
-        rejectedApplications.map((application) => (
-          (!reconsideringId || reconsideringId === application.id) &&
-          <div
-            key={application.id}
-            style={{
-              border: "1px solid #d9534f",
-              borderRadius: "8px",
-              padding: "16px",
-              marginBottom: "16px",
-            }}
-          >
-            <h3>School Application Rejected</h3>
-
-            <p>
-              Your application for <strong>{application.school_name}</strong>{" "}
-              has been rejected.
-            </p>
-
-            <p>
-              <strong>Rejected by:</strong>{" "}
-              {application.rejected_by || "Admin name unavailable"}
-            </p>
-
-            <p>
-              <strong>Rejection date:</strong>{" "}
-              {application.reviewed_at
-                ? new Date(application.reviewed_at).toLocaleString()
-                : "Date unavailable"}
-            </p>
-            <p>
-              <div>
-                <strong>Reason for rejection:</strong>{" "}
-                {application.rejection_reason || "No reason was provided."}
+      ) : (
+        !isDeleting &&
+        !editingId &&
+        rejectedApplications.map(
+          (application) =>
+            (!reconsideringId || reconsideringId === application.id) && (
+              <div
+                key={application.id}
+                style={{
+                  border: "1px solid #d9534f",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  marginBottom: "16px",
+                }}
+              >
+                <h3>School Application Rejected</h3>
+                <p>
+                  Your application for{" "}
+                  <strong>{application.school_name}</strong> has been rejected.
+                </p>
+                <p>
+                  <strong>Rejected by:</strong>{" "}
+                  {application.rejected_by || "Admin name unavailable"}
+                </p>
+                <p>
+                  <strong>Rejection date:</strong>{" "}
+                  {application.reviewed_at
+                    ? new Date(application.reviewed_at).toLocaleString()
+                    : "Date unavailable"}
+                </p>
+                <p>
+                  <div>
+                    <strong>Reason for rejection:</strong>{" "}
+                    {application.rejection_reason || "No reason was provided."}
+                  </div>
+                  {reconsideringId !== application.id ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setReconsideringId(application.id);
+                        setReconsiderationMessage("");
+                        setError("");
+                      }}
+                    >
+                      Re-consider
+                    </button>
+                  ) : (
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleReconsiderationSubmit(application.id);
+                      }}
+                    >
+                      <label htmlFor={`reconsideration-${application.id}`}>
+                        Why should this school application be reconsidered?
+                      </label>
+                      <textarea
+                        id={`reconsideration-${application.id}`}
+                        value={reconsiderationMessage}
+                        onChange={(e) =>
+                          setReconsiderationMessage(e.target.value)
+                        }
+                        maxLength={1000}
+                        rows={5}
+                        required
+                      />
+                      <button type="submit" disabled={isResubmitting}>
+                        {isResubmitting ? "Resubmitting..." : "Re-submit"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isResubmitting}
+                        onClick={() => {
+                          setReconsideringId(null);
+                          setReconsiderationMessage("");
+                          setError("");
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </form>
+                  )}
+                </p>
               </div>
-
-              {reconsideringId !== application.id ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setReconsideringId(application.id);
-                    setReconsiderationMessage("");
-                    setError("");
-                  }}
-                >
-                  Re-consider
-                </button>
-              ) : (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleReconsiderationSubmit(application.id);
-                  }}
-                >
-                  <label htmlFor={`reconsideration-${application.id}`}>
-                    Why should this school application be reconsidered?
-                  </label>
-
-                  <textarea
-                    id={`reconsideration-${application.id}`}
-                    value={reconsiderationMessage}
-                    onChange={(e) => setReconsiderationMessage(e.target.value)}
-                    maxLength={1000}
-                    rows={5}
-                    required
-                  />
-
-                  <button type="submit" disabled={isResubmitting}>
-                    {isResubmitting ? "Resubmitting..." : "Re-submit"}
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled={isResubmitting}
-                    onClick={() => {
-                      setReconsideringId(null);
-                      setReconsiderationMessage("");
-                      setError("");
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </form>
-              )}
-            </p>
-          </div>
-        ))
+            ),
+        )
       )}
     </section>
   );

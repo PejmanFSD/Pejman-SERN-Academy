@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-
 import {
   useNavigate,
   useLocation, // For hiding the button of the current page
@@ -121,6 +120,14 @@ export default function Navbar({
           approvingSchoolId === null &&
           rejectingSchoolId === null && (
             <button onClick={() => navigate("/profile")}>My Profile</button>
+          )}
+        {currentUser &&
+          currentUser.role === "Teacher" &&
+          !error &&
+          !isLoggingOut && (
+            <button onClick={() => navigate("/all-schools")}>
+              Schools' list
+            </button>
           )}
         {currentUser &&
           currentUser.role === "Principal" &&

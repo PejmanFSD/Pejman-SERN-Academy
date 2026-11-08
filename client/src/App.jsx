@@ -12,6 +12,8 @@ import Todos from "./Components/todos/Todos";
 import G5Box from "./Components/g5/G5Box";
 import CreateG5Form from "./Components/g5/CreateG5Form";
 import CreateSchool from "./Components/schools/CreateSchool";
+import PrincipalSchoolDetails from "./Components/schools/PrincipalSchoolDetails";
+import TeacherSchools from "./Components/schools/TeacherSchools";
 
 // import AboutAcademy from "./Components/AboutAcademy";
 import "./App.css";
@@ -176,6 +178,31 @@ export default function App() {
                 isAuthChecked={isAuthChecked}
               >
                 <CreateSchool />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/principal/schools/:schoolId/details"
+            element={
+              <ProtectedRoute
+                currentUser={currentUser}
+                isAuthChecked={isAuthChecked}
+                allowedRoles={["Principal"]}
+              >
+                <PrincipalSchoolDetails />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/all-schools"
+            element={
+              <ProtectedRoute
+                currentUser={currentUser}
+                isAuthChecked={isAuthChecked}
+                allowedRoles={["Teacher"]}
+              >
+                <TeacherSchools />
               </ProtectedRoute>
             }
           />
