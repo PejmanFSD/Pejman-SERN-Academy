@@ -213,7 +213,7 @@ export default function Todos({
       )}
       {!startCreating && <h3>All my today's</h3>}
       {todos.length === 0 && !startCreating ? (
-        <p>You don't have any todos yet.</p>
+        <p>You don't have any todos.</p>
       ) : (
         !startCreating && (
           // <div>

@@ -1,17 +1,26 @@
-
 const Schools = require("../models/schools");
 
 module.exports.createApplication = async (req, res) => {
   const isValidZipCode = (zipCode) => {
     return /^[A-Z0-9]{3} [A-Z0-9]{3}$/.test(zipCode);
   };
-  const {
-    schoolName,
-    countryCode,
-    city,
-    address,
-    zipCode,
-  } = req.body;
+  const { schoolName, countryCode, city, address, zipCode, subjects } =
+    req.body;
+  if (!Array.isArray(subjects) || subjects.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Please select at least one subject.",
+    });
+  }
+
+  const uniqueSubjects = [...new Set(subjects)];
+
+  if (uniqueSubjects.some((id) => !Number.isInteger(id) || id <= 0)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid subject selection.",
+    });
+  }
   if (!isValidZipCode(zipCode)) {
     return res.status(400).json({
       error:
@@ -37,8 +46,7 @@ module.exports.createApplication = async (req, res) => {
     schoolName.trim().length > 200 ||
     city.trim().length > 100 ||
     address.trim().length > 255 ||
-    (zipCode != null &&
-      (typeof zipCode !== "string" || zipCode.length > 20))
+    (zipCode != null && (typeof zipCode !== "string" || zipCode.length > 20))
   ) {
     return res.status(400).json({
       error: "One or more fields exceed the allowed length.",
@@ -53,26 +61,36 @@ module.exports.createApplication = async (req, res) => {
       city: city.trim(),
       address: address.trim(),
       zipCode: zipCode?.trim() || null,
+      subjects: uniqueSubjects,
     });
 
     return res.status(201).json({
+      success: true,
       message: "School application submitted for approval.",
-      applicationId: result.recordset[0].id,
+      applicationId: result,
     });
   } catch (error) {
+    console.error("Error in createApplication:", error);
+
     if (error.number === 50001) {
       return res.status(409).json({
-        error: "An approved school with this name already exists.",
+        success: false,
+        message: "An approved school with this name already exists.",
       });
     }
 
     if (error.number === 547) {
       return res.status(400).json({
-        error: "The selected country is invalid.",
+        success: false,
+        message: "The selected country or subject is invalid.",
       });
     }
 
-    throw error;
+    return res.status(500).json({
+      success: false,
+      message: "Failed to submit the school application.",
+      details: error.message,
+    });
   }
 };
 
@@ -83,7 +101,6 @@ module.exports.getPendingApplications = async (req, res) => {
     applications: result.recordset,
   });
 };
-
 // Implemented in the model in the next section
 module.exports.approveApplication = async (req, res) => {
   const applicationId = Number(req.params.id);
@@ -96,7 +113,7 @@ module.exports.approveApplication = async (req, res) => {
 
   const result = await Schools.approveApplication(
     applicationId,
-    req.session.user_id
+    req.session.user_id,
   );
 
   return res.status(200).json({
@@ -114,10 +131,7 @@ module.exports.rejectApplication = async (req, res) => {
     });
   }
 
-  await Schools.rejectApplication(
-    applicationId,
-    req.session.user_id
-  );
+  await Schools.rejectApplication(applicationId, req.session.user_id);
 
   return res.status(200).json({
     message: "School application rejected.",
@@ -125,9 +139,7 @@ module.exports.rejectApplication = async (req, res) => {
 };
 
 module.exports.getMySchools = async (req, res) => {
-  const result = await Schools.getMySchools(
-    req.session.user_id
-  );
+  const result = await Schools.getMySchools(req.session.user_id);
 
   res.status(200).json({
     schools: result.recordset,
@@ -145,13 +157,7 @@ module.exports.updateMySchool = async (req, res) => {
   const isValidZipCode = (zipCode) => {
     return /^[A-Z0-9]{3} [A-Z0-9]{3}$/.test(zipCode);
   };
-  const {
-    schoolName,
-    countryCode,
-    city,
-    address,
-    zipCode,
-  } = req.body;
+  const { schoolName, countryCode, city, address, zipCode } = req.body;
   if (!isValidZipCode(zipCode)) {
     return res.status(400).json({
       error:
@@ -170,8 +176,7 @@ module.exports.updateMySchool = async (req, res) => {
     typeof address !== "string" ||
     !address.trim() ||
     address.trim().length > 255 ||
-    (zipCode != null &&
-      (typeof zipCode !== "string" || zipCode.length > 20))
+    (zipCode != null && (typeof zipCode !== "string" || zipCode.length > 20))
   ) {
     return res.status(400).json({
       error: "Please provide valid school information.",
@@ -179,17 +184,13 @@ module.exports.updateMySchool = async (req, res) => {
   }
 
   try {
-    const result = await Schools.updateMySchool(
-      schoolId,
-      req.session.user_id,
-      {
-        schoolName: schoolName.trim(),
-        countryCode: countryCode.toUpperCase(),
-        city: city.trim(),
-        address: address.trim(),
-        zipCode: zipCode?.trim() || null,
-      }
-    );
+    const result = await Schools.updateMySchool(schoolId, req.session.user_id, {
+      schoolName: schoolName.trim(),
+      countryCode: countryCode.toUpperCase(),
+      city: city.trim(),
+      address: address.trim(),
+      zipCode: zipCode?.trim() || null,
+    });
 
     if (result.recordset[0].affectedRows === 0) {
       return res.status(404).json({
@@ -226,10 +227,7 @@ module.exports.deleteMySchool = async (req, res) => {
     });
   }
 
-  const result = await Schools.deleteMySchool(
-    schoolId,
-    req.session.user_id
-  );
+  const result = await Schools.deleteMySchool(schoolId, req.session.user_id);
 
   if (result.recordset[0].affectedRows === 0) {
     return res.status(404).json({
@@ -256,20 +254,17 @@ module.exports.rejectApplication = async (req, res) => {
       error: "Please provide a reason for rejecting the school application.",
     });
   }
-  console.log("Rejection reason received:", rejectionReason);
   const result = await Schools.rejectApplication(
     applicationId,
     req.session.user_id,
-    rejectionReason
+    rejectionReason,
   );
 
   return res.status(200).json(result);
 };
 
 module.exports.getMyRejectedApplications = async (req, res) => {
-  const result = await Schools.getMyRejectedApplications(
-    req.session.user_id
-  );
+  const result = await Schools.getMyRejectedApplications(req.session.user_id);
 
   return res.status(200).json({
     applications: result.recordset,

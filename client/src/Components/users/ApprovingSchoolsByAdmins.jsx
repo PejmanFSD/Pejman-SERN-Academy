@@ -163,6 +163,7 @@ export default function ApprovingSchoolsByAdmins({
                 <th style={cellStyle}>City</th>
                 <th style={cellStyle}>Address</th>
                 <th style={cellStyle}>Zip Code</th>
+                <th style={cellStyle}>Number of subjects</th>
                 <th style={cellStyle}>Action</th>
                 <th style={cellStyle}>Reconsideration Message</th>
               </tr>
@@ -177,6 +178,7 @@ export default function ApprovingSchoolsByAdmins({
                   <td style={cellStyle}>{app.city}</td>
                   <td style={cellStyle}>{app.address}</td>
                   <td style={cellStyle}>{app.zip_code || "—"}</td>
+                  <td>{app.number_of_subjects}</td>
                   <td>
                     <button
                       type="button"

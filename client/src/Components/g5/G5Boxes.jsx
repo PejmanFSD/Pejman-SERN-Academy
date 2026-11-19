@@ -127,7 +127,7 @@ export default function G5({
   return (
     <div>
       {boxes.length === 0 && !error ? (
-        <p>You don't have any G5 boxes yet.</p>
+        <p>You don't have any G5 boxes.</p>
       ) : (
         !error && (
           <div>

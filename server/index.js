@@ -17,6 +17,7 @@ const schoolsRoutes = require("./routes/schools");
 const schoolTeacherRoutes = require(
   "./routes/schoolTeacherApplications"
 );
+const subjectRoutes = require("./routes/subjects");
 
 const { connectDB } = require("./config/db");
 // Create Express app
@@ -45,6 +46,7 @@ app.use("/g5Cards", g5CardsRoutes);
 app.use("/todos", todosRoutes);
 app.use("/schools", schoolsRoutes);
 app.use("/", schoolTeacherRoutes);
+app.use("/", subjectRoutes);
 // Test route
 app.get("/", (req, res) => {
   res.json({

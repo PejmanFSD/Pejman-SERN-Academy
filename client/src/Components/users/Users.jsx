@@ -36,7 +36,6 @@ export default function Users({
       return;
     }
     const data = await response.json();
-    console.log("Users API response:", data);
     setUsers(data.users);
     setTotalPages(data.totalPages);
   };

@@ -258,7 +258,7 @@ export default function MySchool({
         </p>
       )}
       {!isDeleting && schools.length === 0 ? (
-        <p>You don't have any approved schools yet.</p>
+        <p>You don't have any approved schools.</p>
       ) : (
         !isDeleting &&
         schools.map(

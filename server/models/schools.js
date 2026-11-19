@@ -7,44 +7,86 @@ module.exports.createApplication = async ({
   city,
   address,
   zipCode,
+  subjects,
 }) => {
   const pool = await connectDB();
+  const transaction = new sql.Transaction(pool);
 
-  return pool
-    .request()
-    .input("schoolName", sql.NVarChar(200), schoolName)
-    .input("principalId", sql.Int, principalId)
-    .input("countryCode", sql.Char(2), countryCode)
-    .input("city", sql.NVarChar(100), city)
-    .input("address", sql.NVarChar(255), address)
-    .input("zipCode", sql.NVarChar(20), zipCode || null).query(`
-      IF EXISTS (
-        SELECT 1
-        FROM dbo.Schools
-        WHERE school_name = @schoolName
-      )
-      BEGIN
-        THROW 50001, 'School name already exists', 1;
-      END;
+  await transaction.begin();
 
-      INSERT INTO dbo.SchoolApplications (
-        school_name,
-        principal_id,
-        country_code,
-        city,
-        address,
-        zip_code
-      )
-      OUTPUT INSERTED.id
-      VALUES (
-        @schoolName,
-        @principalId,
-        @countryCode,
-        @city,
-        @address,
-        @zipCode
-      );
+  try {
+    // Validate subject IDs against the database.
+    const subjectCheck = await new sql.Request(transaction).query(`
+      SELECT subject_id
+      FROM dbo.Subjects
     `);
+
+    const availableSubjectIds = new Set(
+      subjectCheck.recordset.map((s) => s.subject_id),
+    );
+
+    for (const subjectId of subjects) {
+      if (!availableSubjectIds.has(subjectId)) {
+        throw new Error(`Invalid subject ID: ${subjectId}`);
+      }
+    }
+
+    // Insert the school application.
+    const applicationResult = await new sql.Request(transaction)
+      .input("schoolName", sql.NVarChar(200), schoolName)
+      .input("principalId", sql.Int, principalId)
+      .input("countryCode", sql.Char(2), countryCode)
+      .input("city", sql.NVarChar(100), city)
+      .input("address", sql.NVarChar(255), address)
+      .input("zipCode", sql.NVarChar(20), zipCode).query(`
+        INSERT INTO dbo.SchoolApplications
+        (
+          school_name,
+          principal_id,
+          country_code,
+          city,
+          address,
+          zip_code,
+          status
+        )
+        OUTPUT INSERTED.id
+        VALUES
+        (
+          @schoolName,
+          @principalId,
+          @countryCode,
+          @city,
+          @address,
+          @zipCode,
+          'Pending'
+        );
+      `);
+    const applicationId = applicationResult.recordset[0].id;
+    // Insert selected subjects into SchoolApplicationSubjects.
+    for (const subjectId of subjects) {
+      await new sql.Request(transaction)
+        .input("applicationId", sql.Int, applicationId)
+        .input("subjectId", sql.Int, subjectId).query(`
+          INSERT INTO dbo.SchoolApplicationSubjects
+          (
+            application_id,
+            subject_id
+          )
+          VALUES
+          (
+            @applicationId,
+            @subjectId
+          );
+        `);
+    }
+
+    await transaction.commit();
+
+    return applicationId;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 };
 // Fetching all the pending schools for admins:
 module.exports.getPendingApplications = async () => {
@@ -73,7 +115,6 @@ module.exports.getPendingApplications = async () => {
   `);
 };
 // Approving a school by an admin:
-
 module.exports.approveApplication = async (applicationId, adminId) => {
   const pool = await connectDB();
   const transaction = new sql.Transaction(pool);
@@ -129,7 +170,6 @@ module.exports.approveApplication = async (applicationId, adminId) => {
           @zipCode
         );
       `);
-
     // 4. Record which admin approved the application and when.
     const updateResult = await transaction
       .request()
@@ -151,7 +191,6 @@ module.exports.approveApplication = async (applicationId, adminId) => {
       error.statusCode = 409;
       throw error;
     }
-
     // 5. Commit both database changes together.
     await transaction.commit();
 
@@ -169,7 +208,6 @@ module.exports.rejectApplication = async (
   adminId,
   rejectionReason,
 ) => {
-  console.log("MODEL: rejectApplication was called!");
   const pool = await connectDB();
 
   const reason = rejectionReason?.trim();
@@ -189,9 +227,6 @@ module.exports.rejectApplication = async (
     error.statusCode = 400;
     throw error;
   }
-console.log("Application ID:", applicationId);
-console.log("Admin ID:", adminId);
-console.log("Rejection reason:", reason);
   const result = await pool
     .request()
     .input("id", sql.Int, applicationId)
@@ -207,7 +242,6 @@ console.log("Rejection reason:", reason);
 
       SELECT @@ROWCOUNT AS affectedRows;
     `);
-console.log("Database result:", result.recordset);
   if (result.recordset[0].affectedRows !== 1) {
     const error = new Error("Application not found or already reviewed.");
     error.statusCode = 409;
@@ -328,9 +362,7 @@ module.exports.reconsiderApplication = async (
   const message = reconsiderationMessage?.trim();
 
   if (!message) {
-    const error = new Error(
-      "Please provide a reconsideration message.",
-    );
+    const error = new Error("Please provide a reconsideration message.");
     error.statusCode = 400;
     throw error;
   }
@@ -347,8 +379,7 @@ module.exports.reconsiderApplication = async (
     .request()
     .input("id", sql.Int, applicationId)
     .input("principalId", sql.Int, principalId)
-    .input("message", sql.NVarChar(1000), message)
-    .query(`
+    .input("message", sql.NVarChar(1000), message).query(`
       UPDATE dbo.SchoolApplications
       SET status = 'Pending',
           reconsideration_message = @message

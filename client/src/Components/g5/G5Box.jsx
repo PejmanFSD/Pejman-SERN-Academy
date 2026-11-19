@@ -525,7 +525,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
           </div>
         )}
       {cards.length === 0 && !isCreatingCard && isBoxStarted ? (
-        <p>This box has no cards yet.</p>
+        <p>This box has no cards.</p>
       ) : (
         !isCreatingCard &&
         isBoxStarted && (
@@ -613,7 +613,7 @@ export default function G5Box({ error, setError, isEditing, setIsEditing }) {
       !isBoxStarted &&
       !isBoxShuffled &&
       activeBox === 0 ? (
-        <p>This box has no cards yet.</p>
+        <p>This box has no cards.</p>
       ) : cards.length > 0 &&
         !isCreatingCard &&
         !isBoxStarted &&
