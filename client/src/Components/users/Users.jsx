@@ -108,6 +108,7 @@ export default function Users({
           />
         </div>
       )}
+      {!isDeleting &&
       <div>
         <label htmlFor="roleFilter">Filter by: </label>
         <select
@@ -122,6 +123,8 @@ export default function Users({
           <option value="Student">Student</option>
         </select>
       </div>
+      }
+      {!isDeleting &&
       <div>
         <label htmlFor="sortBy">Sort by: </label>
         <select
@@ -136,10 +139,11 @@ export default function Users({
           <option value="username">Username</option>
         </select>
       </div>
+      }
       {(!users || (users && users.length === 0)) && !isLoggingOut ? (
         <div>No users available</div>
       ) : (
-        !isLoggingOut && (
+        !isLoggingOut && !isDeleting && (
           <table border="1" cellPadding="10">
             <thead>
               <tr>

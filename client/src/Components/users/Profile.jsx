@@ -4,13 +4,14 @@ import {
   useLocation, // For hiding the button of the current page
 } from "react-router-dom";
 import MySchool from "../schools/MySchool";
+import TeacherMySchools from "../schools/TeacherMySchools";
 
 export default function Profile({
   currentUser,
   setIsProfileEditing,
   isLoggingOut,
   isDeleting,
-  setIsDeleting
+  setIsDeleting,
 }) {
   const [editingId, setEditingId] = useState(null);
   const [reconsideringId, setReconsideringId] = useState(null);
@@ -26,21 +27,25 @@ export default function Profile({
   return (
     <div>
       {currentUser && !isLoggingOut && <h1>My Profile</h1>}
-      {currentUser && !isLoggingOut && !isDeleting && !editingId && !reconsideringId && (
-        <div>
+      {currentUser &&
+        !isLoggingOut &&
+        !isDeleting &&
+        !editingId &&
+        !reconsideringId && (
           <div>
-            <strong>Username: </strong>
-            {currentUser.username}
+            <div>
+              <strong>Username: </strong>
+              {currentUser.username}
+            </div>
+            <div>
+              <strong>Role: </strong>
+              {currentUser.role}
+            </div>
+            <button onClick={handleEditMyProfile}>Edit My Profile</button>
           </div>
-          <div>
-            <strong>Role: </strong>
-            {currentUser.role}
-          </div>
-          <button onClick={handleEditMyProfile}>Edit My Profile</button>
-        </div>
-      )}
+        )}
       <br />
-      {currentUser?.role === "Principal" &&
+      {currentUser?.role === "Principal" && (
         <MySchool
           isDeleting={isDeleting}
           setIsDeleting={setIsDeleting}
@@ -53,7 +58,8 @@ export default function Profile({
           isResubmitting={isResubmitting}
           setIsResubmitting={setIsResubmitting}
         />
-      }
+      )}
+      {currentUser?.role === "Teacher" && <TeacherMySchools />}
     </div>
   );
 }
