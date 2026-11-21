@@ -226,3 +226,90 @@ module.exports.deleteUser = async (userId) => {
   // Return the first row of the rows that are returned by SQL Server
   return result.recordset[0];
 };
+
+module.exports.registerUserWithExpertise = async (
+  username,
+  passwordHash,
+  role,
+  expertise = [],
+) => {
+  const pool = await connectDB();
+  const transaction = new sql.Transaction(pool);
+
+  await transaction.begin();
+
+  try {
+    // If the role is Teacher, validate the selected subject IDs
+    // against the actual Subjects table.
+    if (role === "Teacher") {
+      if (!Array.isArray(expertise) || expertise.length === 0) {
+        throw new Error("Teacher expertise is required.");
+      }
+
+      const subjectCheck = await new sql.Request(transaction).query(`
+        SELECT subject_id
+        FROM dbo.Subjects;
+      `);
+
+      const validSubjectIds = new Set(
+        subjectCheck.recordset.map((subject) => subject.subject_id),
+      );
+
+      for (const subjectId of expertise) {
+        if (!validSubjectIds.has(subjectId)) {
+          throw new Error(`Invalid subject ID: ${subjectId}`);
+        }
+      }
+    }
+
+    // Insert the new user and retrieve their user_id.
+    const userResult = await new sql.Request(transaction)
+      .input("username", sql.VarChar(100), username)
+      .input("passwordHash", sql.VarChar(255), passwordHash)
+      .input("role", sql.VarChar(20), role).query(`
+        INSERT INTO dbo.Users
+        (
+          username,
+          password_hash,
+          role
+        )
+        OUTPUT INSERTED.user_id
+        VALUES
+        (
+          @username,
+          @passwordHash,
+          @role
+        );
+      `);
+
+    const userId = userResult.recordset[0].user_id;
+
+    // If Teacher, save their expertise.
+    if (role === "Teacher") {
+      for (const subjectId of expertise) {
+        await new sql.Request(transaction)
+          .input("teacherId", sql.Int, userId)
+          .input("subjectId", sql.Int, subjectId).query(`
+            INSERT INTO dbo.TeacherExpertise
+            (
+              teacher_id,
+              subject_id
+            )
+            VALUES
+            (
+              @teacherId,
+              @subjectId
+            );
+          `);
+      }
+    }
+
+    // Both user and expertise insertions succeed together.
+    await transaction.commit();
+
+    return userId;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};

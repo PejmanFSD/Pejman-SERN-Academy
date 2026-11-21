@@ -9,7 +9,7 @@ export default function Register({
   // currentUser,
   onRegister,
   // setFlash
-  setUsers
+  setUsers,
 }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -23,6 +23,12 @@ export default function Register({
     lower: false,
     number: false,
   });
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [availableSubjects, setAvailableSubjects] = useState([]);
+  const [selectedSubjectId, setSelectedSubjectId] = useState("");
+  const [teacherExpertise, setTeacherExpertise] = useState([]);
+  const [loadingSubjects, setLoadingSubjects] = useState(false);
   const navigate = useNavigate();
   // We check if the password is strong or not, both in Back-End and Front-End:
   const isStrongPassword = (password) => {
@@ -79,6 +85,10 @@ export default function Register({
       setError("You should enter a strong password");
       return;
     }
+    if (role === "Teacher" && teacherExpertise.length === 0) {
+      setError("Please select at least one subject you can teach.");
+      return;
+    }
     setError(null);
     try {
       const response = await fetch("/register", {
@@ -93,6 +103,10 @@ export default function Register({
           confirmPassword,
           role,
           adminSecret,
+          expertise:
+            role === "Teacher"
+              ? teacherExpertise.map((subject) => subject.subject_id)
+              : [],
         }),
       });
       const json = await response.json();
@@ -117,12 +131,104 @@ export default function Register({
       setConfirmPassword("");
       setRole("Student");
       setAdminSecret("");
+      setTeacherExpertise([]);
+      setSelectedCategory("");
+      setSelectedSubjectId("");
+      setAvailableSubjects([]);
       // setFlash(json.message);
       navigate("/");
     } catch (err) {
       setError(err.message);
     }
   };
+
+  const handleAddExpertise = () => {
+    if (!selectedSubjectId) {
+      setError("Please choose a subject.");
+      return;
+    }
+
+    const subject = availableSubjects.find(
+      (s) => s.subject_id === Number(selectedSubjectId),
+    );
+
+    if (!subject) return;
+
+    const alreadyExists = teacherExpertise.some(
+      (s) => s.subject_id === subject.subject_id,
+    );
+
+    if (alreadyExists) {
+      setError("You have already added this subject.");
+      return;
+    }
+
+    setTeacherExpertise((prev) => [...prev, subject]);
+
+    setSelectedSubjectId("");
+    setSelectedCategory("");
+    setAvailableSubjects([]);
+    setError(null);
+  };
+
+  const handleRemoveExpertise = (subjectId) => {
+    setTeacherExpertise((prev) =>
+      prev.filter((subject) => subject.subject_id !== subjectId),
+    );
+  };
+
+  useEffect(() => {
+    if (role !== "Teacher") return;
+
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/subject-categories");
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch categories.");
+        }
+
+        setCategories(data.categories);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    fetchCategories();
+  }, [role, setError]);
+
+  useEffect(() => {
+    if (!selectedCategory) {
+      setAvailableSubjects([]);
+      return;
+    }
+
+    const fetchSubjects = async () => {
+      setLoadingSubjects(true);
+
+      try {
+        const response = await fetch(
+          `/subject-categories/${selectedCategory}/subjects`,
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch subjects.");
+        }
+
+        setAvailableSubjects(data.subjects);
+      } catch (err) {
+        setError(err.message);
+        setAvailableSubjects([]);
+      } finally {
+        setLoadingSubjects(false);
+      }
+    };
+
+    fetchSubjects();
+  }, [selectedCategory, setError]);
   useEffect(() => {
     checkPassword(password);
   }, [password]);
@@ -214,7 +320,19 @@ export default function Register({
           <label htmlFor="role">Sign up as:</label>
           <select
             value={role}
-            onChange={(e) => setRole(e.target.value)}
+            onChange={(e) => {
+              const newRole = e.target.value;
+              setRole(newRole);
+
+              // If the user changes from Teacher to another role,
+              // clear teacher expertise.
+              if (newRole !== "Teacher") {
+                setTeacherExpertise([]);
+                setSelectedCategory("");
+                setSelectedSubjectId("");
+                setAvailableSubjects([]);
+              }
+            }}
             id="role"
           >
             <option value="Student">Student</option>
@@ -230,13 +348,107 @@ export default function Register({
               onChange={(e) => setAdminSecret(e.target.value)}
             />
           )}
+          {role === "Teacher" && (
+            <div style={{ marginTop: "15px" }}>
+              <h3>Choose Your Expertise</h3>
+
+              {/* Category dropdown */}
+              <div>
+                <label htmlFor="expertiseCategory">Choose a Category:</label>
+
+                <select
+                  id="expertiseCategory"
+                  value={selectedCategory}
+                  onChange={(e) => {
+                    setSelectedCategory(e.target.value);
+                    setSelectedSubjectId("");
+                  }}
+                >
+                  <option value="">-- Select a Category --</option>
+
+                  {categories.map((category) => (
+                    <option
+                      key={category.category_id}
+                      value={category.category_id}
+                    >
+                      {category.category_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Subject dropdown */}
+              {selectedCategory && (
+                <div>
+                  <label htmlFor="expertiseSubject">Choose a Subject:</label>
+
+                  <select
+                    id="expertiseSubject"
+                    value={selectedSubjectId}
+                    onChange={(e) => setSelectedSubjectId(e.target.value)}
+                    disabled={loadingSubjects}
+                  >
+                    <option value="">
+                      {loadingSubjects
+                        ? "Loading subjects..."
+                        : "-- Select a Subject --"}
+                    </option>
+
+                    {availableSubjects.map((subject) => (
+                      <option
+                        key={subject.subject_id}
+                        value={subject.subject_id}
+                      >
+                        {subject.subject_name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    type="button"
+                    onClick={handleAddExpertise}
+                    disabled={!selectedSubjectId || loadingSubjects}
+                  >
+                    Add Subject
+                  </button>
+                </div>
+              )}
+
+              {/* Selected expertise */}
+              <div>
+                <h4>My Expertise</h4>
+
+                {teacherExpertise.length === 0 ? (
+                  <p>You haven't selected any subjects yet.</p>
+                ) : (
+                  <ul>
+                    {teacherExpertise.map((subject) => (
+                      <li key={subject.subject_id}>
+                        {subject.subject_name}
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleRemoveExpertise(subject.subject_id)
+                          }
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          )}
         </div>
         <button
           disabled={
             !username ||
             !password ||
             password !== confirmPassword ||
-            !isStrongPassword(password)
+            !isStrongPassword(password) ||
+            (role === "Teacher" && teacherExpertise.length === 0)
           }
         >
           Sign Up
