@@ -5,6 +5,7 @@ import {
 } from "react-router-dom";
 import MySchool from "../schools/MySchool";
 import TeacherMySchools from "../schools/TeacherMySchools";
+import TeacherMyExpertise from "./TeacherMyExpertise";
 
 export default function Profile({
   currentUser,
@@ -60,6 +61,7 @@ export default function Profile({
         />
       )}
       {currentUser?.role === "Teacher" && <TeacherMySchools />}
+      {currentUser?.role === "Teacher" && <TeacherMyExpertise />}
     </div>
   );
 }

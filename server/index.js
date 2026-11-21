@@ -14,11 +14,10 @@ const g5BoxesRoutes = require("./routes/g5Boxes.js");
 const g5CardsRoutes = require("./routes/g5Cards.js");
 const todosRoutes = require("./routes/todos");
 const schoolsRoutes = require("./routes/schools");
-const schoolTeacherRoutes = require(
-  "./routes/schoolTeacherApplications"
-);
+const schoolTeacherRoutes = require("./routes/schoolTeacherApplications");
 const subjectRoutes = require("./routes/subjects");
 const teacherRoutes = require("./routes/teachers");
+const teacherExpertiseRoutes = require("./routes/teacherExpertise");
 
 const { connectDB } = require("./config/db");
 // Create Express app
@@ -49,6 +48,7 @@ app.use("/schools", schoolsRoutes);
 app.use("/", schoolTeacherRoutes);
 app.use("/", subjectRoutes);
 app.use("/teachers", teacherRoutes);
+app.use("/teachers", teacherExpertiseRoutes);
 // Test route
 app.get("/", (req, res) => {
   res.json({
