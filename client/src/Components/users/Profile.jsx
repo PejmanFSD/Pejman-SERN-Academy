@@ -42,7 +42,6 @@ export default function Profile({
               <strong>Role: </strong>
               {currentUser.role}
             </div>
-            <button onClick={handleEditMyProfile}>Edit My Profile</button>
           </div>
         )}
       <br />
@@ -62,6 +61,15 @@ export default function Profile({
       )}
       {currentUser?.role === "Teacher" && <TeacherMySchools />}
       {currentUser?.role === "Teacher" && <TeacherMyExpertise />}
+      {currentUser &&
+        !isLoggingOut &&
+        !isDeleting &&
+        !editingId &&
+        !reconsideringId && (
+          <div>
+            <button onClick={handleEditMyProfile}>Edit My Profile</button>
+          </div>
+        )}
     </div>
   );
 }

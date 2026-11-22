@@ -10,4 +10,10 @@ router.get(
   teacherExpertiseController.getMyExpertise,
 );
 
+router.put(
+  "/my-expertise",
+  requireRole("Teacher"),
+  teacherExpertiseController.updateMyExpertise,
+);
+
 module.exports = router;

@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 export default function EditProfile({
+  currentUser,
   setCurrentUser,
   //   setFlash,
   setIsProfileEditing,
@@ -22,6 +23,15 @@ export default function EditProfile({
     lower: false,
     number: false,
   });
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [availableSubjects, setAvailableSubjects] = useState([]);
+  const [selectedSubjectId, setSelectedSubjectId] = useState("");
+  const [expertise, setExpertise] = useState([]);
+  const [expertiseLoading, setExpertiseLoading] = useState(false);
+  const [expertiseSaving, setExpertiseSaving] = useState(false);
+  const [expertiseError, setExpertiseError] = useState("");
+  const [expertiseMessage, setExpertiseMessage] = useState("");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -174,6 +184,179 @@ export default function EditProfile({
       setPasswordMatch(false);
     }
   };
+  useEffect(() => {
+    if (currentUser?.role !== "Teacher") return;
+
+    const fetchExpertise = async () => {
+      setExpertiseLoading(true);
+      setExpertiseError("");
+
+      try {
+        const response = await fetch("/teachers/my-expertise", {
+          credentials: "include",
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch expertise.");
+        }
+
+        setExpertise(data.expertise || []);
+      } catch (err) {
+        setExpertiseError(err.message);
+      } finally {
+        setExpertiseLoading(false);
+      }
+    };
+
+    fetchExpertise();
+  }, [currentUser?.role]);
+  useEffect(() => {
+    if (currentUser?.role !== "Teacher") return;
+
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/subject-categories", {
+          credentials: "include",
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch categories.");
+        }
+
+        setCategories(data.categories || []);
+      } catch (err) {
+        setExpertiseError(err.message);
+      }
+    };
+
+    fetchCategories();
+  }, [currentUser?.role]);
+  useEffect(() => {
+    if (!selectedCategory) {
+      setAvailableSubjects([]);
+      return;
+    }
+
+    const fetchSubjects = async () => {
+      setExpertiseError("");
+
+      try {
+        const response = await fetch(
+          `/subject-categories/${selectedCategory}/subjects`,
+          { credentials: "include" },
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch subjects.");
+        }
+
+        setAvailableSubjects(data.subjects || []);
+      } catch (err) {
+        setExpertiseError(err.message);
+        setAvailableSubjects([]);
+      }
+    };
+
+    fetchSubjects();
+  }, [selectedCategory]);
+  const handleAddExpertise = () => {
+    if (!selectedSubjectId) {
+      setExpertiseError("Please choose a subject.");
+      return;
+    }
+
+    const subject = availableSubjects.find(
+      (s) => s.subject_id === Number(selectedSubjectId),
+    );
+
+    if (!subject) return;
+
+    const newExpertise = {
+      subject_id: subject.subject_id,
+      subject_name: subject.subject_name,
+      category_id: Number(selectedCategory),
+      category_name: categories.find(
+        (category) => category.category_id === Number(selectedCategory),
+      )?.category_name,
+    };
+
+    setExpertise((prev) => {
+      if (
+        prev.some((subject) => subject.subject_id === newExpertise.subject_id)
+      ) {
+        return prev;
+      }
+
+      return [...prev, newExpertise];
+    });
+
+    const alreadyExists = expertise.some(
+      (s) => s.subject_id === subject.subject_id,
+    );
+
+    if (alreadyExists) {
+      setExpertiseError("This subject is already in your expertise.");
+      return;
+    }
+
+    setExpertise((prev) => [...prev, subject]);
+    setSelectedSubjectId("");
+    setSelectedCategory("");
+    setAvailableSubjects([]);
+    setExpertiseError("");
+    setExpertiseMessage("");
+  };
+  const handleRemoveExpertise = (subjectId) => {
+    setExpertise((prev) =>
+      prev.filter((subject) => subject.subject_id !== subjectId),
+    );
+
+    setExpertiseError("");
+    setExpertiseMessage("");
+  };
+  const handleSaveExpertise = async () => {
+    if (expertise.length === 0) {
+      setExpertiseError(
+        "You must have at least one subject in your expertise.",
+      );
+      return;
+    }
+
+    setExpertiseSaving(true);
+    setExpertiseError("");
+    setExpertiseMessage("");
+
+    try {
+      const response = await fetch("/teachers/my-expertise", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          expertise: expertise.map((subject) => subject.subject_id),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update expertise.");
+      }
+
+      setExpertiseMessage(data.message);
+    } catch (err) {
+      setExpertiseError(err.message);
+    } finally {
+      setExpertiseSaving(false);
+    }
+  };
   const cancelSubmit = () => {
     setError(null);
     setIsProfileEditing(false);
@@ -284,6 +467,120 @@ export default function EditProfile({
           <button type="submit" onClick={cancelSubmit}>
             Cancel
           </button>
+        </div>
+      )}
+      {currentUser?.role === "Teacher" && (
+        <div className="edit-expertise">
+          <h3>Edit My Teaching Expertise</h3>
+
+          {expertiseLoading ? (
+            <p>Loading your expertise...</p>
+          ) : (
+            <>
+              {/* Category dropdown */}
+              <div>
+                <label htmlFor="expertiseCategory">Choose a Category:</label>
+
+                <select
+                  id="expertiseCategory"
+                  value={selectedCategory}
+                  onChange={(e) => {
+                    setSelectedCategory(e.target.value);
+                    setSelectedSubjectId("");
+                  }}
+                >
+                  <option value="">-- Select Category --</option>
+
+                  {categories.map((category) => (
+                    <option
+                      key={category.category_id}
+                      value={category.category_id}
+                    >
+                      {category.category_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Subject dropdown */}
+              {selectedCategory && (
+                <div>
+                  <label htmlFor="expertiseSubject">Choose a Subject:</label>
+
+                  <select
+                    id="expertiseSubject"
+                    value={selectedSubjectId}
+                    onChange={(e) => setSelectedSubjectId(e.target.value)}
+                  >
+                    <option value="">-- Select Subject --</option>
+
+                    {availableSubjects.map((subject) => (
+                      <option
+                        key={subject.subject_id}
+                        value={subject.subject_id}
+                      >
+                        {subject.subject_name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    type="button"
+                    onClick={handleAddExpertise}
+                    disabled={!selectedSubjectId}
+                  >
+                    Add Subject
+                  </button>
+                </div>
+              )}
+
+              {/* Existing and newly selected expertise */}
+              <h4>My Expertise</h4>
+
+              {expertise.length === 0 ? (
+                <p>You must select at least one subject.</p>
+              ) : (
+                <ul>
+                  {expertise.map((subject) => (
+                    <li key={subject.subject_id}>
+                      <strong>{subject.subject_name}</strong>
+                      {" (Category: "}
+                      {subject.category_name}
+                      {")"}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleRemoveExpertise(subject.subject_id)
+                        }
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {/* Feedback */}
+              {expertiseError && (
+                <p style={{ color: "red" }}>{expertiseError}</p>
+              )}
+
+              {expertiseMessage && (
+                <p style={{ color: "green" }}>{expertiseMessage}</p>
+              )}
+
+              {/* Save */}
+              <button
+                type="button"
+                onClick={handleSaveExpertise}
+                disabled={
+                  expertiseSaving || expertiseLoading || expertise.length === 0
+                }
+              >
+                {expertiseSaving ? "Saving..." : "Save Expertise"}
+              </button>
+            </>
+          )}
         </div>
       )}
       {(error || passwordError) && (

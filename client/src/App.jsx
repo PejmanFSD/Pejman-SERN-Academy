@@ -236,6 +236,7 @@ export default function App() {
                 isAuthChecked={isAuthChecked}
               >
                 <EditProfile
+                  currentUser={currentUser}
                   setCurrentUser={setCurrentUser}
                   // setFlash={setFlash}
                   setIsProfileEditing={setIsProfileEditing}

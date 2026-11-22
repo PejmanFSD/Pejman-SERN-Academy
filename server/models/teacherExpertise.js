@@ -42,3 +42,72 @@ module.exports.getMyExpertise = async (teacherId) => {
       ORDER BY sc.category_name, s.subject_name;
     `);
 };
+
+module.exports.updateMyExpertise = async (teacherId, subjectIds) => {
+  const pool = await connectDB();
+  const transaction = new sql.Transaction(pool);
+
+  await transaction.begin();
+
+  try {
+    // Expertise is required
+    if (!Array.isArray(subjectIds) || subjectIds.length === 0) {
+      throw new Error("You must select at least one subject.");
+    }
+
+    // Prevent duplicate subject IDs
+    const uniqueSubjectIds = [...new Set(subjectIds)];
+
+    // Validate the subject IDs against the Subjects table
+    const subjectCheck = await new sql.Request(transaction).query(`
+      SELECT subject_id
+      FROM dbo.Subjects;
+    `);
+
+    const validSubjectIds = new Set(
+      subjectCheck.recordset.map((subject) => subject.subject_id),
+    );
+
+    for (const subjectId of uniqueSubjectIds) {
+      if (!Number.isInteger(subjectId) || subjectId <= 0) {
+        throw new Error("Invalid subject ID.");
+      }
+
+      if (!validSubjectIds.has(subjectId)) {
+        throw new Error(`Subject ID ${subjectId} does not exist.`);
+      }
+    }
+
+    // Delete the teacher's existing expertise
+    await new sql.Request(transaction).input("teacherId", sql.Int, teacherId)
+      .query(`
+        DELETE FROM dbo.TeacherExpertise
+        WHERE teacher_id = @teacherId;
+      `);
+
+    // Insert the new expertise
+    for (const subjectId of uniqueSubjectIds) {
+      await new sql.Request(transaction)
+        .input("teacherId", sql.Int, teacherId)
+        .input("subjectId", sql.Int, subjectId).query(`
+          INSERT INTO dbo.TeacherExpertise
+          (
+            teacher_id,
+            subject_id
+          )
+          VALUES
+          (
+            @teacherId,
+            @subjectId
+          );
+        `);
+    }
+
+    await transaction.commit();
+
+    return uniqueSubjectIds;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
