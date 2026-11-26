@@ -32,6 +32,7 @@ export default function EditProfile({
   const [expertiseSaving, setExpertiseSaving] = useState(false);
   const [expertiseError, setExpertiseError] = useState("");
   const [expertiseMessage, setExpertiseMessage] = useState("");
+  const [isEditingExpertise, setIsEditingExpertise] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -156,7 +157,6 @@ export default function EditProfile({
           newPassword,
         }),
       });
-
       const passwordData = await passwordResponse.json();
       //   // Error-Handling of changing password:
       if (!passwordResponse.ok) {
@@ -186,22 +186,17 @@ export default function EditProfile({
   };
   useEffect(() => {
     if (currentUser?.role !== "Teacher") return;
-
     const fetchExpertise = async () => {
       setExpertiseLoading(true);
       setExpertiseError("");
-
       try {
         const response = await fetch("/teachers/my-expertise", {
           credentials: "include",
         });
-
         const data = await response.json();
-
         if (!response.ok) {
           throw new Error(data.message || "Failed to fetch expertise.");
         }
-
         setExpertise(data.expertise || []);
       } catch (err) {
         setExpertiseError(err.message);
@@ -209,30 +204,24 @@ export default function EditProfile({
         setExpertiseLoading(false);
       }
     };
-
     fetchExpertise();
   }, [currentUser?.role]);
   useEffect(() => {
     if (currentUser?.role !== "Teacher") return;
-
     const fetchCategories = async () => {
       try {
         const response = await fetch("/subject-categories", {
           credentials: "include",
         });
-
         const data = await response.json();
-
         if (!response.ok) {
           throw new Error(data.message || "Failed to fetch categories.");
         }
-
         setCategories(data.categories || []);
       } catch (err) {
         setExpertiseError(err.message);
       }
     };
-
     fetchCategories();
   }, [currentUser?.role]);
   useEffect(() => {
@@ -240,29 +229,23 @@ export default function EditProfile({
       setAvailableSubjects([]);
       return;
     }
-
     const fetchSubjects = async () => {
       setExpertiseError("");
-
       try {
         const response = await fetch(
           `/subject-categories/${selectedCategory}/subjects`,
           { credentials: "include" },
         );
-
         const data = await response.json();
-
         if (!response.ok) {
           throw new Error(data.message || "Failed to fetch subjects.");
         }
-
         setAvailableSubjects(data.subjects || []);
       } catch (err) {
         setExpertiseError(err.message);
         setAvailableSubjects([]);
       }
     };
-
     fetchSubjects();
   }, [selectedCategory]);
   const handleAddExpertise = () => {
@@ -270,13 +253,10 @@ export default function EditProfile({
       setExpertiseError("Please choose a subject.");
       return;
     }
-
     const subject = availableSubjects.find(
       (s) => s.subject_id === Number(selectedSubjectId),
     );
-
     if (!subject) return;
-
     const newExpertise = {
       subject_id: subject.subject_id,
       subject_name: subject.subject_name,
@@ -285,27 +265,22 @@ export default function EditProfile({
         (category) => category.category_id === Number(selectedCategory),
       )?.category_name,
     };
-
     setExpertise((prev) => {
       if (
         prev.some((subject) => subject.subject_id === newExpertise.subject_id)
       ) {
         return prev;
       }
-
       return [...prev, newExpertise];
     });
-
     const alreadyExists = expertise.some(
       (s) => s.subject_id === subject.subject_id,
     );
-
     if (alreadyExists) {
       setExpertiseError("This subject is already in your expertise.");
       return;
     }
-
-    setExpertise((prev) => [...prev, subject]);
+    // setExpertise((prev) => [...prev, subject]);
     setSelectedSubjectId("");
     setSelectedCategory("");
     setAvailableSubjects([]);
@@ -316,7 +291,6 @@ export default function EditProfile({
     setExpertise((prev) =>
       prev.filter((subject) => subject.subject_id !== subjectId),
     );
-
     setExpertiseError("");
     setExpertiseMessage("");
   };
@@ -327,11 +301,9 @@ export default function EditProfile({
       );
       return;
     }
-
     setExpertiseSaving(true);
     setExpertiseError("");
     setExpertiseMessage("");
-
     try {
       const response = await fetch("/teachers/my-expertise", {
         method: "PUT",
@@ -343,19 +315,23 @@ export default function EditProfile({
           expertise: expertise.map((subject) => subject.subject_id),
         }),
       });
-
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.message || "Failed to update expertise.");
       }
-
       setExpertiseMessage(data.message);
     } catch (err) {
       setExpertiseError(err.message);
     } finally {
       setExpertiseSaving(false);
+      setIsEditingExpertise(false);
     }
+  };
+  const EditMyTeachingExpertise = () => {
+    setIsEditingExpertise(true);
+  };
+  const handleCancelExpertise = () => {
+    setIsEditingExpertise(false);
   };
   const cancelSubmit = () => {
     setError(null);
@@ -369,7 +345,7 @@ export default function EditProfile({
   };
   return (
     <div>
-      {!error && !passwordError && (
+      {!error && !passwordError && !isEditingExpertise && (
         <div>
           <form onSubmit={handleProfileUpdate}>
             <div>
@@ -433,17 +409,14 @@ export default function EditProfile({
                   {newPasswordStrenghtStatus.length ? "✔" : "✖"} at least 8
                   characters
                 </div>
-
                 <div>
                   {newPasswordStrenghtStatus.upper ? "✔" : "✖"} one uppercase
                   letter
                 </div>
-
                 <div>
                   {newPasswordStrenghtStatus.lower ? "✔" : "✖"} one lowercase
                   letter
                 </div>
-
                 <div>
                   {newPasswordStrenghtStatus.number ? "✔" : "✖"} one number
                 </div>
@@ -463,24 +436,27 @@ export default function EditProfile({
               Save Changes
             </button>
           </form>
-
           <button type="submit" onClick={cancelSubmit}>
             Cancel
           </button>
         </div>
       )}
-      {currentUser?.role === "Teacher" && (
+      {currentUser?.role === "Teacher" && !isEditingExpertise && (
+        <button onClick={EditMyTeachingExpertise}>
+          Edit My Teaching Expertise
+        </button>
+      )}
+      {currentUser?.role === "Teacher" && isEditingExpertise && (
         <div className="edit-expertise">
           <h3>Edit My Teaching Expertise</h3>
-
           {expertiseLoading ? (
             <p>Loading your expertise...</p>
           ) : (
             <>
               {/* Category dropdown */}
+              <h4>Add New Subject</h4>
               <div>
                 <label htmlFor="expertiseCategory">Choose a Category:</label>
-
                 <select
                   id="expertiseCategory"
                   value={selectedCategory}
@@ -490,7 +466,6 @@ export default function EditProfile({
                   }}
                 >
                   <option value="">-- Select Category --</option>
-
                   {categories.map((category) => (
                     <option
                       key={category.category_id}
@@ -501,19 +476,16 @@ export default function EditProfile({
                   ))}
                 </select>
               </div>
-
               {/* Subject dropdown */}
               {selectedCategory && (
                 <div>
                   <label htmlFor="expertiseSubject">Choose a Subject:</label>
-
                   <select
                     id="expertiseSubject"
                     value={selectedSubjectId}
                     onChange={(e) => setSelectedSubjectId(e.target.value)}
                   >
                     <option value="">-- Select Subject --</option>
-
                     {availableSubjects.map((subject) => (
                       <option
                         key={subject.subject_id}
@@ -523,7 +495,6 @@ export default function EditProfile({
                       </option>
                     ))}
                   </select>
-
                   <button
                     type="button"
                     onClick={handleAddExpertise}
@@ -533,10 +504,8 @@ export default function EditProfile({
                   </button>
                 </div>
               )}
-
               {/* Existing and newly selected expertise */}
               <h4>My Expertise</h4>
-
               {expertise.length === 0 ? (
                 <p>You must select at least one subject.</p>
               ) : (
@@ -559,16 +528,13 @@ export default function EditProfile({
                   ))}
                 </ul>
               )}
-
               {/* Feedback */}
-              {expertiseError && (
+              {/* {expertiseError && (
                 <p style={{ color: "red" }}>{expertiseError}</p>
               )}
-
               {expertiseMessage && (
                 <p style={{ color: "green" }}>{expertiseMessage}</p>
-              )}
-
+              )} */}
               {/* Save */}
               <button
                 type="button"
@@ -578,6 +544,14 @@ export default function EditProfile({
                 }
               >
                 {expertiseSaving ? "Saving..." : "Save Expertise"}
+              </button>
+              {/* Cancel */}
+              <button
+                type="button"
+                onClick={handleCancelExpertise}
+                disabled={expertiseSaving || expertiseLoading}
+              >
+                Cancel
               </button>
             </>
           )}
