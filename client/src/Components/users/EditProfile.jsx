@@ -33,6 +33,8 @@ export default function EditProfile({
   const [expertiseError, setExpertiseError] = useState("");
   const [expertiseMessage, setExpertiseMessage] = useState("");
   const [isEditingExpertise, setIsEditingExpertise] = useState(false);
+  const [isDeletingSubject, setIsDeletingSubject] = useState(false);
+  const [deletingSubjectId, setDeletingSubjectId] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -287,12 +289,22 @@ export default function EditProfile({
     setExpertiseError("");
     setExpertiseMessage("");
   };
-  const handleRemoveExpertise = (subjectId) => {
+  const handleRemoveExpertise = (id) => {
+    setDeletingSubjectId(id);
+    setIsDeletingSubject(true);
+  };
+  const handleRemoveExpertiseYes = (subjectId) => {
     setExpertise((prev) =>
       prev.filter((subject) => subject.subject_id !== subjectId),
     );
     setExpertiseError("");
     setExpertiseMessage("");
+    setDeletingSubjectId(null);
+    setIsDeletingSubject(false);
+  };
+  const handleRemoveExpertiseNo = () => {
+    setDeletingSubjectId(null);
+    setIsDeletingSubject(false);
   };
   const handleSaveExpertise = async () => {
     if (expertise.length === 0) {
@@ -345,216 +357,236 @@ export default function EditProfile({
   };
   return (
     <div>
-      {!error && !passwordError && !isEditingExpertise && (
-        <div>
-          <form onSubmit={handleProfileUpdate}>
-            <div>
-              <label>
-                <strong>Username:</strong>
-              </label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label>
-                <strong>Current Password:</strong>
-              </label>
-              <input
-                type="password"
-                placeholder="Current Password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-              />
-            </div>
-            <div>
-              <label>
-                <strong>New Password:</strong>
-              </label>
-              <input
-                type="password"
-                placeholder="New Password"
-                value={newPassword}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setNewPassword(value);
-                  checkPasswordMatch(value, confirmNewPassword);
-                }}
-              />
-            </div>
-            <div>
-              <label>
-                <strong>Confirm New Password:</strong>
-              </label>
+      {!error &&
+        !passwordError &&
+        !isEditingExpertise &&
+        !isDeletingSubject && (
+          <div>
+            <form onSubmit={handleProfileUpdate}>
               <div>
+                <label>
+                  <strong>Username:</strong>
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label>
+                  <strong>Current Password:</strong>
+                </label>
                 <input
                   type="password"
-                  placeholder="Confirm New Password"
-                  value={confirmNewPassword}
+                  placeholder="Current Password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+              </div>
+              <div>
+                <label>
+                  <strong>New Password:</strong>
+                </label>
+                <input
+                  type="password"
+                  placeholder="New Password"
+                  value={newPassword}
                   onChange={(e) => {
                     const value = e.target.value;
-                    setConfirmNewPassword(value);
-                    checkPasswordMatch(newPassword, value);
+                    setNewPassword(value);
+                    checkPasswordMatch(value, confirmNewPassword);
                   }}
                 />
               </div>
-            </div>
-            <br />
-            {(newPassword || confirmNewPassword) && (
               <div>
+                <label>
+                  <strong>Confirm New Password:</strong>
+                </label>
                 <div>
-                  {newPasswordStrenghtStatus.length ? "✔" : "✖"} at least 8
-                  characters
-                </div>
-                <div>
-                  {newPasswordStrenghtStatus.upper ? "✔" : "✖"} one uppercase
-                  letter
-                </div>
-                <div>
-                  {newPasswordStrenghtStatus.lower ? "✔" : "✖"} one lowercase
-                  letter
-                </div>
-                <div>
-                  {newPasswordStrenghtStatus.number ? "✔" : "✖"} one number
+                  <input
+                    type="password"
+                    placeholder="Confirm New Password"
+                    value={confirmNewPassword}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setConfirmNewPassword(value);
+                      checkPasswordMatch(newPassword, value);
+                    }}
+                  />
                 </div>
               </div>
-            )}
-            {newPassword && confirmNewPassword && passwordMatch === true && (
-              <div>
-                <strong>✔ New passwords match</strong>
-              </div>
-            )}
-            {newPassword && confirmNewPassword && passwordMatch === false && (
-              <div>
-                <strong>✖ New passwords do not match</strong>
-              </div>
-            )}
-            <button type="submit" disabled={!username}>
-              Save Changes
+              <br />
+              {(newPassword || confirmNewPassword) && (
+                <div>
+                  <div>
+                    {newPasswordStrenghtStatus.length ? "✔" : "✖"} at least 8
+                    characters
+                  </div>
+                  <div>
+                    {newPasswordStrenghtStatus.upper ? "✔" : "✖"} one uppercase
+                    letter
+                  </div>
+                  <div>
+                    {newPasswordStrenghtStatus.lower ? "✔" : "✖"} one lowercase
+                    letter
+                  </div>
+                  <div>
+                    {newPasswordStrenghtStatus.number ? "✔" : "✖"} one number
+                  </div>
+                </div>
+              )}
+              {newPassword && confirmNewPassword && passwordMatch === true && (
+                <div>
+                  <strong>✔ New passwords match</strong>
+                </div>
+              )}
+              {newPassword && confirmNewPassword && passwordMatch === false && (
+                <div>
+                  <strong>✖ New passwords do not match</strong>
+                </div>
+              )}
+              <button type="submit" disabled={!username}>
+                Save Changes
+              </button>
+            </form>
+            <button type="submit" onClick={cancelSubmit}>
+              Cancel
             </button>
-          </form>
-          <button type="submit" onClick={cancelSubmit}>
-            Cancel
+          </div>
+        )}
+      {currentUser?.role === "Teacher" &&
+        !isEditingExpertise &&
+        !isDeletingSubject && (
+          <button onClick={EditMyTeachingExpertise}>
+            Edit My Teaching Expertise
           </button>
-        </div>
-      )}
-      {currentUser?.role === "Teacher" && !isEditingExpertise && (
-        <button onClick={EditMyTeachingExpertise}>
-          Edit My Teaching Expertise
-        </button>
-      )}
+        )}
       {currentUser?.role === "Teacher" && isEditingExpertise && (
-        <div className="edit-expertise">
-          <h3>Edit My Teaching Expertise</h3>
-          {expertiseLoading ? (
-            <p>Loading your expertise...</p>
-          ) : (
-            <>
-              {/* Category dropdown */}
-              <h4>Add New Subject</h4>
-              <div>
-                <label htmlFor="expertiseCategory">Choose a Category:</label>
-                <select
-                  id="expertiseCategory"
-                  value={selectedCategory}
-                  onChange={(e) => {
-                    setSelectedCategory(e.target.value);
-                    setSelectedSubjectId("");
-                  }}
-                >
-                  <option value="">-- Select Category --</option>
-                  {categories.map((category) => (
-                    <option
-                      key={category.category_id}
-                      value={category.category_id}
-                    >
-                      {category.category_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {/* Subject dropdown */}
-              {selectedCategory && (
+        <h3>Edit My Teaching Expertise</h3>
+      )}
+      {currentUser?.role === "Teacher" &&
+        isEditingExpertise &&
+        !isDeletingSubject && (
+          <div className="edit-expertise">
+            {expertiseLoading ? (
+              <p>Loading your expertise...</p>
+            ) : (
+              <>
+                {/* Category dropdown */}
+                <h4>Add New Subject</h4>
                 <div>
-                  <label htmlFor="expertiseSubject">Choose a Subject:</label>
+                  <label htmlFor="expertiseCategory">Choose a Category:</label>
                   <select
-                    id="expertiseSubject"
-                    value={selectedSubjectId}
-                    onChange={(e) => setSelectedSubjectId(e.target.value)}
+                    id="expertiseCategory"
+                    value={selectedCategory}
+                    onChange={(e) => {
+                      setSelectedCategory(e.target.value);
+                      setSelectedSubjectId("");
+                    }}
                   >
-                    <option value="">-- Select Subject --</option>
-                    {availableSubjects.map((subject) => (
+                    <option value="">-- Select Category --</option>
+                    {categories.map((category) => (
                       <option
-                        key={subject.subject_id}
-                        value={subject.subject_id}
+                        key={category.category_id}
+                        value={category.category_id}
                       >
-                        {subject.subject_name}
+                        {category.category_name}
                       </option>
                     ))}
                   </select>
-                  <button
-                    type="button"
-                    onClick={handleAddExpertise}
-                    disabled={!selectedSubjectId}
-                  >
-                    Add Subject
-                  </button>
                 </div>
-              )}
-              {/* Existing and newly selected expertise */}
-              <h4>My Expertise</h4>
-              {expertise.length === 0 ? (
-                <p>You must select at least one subject.</p>
-              ) : (
-                <ul>
-                  {expertise.map((subject) => (
-                    <li key={subject.subject_id}>
-                      <strong>{subject.subject_name}</strong>
-                      {" (Category: "}
-                      {subject.category_name}
-                      {")"}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleRemoveExpertise(subject.subject_id)
-                        }
-                      >
-                        Remove
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {/* Feedback */}
-              {/* {expertiseError && (
+                {/* Subject dropdown */}
+                {selectedCategory && (
+                  <div>
+                    <label htmlFor="expertiseSubject">Choose a Subject:</label>
+                    <select
+                      id="expertiseSubject"
+                      value={selectedSubjectId}
+                      onChange={(e) => setSelectedSubjectId(e.target.value)}
+                    >
+                      <option value="">-- Select Subject --</option>
+                      {availableSubjects.map((subject) => (
+                        <option
+                          key={subject.subject_id}
+                          value={subject.subject_id}
+                        >
+                          {subject.subject_name}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={handleAddExpertise}
+                      disabled={!selectedSubjectId}
+                    >
+                      Add Subject
+                    </button>
+                  </div>
+                )}
+                {/* Existing and newly selected expertise */}
+                <h4>My Expertise</h4>
+                {expertise.length === 0 ? (
+                  <p>You must select at least one subject.</p>
+                ) : (
+                  <ul>
+                    {expertise.map((subject) => (
+                      <li key={subject.subject_id}>
+                        <strong>{subject.subject_name}</strong>
+                        {" (Category: "}
+                        {subject.category_name}
+                        {")"}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleRemoveExpertise(subject.subject_id)
+                          }
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {/* Feedback */}
+                {/* {expertiseError && (
                 <p style={{ color: "red" }}>{expertiseError}</p>
               )}
               {expertiseMessage && (
                 <p style={{ color: "green" }}>{expertiseMessage}</p>
               )} */}
-              {/* Save */}
-              <button
-                type="button"
-                onClick={handleSaveExpertise}
-                disabled={
-                  expertiseSaving || expertiseLoading || expertise.length === 0
-                }
-              >
-                {expertiseSaving ? "Saving..." : "Save Expertise"}
-              </button>
-              {/* Cancel */}
-              <button
-                type="button"
-                onClick={handleCancelExpertise}
-                disabled={expertiseSaving || expertiseLoading}
-              >
-                Cancel
-              </button>
-            </>
-          )}
+                {/* Save */}
+                <button
+                  type="button"
+                  onClick={handleSaveExpertise}
+                  disabled={
+                    expertiseSaving ||
+                    expertiseLoading ||
+                    expertise.length === 0
+                  }
+                >
+                  {expertiseSaving ? "Saving..." : "Save Expertise"}
+                </button>
+                {/* Cancel */}
+                <button
+                  type="button"
+                  onClick={handleCancelExpertise}
+                  disabled={expertiseSaving || expertiseLoading}
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      {isDeletingSubject && (
+        <div>
+          <div>{`Are you sure you want to delete ${expertise.find((e) => e.subject_id === deletingSubjectId).subject_name}?`}</div>
+          <button onClick={() => handleRemoveExpertiseYes(deletingSubjectId)}>
+            Yes
+          </button>
+          <button onClick={() => handleRemoveExpertiseNo()}>No</button>
         </div>
       )}
       {(error || passwordError) && (
