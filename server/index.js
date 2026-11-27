@@ -18,6 +18,7 @@ const schoolTeacherRoutes = require("./routes/schoolTeacherApplications");
 const subjectRoutes = require("./routes/subjects");
 const teacherRoutes = require("./routes/teachers");
 const teacherExpertiseRoutes = require("./routes/teacherExpertise");
+const teacherSchoolsRoutes = require("./routes/teacherSchools");
 
 const { connectDB } = require("./config/db");
 // Create Express app
@@ -49,6 +50,7 @@ app.use("/", schoolTeacherRoutes);
 app.use("/", subjectRoutes);
 app.use("/teachers", teacherRoutes);
 app.use("/teachers", teacherExpertiseRoutes);
+app.use("/teacher", teacherSchoolsRoutes);
 // Test route
 app.get("/", (req, res) => {
   res.json({

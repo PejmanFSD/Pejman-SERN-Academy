@@ -14,6 +14,7 @@ import CreateG5Form from "./Components/g5/CreateG5Form";
 import CreateSchool from "./Components/schools/CreateSchool";
 import PrincipalSchoolDetails from "./Components/schools/PrincipalSchoolDetails";
 import TeacherSchools from "./Components/schools/TeacherSchools";
+import TeacherSchoolDetails from "./Components/schools/TeacherSchoolDetails";
 
 // import AboutAcademy from "./Components/AboutAcademy";
 import "./App.css";
@@ -203,6 +204,18 @@ export default function App() {
                 allowedRoles={["Teacher"]}
               >
                 <TeacherSchools />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/teacher/schools/:schoolId/details"
+            element={
+              <ProtectedRoute
+                currentUser={currentUser}
+                isAuthChecked={isAuthChecked}
+                allowedRoles={["Teacher"]}
+              >
+                <TeacherSchoolDetails />
               </ProtectedRoute>
             }
           />

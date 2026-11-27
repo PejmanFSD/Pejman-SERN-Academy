@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 export default function TeacherSchools() {
   const [schools, setSchools] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [currentPage, setCurrentPage] = useState(() => {
+    const page = Number(searchParams.get("page"));
+    return Number.isInteger(page) && page > 0 ? page : 1;
+  });
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -12,6 +18,8 @@ export default function TeacherSchools() {
   const [reconsiderationMessage, setReconsiderationMessage] =
     useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const navigate = useNavigate();
   // GET SCHOOLS
   const fetchSchools = async () => {
     setLoading(true);
@@ -39,6 +47,13 @@ export default function TeacherSchools() {
   useEffect(() => {
     fetchSchools();
   }, [currentPage]);
+
+  useEffect(() => {
+    setSearchParams(
+      { page: String(currentPage) },
+      { replace: true }
+    );
+  }, [currentPage, setSearchParams]);
   // APPLY TO SCHOOL
   const handleApply = async (schoolId) => {
     try {
@@ -253,6 +268,13 @@ export default function TeacherSchools() {
                 <td>{school.city}</td>
                 <td>{school.principal_username}</td>
                 <td>
+                <button
+                  onClick={() =>
+                    navigate(`/teacher/schools/${school.id}/details?page=${currentPage}`)
+                  }
+                >
+                  Details
+                </button>
                   {renderSchoolAction(school)}
                 </td>
               </tr>
