@@ -34,7 +34,7 @@ export default function TeacherMySchools() {
 
   return (
     <div>
-      <h2>My Schools</h2>
+      <h2>The schools I work for</h2>
       {schools.length === 0 ? (
         <div>
           <div>You haven't been accepted by any school.</div>

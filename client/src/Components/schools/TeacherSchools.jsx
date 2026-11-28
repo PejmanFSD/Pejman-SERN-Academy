@@ -18,6 +18,8 @@ export default function TeacherSchools() {
   const [reconsiderationMessage, setReconsiderationMessage] =
     useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isResigning, setIsResigning] = useState(false);
+  const [resigningId, setResigningId] = useState(null);
 
   const navigate = useNavigate();
   // GET SCHOOLS
@@ -74,11 +76,11 @@ export default function TeacherSchools() {
     }
   };
   // RESIGN FROM SCHOOL
-  const handleResign = async (schoolId) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to resign from this school?"
-    );
-    if (!confirmed) return;
+  const handleResign = (id) => {
+    setIsResigning(true);
+    setResigningId(id);
+  }
+  const handleResignYes = async (schoolId) => {
     try {
       const response = await fetch(
         `/teacher/schools/${schoolId}/resign`,
@@ -94,8 +96,15 @@ export default function TeacherSchools() {
       await fetchSchools();
     } catch (error) {
       alert(error.message);
+    } finally {
+      setIsResigning(false);
+      setResigningId(null);
     }
   };
+  const handleResignNo = () => {
+    setIsResigning(false);
+    setResigningId(null);
+  }
   // OPEN RECONSIDERATION FORM
   const openReconsiderationForm = (schoolId) => {
     setReconsideringSchoolId(schoolId);
@@ -144,7 +153,7 @@ export default function TeacherSchools() {
         <>
           {status === "Resigned" && (
             <p>
-              You've already resigned from this school.
+              You've resigned from this school.
             </p>
           )}
           <button
@@ -242,7 +251,8 @@ export default function TeacherSchools() {
   }
   return (
     <div>
-      <h2>Approved Schools</h2>
+      <h2>Schools</h2>
+      {!isResigning &&
       <table>
         <thead>
           <tr>
@@ -257,7 +267,7 @@ export default function TeacherSchools() {
           {schools.length === 0 ? (
             <tr>
               <td colSpan="5">
-                No approved schools found.
+                No schools found.
               </td>
             </tr>
           ) : (
@@ -282,7 +292,9 @@ export default function TeacherSchools() {
           )}
         </tbody>
       </table>
+      }
       {/* PAGINATION */}
+      {!isResigning &&
       <div>
         <button
           disabled={currentPage === 1}
@@ -304,6 +316,14 @@ export default function TeacherSchools() {
           Next
         </button>
       </div>
+      }
+      {isResigning &&
+        <div>
+          <div>{`Are you sure you want to resign from ${schools.find(s => s.id === resigningId).school_name}?`}</div>
+          <button onClick={() => handleResignYes(resigningId)}>Yes</button>
+          <button onClick={handleResignNo}>No</button>
+        </div>
+      }
     </div>
   );
 }
