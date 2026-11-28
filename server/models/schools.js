@@ -122,10 +122,11 @@ module.exports.approveApplication = async (applicationId, adminId) => {
   await transaction.begin();
 
   try {
-    // 1. Find and lock the pending application.
+    // 1. Get the pending application
     const applicationResult = await transaction
       .request()
-      .input("id", sql.Int, applicationId).query(`
+      .input("id", sql.Int, applicationId)
+      .query(`
         SELECT *
         FROM dbo.SchoolApplications WITH (UPDLOCK, HOLDLOCK)
         WHERE id = @id AND status = 'Pending';
@@ -133,14 +134,15 @@ module.exports.approveApplication = async (applicationId, adminId) => {
 
     const application = applicationResult.recordset[0];
 
-    // 2. Check that the application exists before using it.
     if (!application) {
-      const error = new Error("Application not found or already reviewed.");
+      const error = new Error(
+        "Application not found or already reviewed."
+      );
       error.statusCode = 409;
       throw error;
     }
 
-    // 3. Insert the approved school, including application_id.
+    // 2. Create the school
     const schoolResult = await transaction
       .request()
       .input("applicationId", sql.Int, application.id)
@@ -149,7 +151,8 @@ module.exports.approveApplication = async (applicationId, adminId) => {
       .input("countryCode", sql.Char(2), application.country_code)
       .input("city", sql.NVarChar(100), application.city)
       .input("address", sql.NVarChar(255), application.address)
-      .input("zipCode", sql.NVarChar(20), application.zip_code).query(`
+      .input("zipCode", sql.NVarChar(20), application.zip_code)
+      .query(`
         INSERT INTO dbo.Schools (
           application_id,
           school_name,
@@ -170,11 +173,31 @@ module.exports.approveApplication = async (applicationId, adminId) => {
           @zipCode
         );
       `);
-    // 4. Record which admin approved the application and when.
+    // 3. Get the ID of the newly created school
+    const schoolId = schoolResult.recordset[0].id;
+    // 4. Transfer the selected subjects to the new school
+    await transaction
+      .request()
+      .input("schoolId", sql.Int, schoolId)
+      .input("applicationId", sql.Int, application.id)
+      .query(`
+        INSERT INTO dbo.SchoolSubjects (
+          school_id,
+          subject_id
+        )
+        SELECT
+          @schoolId,
+          subject_id
+        FROM dbo.SchoolApplicationSubjects
+        WHERE application_id = @applicationId;
+      `);
+
+    // 5. Mark the application as approved
     const updateResult = await transaction
       .request()
       .input("id", sql.Int, application.id)
-      .input("adminId", sql.Int, adminId).query(`
+      .input("adminId", sql.Int, adminId)
+      .query(`
         UPDATE dbo.SchoolApplications
         SET status = 'Approved',
             reviewed_by = @adminId,
@@ -186,22 +209,24 @@ module.exports.approveApplication = async (applicationId, adminId) => {
 
     if (updateResult.recordset[0].affectedRows !== 1) {
       const error = new Error(
-        "The application could not be marked as approved.",
+        "The application could not be marked as approved."
       );
       error.statusCode = 409;
       throw error;
     }
-    // 5. Commit both database changes together.
+
+    // 6. Commit everything
     await transaction.commit();
 
     return {
-      schoolId: schoolResult.recordset[0].id,
+      schoolId,
     };
   } catch (error) {
     await transaction.rollback();
     throw error;
   }
 };
+
 // Rejecting a school by an admin:
 module.exports.rejectApplication = async (
   applicationId,
